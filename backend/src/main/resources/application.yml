@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/psyche_db?characterEncoding=utf-8&reWriteBatchedInserts=true
+    username: ${POSTGRES_USER:psycheguard}
+    password: ${POSTGRES_PASSWORD:psycheguard_dev_2025}
+  sql:
+    init:
+      mode: always
+      continue-on-error: true
+      encoding: UTF-8
+  jpa:
+    hibernate:
+      ddl-auto: update
+    defer-datasource-initialization: true
+    show-sql: true
+server:
+  port: 8081

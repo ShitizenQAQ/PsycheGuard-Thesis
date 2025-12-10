@@ -1,0 +1,11 @@
+#!/bin/sh
+set -e
+DIR="$(cd "$(dirname "$0")"; pwd)"
+WRAPPER_JAR="$DIR/.mvn/wrapper/maven-wrapper.jar"
+WRAPPER_PROPERTIES="$DIR/.mvn/wrapper/maven-wrapper.properties"
+if [ ! -f "$WRAPPER_JAR" ]; then
+  WRAPPER_URL=$(grep -E '^wrapperUrl=' "$WRAPPER_PROPERTIES" | cut -d'=' -f2)
+  if [ -z "$WRAPPER_URL" ]; then echo "wrapperUrl not found"; exit 1; fi
+  curl -fsSL "$WRAPPER_URL" -o "$WRAPPER_JAR"
+fi
+exec "${JAVA_HOME:+$JAVA_HOME/bin/}java" -cp "$WRAPPER_JAR" org.apache.maven.wrapper.MavenWrapperMain "$@"
