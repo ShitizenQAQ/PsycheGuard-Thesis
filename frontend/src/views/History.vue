@@ -1,72 +1,148 @@
 <template>
-  <div class="p-6 space-y-6 fade-up">
-    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow p-5 flex items-center justify-between">
-      <div>
-        <h3 class="text-lg font-bold text-slate-800">测评档案库</h3>
-        <p class="text-sm text-slate-500 mt-1">按姓名与关注等级筛选历史评估记录</p>
+  <div class="p-6 md:p-10 space-y-8 fade-up min-h-screen bg-cream-100">
+    <!-- Header Area -->
+    <div class="glass-card p-6 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-pg hover:shadow-lg transition-shadow duration-300">
+      <div class="text-center md:text-left">
+        <h3 class="text-2xl font-bold text-rock-800 tracking-tight flex items-center gap-3 justify-center md:justify-start">
+          <span class="w-2 h-8 rounded-full bg-healing-500"></span>
+          测评档案库
+        </h3>
+        <p class="text-rock-500 mt-2 font-medium">Archived Assessments & Records</p>
       </div>
-      <div class="flex flex-wrap items-center gap-3 min-w-0">
-        <input v-model="keyword" type="text" placeholder="搜索姓名..." class="w-64 max-w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white" />
-        <select v-model="risk" class="w-40 px-3 py-2 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option value="ALL">全部状态</option>
-          <option value="HIGH">重点关注</option>
-          <option value="MEDIUM">一般关注</option>
-          <option value="LOW">安心状态</option>
-        </select>
-        <el-date-picker v-model="date" type="date" placeholder="选择日期" size="small" :editable="false" style="width: 160px" />
+      
+      <!-- Filters -->
+      <div class="flex flex-wrap items-center justify-center gap-4 w-full md:w-auto">
+        <div class="relative group">
+          <input 
+            v-model="keyword" 
+            type="text" 
+            placeholder="搜索姓名..." 
+            class="w-64 pl-4 pr-10 py-3 rounded-2xl border-2 border-cream-200 bg-white/80 focus:outline-none focus:border-healing-500 focus:ring-4 focus:ring-healing-500/10 text-rock-800 placeholder-rock-400 transition-all shadow-sm"
+          />
+          <span class="absolute right-3 top-3.5 text-rock-400">
+             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          </span>
+        </div>
+
+        <div class="relative">
+          <select 
+            v-model="risk" 
+            class="appearance-none w-40 pl-4 pr-10 py-3 rounded-2xl border-2 border-cream-200 bg-white/80 focus:outline-none focus:border-healing-500 focus:ring-4 focus:ring-healing-500/10 text-rock-800 font-medium cursor-pointer transition-all shadow-sm"
+          >
+            <option value="ALL">全部状态</option>
+            <option value="HIGH">重点关注</option>
+            <option value="MEDIUM">一般关注</option>
+            <option value="LOW">安心状态</option>
+          </select>
+          <span class="absolute right-3 top-3.5 text-rock-400 pointer-events-none">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </span>
+        </div>
+        
+        <div class="date-picker-wrapper">
+           <el-date-picker 
+             v-model="date" 
+             type="date" 
+             placeholder="选择日期" 
+             :editable="false" 
+             class="!w-40 !h-[46px] !rounded-2xl !border-0 !shadow-none custom-date-picker"
+             popper-class="healing-datepicker"
+           />
+        </div>
       </div>
     </div>
 
-    <div class="glass-card p-1 rounded-3xl overflow-hidden shadow-lg border border-white/60">
-<el-table :data="filtered" style="width: 100%" :header-cell-style="{ background: '#f8fafc', color: '#475569', fontWeight: '600', borderBottom: '1px solid #e2e8f0' }" :row-style="{ background: 'transparent' }">
+    <!-- Table Card -->
+    <div class="glass-card p-1 rounded-[2rem] overflow-hidden shadow-xl border border-white/60 relative">
+      <!-- Decorative background blob -->
+      <div class="absolute top-0 right-0 w-64 h-64 bg-healing-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
+
+      <el-table 
+        :data="filtered" 
+        style="width: 100%" 
+        :header-cell-style="{ background: 'rgba(246, 244, 241, 0.5)', color: '#4A4E69', fontWeight: '600', padding: '20px', fontSize: '14px', borderBottom: '1px solid rgba(107, 144, 128, 0.1)' }" 
+        :row-style="{ background: 'transparent' }"
+        :cell-style="{ padding: '16px 20px' }"
+      >
         <el-table-column label="来访者" min-width="200">
           <template #default="{ row }">
-            <div class="flex items-center gap-3">
-              <img :src="avatar(row.userRealName)" class="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-slate-100" :alt="row.userRealName" />
+            <div class="flex items-center gap-4 group cursor-default">
+              <div class="relative">
+                <img 
+                  :src="avatar(row.userRealName)" 
+                  class="w-14 h-14 rounded-2xl border-2 border-white shadow-md group-hover:scale-105 transition-transform duration-300 bg-cream-50" 
+                  :alt="row.userRealName" 
+                />
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white shadow-sm" :class="riskDotInfo(row.riskLevel).color"></div>
+              </div>
               <div>
-                <div class="font-bold text-slate-800 text-base">{{ row.userRealName }}</div>
-                <div class="text-xs text-slate-400 font-mono mt-0.5 bg-slate-100 px-1.5 py-0.5 rounded inline-block">ID: {{ row.prisonerId }}</div>
+                <div class="font-bold text-rock-800 text-lg group-hover:text-healing-600 transition-colors">{{ row.userRealName }}</div>
+                <div class="text-xs text-rock-400 font-mono mt-1 bg-white/60 px-2 py-0.5 rounded-md inline-block border border-cream-200">NO.{{ row.prisonerId }}</div>
               </div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="评估日期" min-width="160">
+
+        <el-table-column label="评估时间" min-width="160">
           <template #default="{ row }">
-            <div class="flex flex-col">
-              <span class="text-slate-700 font-medium">{{ formatTime(row.createTime).split(' ')[0] }}</span>
-              <span class="text-xs text-slate-400">{{ formatTime(row.createTime).split(' ')[1] }}</span>
-            </div>
+             <div class="flex items-center gap-2">
+                 <div class="p-2 rounded-xl bg-healing-50 text-healing-500">
+                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                 </div>
+                 <div class="flex flex-col">
+                  <span class="text-rock-700 font-bold font-mono">{{ formatTime(row.createTime).split(' ')[0] }}</span>
+                  <span class="text-xs text-rock-400">{{ formatTime(row.createTime).split(' ')[1] }}</span>
+                </div>
+             </div>
           </template>
         </el-table-column>
+
         <el-table-column label="评估结果" width="180">
           <template #default="{ row }">
             <div class="flex flex-col gap-1">
-              <div class="flex items-center gap-2">
-                <span class="text-2xl font-black text-slate-700">{{ row.totalScore }}</span>
-                <span class="text-xs text-slate-400 font-medium mt-1">分</span>
+              <div class="flex items-baseline gap-1">
+                <span class="text-3xl font-black text-rock-800 tracking-tighter">{{ row.totalScore }}</span>
+                <span class="text-xs text-rock-400 font-medium">分</span>
               </div>
               <div class="flex gap-2">
-                <span :class="assessorClass(row.totalScore)" class="text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1">{{ assessorLabel(row.totalScore) }}</span>
+                <span :class="assessorClass(row.totalScore)" class="text-[10px] px-2 py-0.5 rounded-full border flex items-center gap-1 font-bold">{{ assessorLabel(row.totalScore) }}</span>
               </div>
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="关注等级" width="140">
+
+        <el-table-column label="关注状态" width="140">
           <template #default="{ row }">
-            <span :class="riskBadge(row.riskLevel)" class="text-xs px-3 py-1 rounded-full font-bold border border-white/20 shadow-sm">
+            <span :class="riskBadge(row.riskLevel)" class="text-xs px-3 py-1.5 rounded-full font-bold border border-white/40 shadow-sm inline-flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-current opacity-60"></span>
               {{ riskLabel(row.riskLevel) }}
             </span>
           </template>
         </el-table-column>
+
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" class="!rounded-lg !px-4 !font-medium !shadow-md hover:!shadow-lg transition-all" @click="viewDetail(row)">查看报告</el-button>
+            <el-button 
+              type="primary" 
+              class="!rounded-xl !h-10 !px-5 !bg-healing-500 !border-healing-500 !shadow-lg !shadow-healing-500/20 hover:!bg-healing-600 hover:!shadow-healing-500/30 hover:!-translate-y-0.5 transition-all duration-300"
+              @click="viewDetail(row)"
+            >
+              详情
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
+
+      <!-- Empty State -->
+      <div v-if="filtered.length === 0" class="py-20 text-center">
+        <div class="w-24 h-24 bg-cream-50 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-inner">
+           <svg class="w-10 h-10 text-rock-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <p class="text-rock-400 font-medium">暂时没有找到符合条件的记录...</p>
+      </div>
     </div>
   </div>
-  </template>
+</template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
@@ -85,6 +161,8 @@ onMounted(async () => {
   try {
     const { data } = await axios.get<Item[]>('/api/assessments')
     list.value = (data || []).map(x => ({ ...x, prisonerId: x.prisonerId || String(x.id) }))
+    
+    // 如果没有数据，使用 Mock 数据展示效果
     if (list.value.length === 0) {
       list.value = mockRecords()
     }
@@ -121,58 +199,113 @@ function formatTime(t: string) {
 }
 
 function avatar(name: string) {
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name || 'user')}`
+  return `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(name || 'user')}&backgroundColor=e1efe9`
 }
 
 function riskBadge(r: Risk) {
-  if (r === 'HIGH') return 'bg-rose-100 text-rose-700'
-  if (r === 'MEDIUM') return 'bg-amber-100 text-amber-700'
-  return 'bg-emerald-100 text-emerald-700'
+  if (r === 'HIGH') return 'bg-clay-100 text-clay-600 border-clay-200'
+  if (r === 'MEDIUM') return 'bg-cream-200 text-rock-600 border-cream-300'
+  return 'bg-healing-100 text-healing-600 border-healing-200'
+}
+
+function riskDotInfo(r: Risk) {
+  if (r === 'HIGH') return { color: 'bg-clay-500' }
+  if (r === 'MEDIUM') return { color: 'bg-cream-400' }
+  return { color: 'bg-healing-500' }
 }
 
 function riskLabel(r: Risk) {
-  if (r === 'HIGH') return '重点关注'
-  if (r === 'MEDIUM') return '一般关注'
-  return '安心状态'
+  if (r === 'HIGH') return '重点关注' // Clay
+  if (r === 'MEDIUM') return '一般关注' // Cream/Neutral
+  return '安心状态' // Healing Green
 }
 
 function viewDetail(row: Item) { router.push({ path: `/result/${row.id}`, query: { name: row.userRealName } }) }
 
 function mockRecords(): Item[] {
-  const names = ['王某某', '李某某', '赵某某', '周某某', '钱某某', '郑某某', '孙某某', '吴某某', '张某某', '刘某某']
+  const names = ['王安心', '李宁静', '赵希望', '周明朗', '钱平和', '郑愉悦', '孙温柔', '吴自在', '张治愈', '刘舒适']
   const risks: Risk[] = ['LOW', 'LOW', 'MEDIUM', 'LOW', 'HIGH', 'LOW', 'MEDIUM', 'LOW', 'LOW', 'HIGH']
   const out: Item[] = []
   for (let i = 0; i < 10; i++) {
     const d = new Date(Date.now() - i * 86400000)
-    out.push({ id: 100 + i, userRealName: names[i % names.length], createTime: d.toISOString(), totalScore: Math.floor(Math.random() * 40), riskLevel: risks[i % risks.length], prisonerId: String(9000 + i), isMock: true })
+    out.push({ id: 100 + i, userRealName: names[i % names.length], createTime: d.toISOString(), totalScore: Math.floor(Math.random() * 40), riskLevel: risks[i % risks.length], prisonerId: String(2023000 + i), isMock: true })
   }
   return out
 }
 
 function assessorLabel(score: number) {
   const s = Number(score || 0)
-  return s < 5 ? '自评' : '他评'
+  return s < 5 ? '常规记录' : '深度分析'
 }
 
 function assessorClass(score: number) {
   const s = Number(score || 0)
-  return s < 5 ? 'bg-slate-100 text-slate-600' : 'bg-blue-100 text-blue-700'
+  return s < 5 ? 'bg-cream-100 text-rock-500 border-cream-200' : 'bg-healing-50 text-healing-600 border-healing-200'
 }
 </script>
 
 <style scoped>
 .glass-card { 
   background-color: rgba(255, 255, 255, 0.7); 
-  backdrop-filter: blur(12px); 
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07); 
+  backdrop-filter: blur(20px); 
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px rgba(107, 144, 128, 0.08); 
 }
-.fade-up { animation: fadeUp 0.5s ease-out both; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.shadow-pg { box-shadow: 0 8px 24px rgba(74, 78, 105, 0.06); }
+.fade-up { animation: fadeUp 0.6s ease-out both; }
+
+@keyframes fadeUp { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
+
+/* === 色彩补丁 === */
+.bg-cream-50 { background-color: #FBF9F7 !important; }
+.bg-cream-100 { background-color: #F6F4F1 !important; }
+.bg-cream-200 { background-color: #EBE6E0 !important; }
+
+.text-rock-800 { color: #4A4E69 !important; }
+.text-rock-700 { color: #5C5F77 !important; }
+.text-rock-600 { color: #7B7B8D !important; }
+.text-rock-500 { color: #8F91A3 !important; }
+.text-rock-400 { color: #A7A7B3 !important; }
+.text-rock-300 { color: #C4C5D0 !important; }
+
+.bg-healing-50 { background-color: #F0F7F4 !important; }
+.bg-healing-100 { background-color: #E1EFE9 !important; }
+.bg-healing-500 { background-color: #6B9080 !important; }
+.bg-healing-600 { background-color: #557366 !important; }
+.text-healing-500 { color: #6B9080 !important; }
+.text-healing-600 { color: #557366 !important; }
+.border-healing-500 { border-color: #6B9080 !important; }
+.border-healing-200 { border-color: #C2DFCE !important; }
+
+.bg-clay-100 { background-color: #FBECE8 !important; }
+.bg-clay-500 { background-color: #E07A5F !important; }
+.text-clay-600 { color: #B3614C !important; }
+.border-clay-200 { border-color: #F0BCAE !important; }
+
+/* Table Element Plus Override */
 :deep(.el-table) {
   background-color: transparent !important;
   --el-table-bg-color: transparent !important;
   --el-table-tr-bg-color: transparent !important;
   --el-table-header-bg-color: transparent !important;
+  --el-table-row-hover-bg-color: #F0F7F4 !important; /* Healing-50 on hover */
+  --el-table-border-color: rgba(107, 144, 128, 0.1) !important;
 }
 :deep(.el-table__inner-wrapper::before) { display: none; }
+:deep(.el-table__row) { transition: background-color 0.3s ease; }
+
+/* DatePicker Override */
+:deep(.el-input__wrapper) {
+  background-color: rgba(255,255,255,0.8) !important;
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  border: 2px solid #EBE6E0 !important;
+  padding: 4px 12px !important;
+}
+:deep(.el-input__wrapper:hover), :deep(.el-input__wrapper.is-focus) {
+  border-color: #6B9080 !important;
+}
 </style>

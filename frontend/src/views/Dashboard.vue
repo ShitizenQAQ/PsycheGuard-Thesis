@@ -1,17 +1,17 @@
 <template>
   <div class="p-6 space-y-6 fade-up">
-    <div class="flex items-center justify-between bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl shadow-sm border border-white/50 relative z-10 isolate">
+    <div class="flex items-center justify-between bg-white/60 backdrop-blur-md px-5 py-4 rounded-2xl shadow-sm border border-white/60 relative z-10 isolate">
       <div>
-        <p class="text-sm text-slate-500">欢迎回来，控制中心</p>
-        <h2 class="text-xl font-bold text-slate-800">咨询师</h2>
+        <p class="text-sm text-rock-600">欢迎回来，控制中心</p>
+        <h2 class="text-xl font-bold text-rock-900">咨询师</h2>
       </div>
       <div class="relative">
-        <button class="relative w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20" @click="showNotifications = !showNotifications">
+        <button class="relative w-10 h-10 rounded-xl bg-healing-500 text-white flex items-center justify-center hover:bg-healing-600 transition-colors shadow-lg shadow-healing-500/20" @click="showNotifications = !showNotifications">
           <el-icon><Bell /></el-icon>
-          <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+          <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-clay-500 rounded-full border-2 border-white animate-pulse"></span>
         </button>
         <div v-if="showNotifications" class="absolute right-0 mt-4 w-96 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 z-[1000] overflow-hidden transform origin-top-right transition-all animate-in fade-in zoom-in-95 duration-200">
-          <div class="px-4 py-3 font-bold text-slate-800 border-b border-slate-100 flex justify-between items-center">
+          <div class="px-4 py-3 font-bold text-rock-900 border-b border-cream-200 flex justify-between items-center">
             <span>通知中心</span>
             <span class="text-xs font-normal text-slate-400">实时预警推送</span>
           </div>
@@ -39,7 +39,7 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-blue-500 to-blue-600 shadow-xl shadow-blue-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group" @click="router.push('/users')">
+      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-healing-500 to-healing-600 shadow-lg shadow-healing-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="router.push('/users')">
         <div class="flex items-center justify-between relative z-10">
           <span class="text-sm font-medium opacity-90">来访者总数</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -53,7 +53,7 @@
         </div>
       </div>
 
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-rose-500 to-rose-600 shadow-xl shadow-rose-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group" @click="goHighRisk()">
+      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-clay-500 to-clay-600 shadow-lg shadow-clay-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="goHighRisk()">
         <div class="flex items-center justify-between relative z-10">
           <span class="text-sm font-medium opacity-90">重点关注预警</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -67,7 +67,7 @@
         </div>
       </div>
 
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-xl shadow-emerald-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group" @click="router.push('/history')">
+      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-blue-400 to-blue-500 shadow-lg shadow-blue-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="router.push('/history')">
         <div class="flex items-center justify-between relative z-10">
           <span class="text-sm font-medium opacity-90">累计测评记录</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -81,7 +81,7 @@
         </div>
       </div>
 
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-amber-400 to-amber-500 shadow-xl shadow-amber-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group">
+      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-amber-400 to-amber-500 shadow-lg shadow-amber-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group">
         <div class="flex items-center justify-between relative z-10">
           <span class="text-sm font-medium opacity-90">平均 PCL-R 分</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -98,14 +98,14 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
       <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/60">
-        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span class="w-2 h-6 bg-blue-500 rounded-full"></span> 心理状态分布
+        <h3 class="text-base font-bold text-rock-900 mb-4 flex items-center gap-2">
+          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 心理状态分布
         </h3>
         <div ref="pieRef" class="w-full h-[300px]"></div>
       </div>
       <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/60">
-        <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span class="w-2 h-6 bg-blue-500 rounded-full"></span> 测评趋势 (近7天)
+        <h3 class="text-base font-bold text-rock-900 mb-4 flex items-center gap-2">
+          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 测评趋势 (近7天)
         </h3>
         <div ref="lineRef" class="w-full h-[300px]"></div>
       </div>
@@ -113,10 +113,10 @@
 
     <div class="bg-white/60 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/60 p-6">
       <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-          <span class="w-2 h-6 bg-blue-500 rounded-full"></span> 近期测评记录
+        <h3 class="text-lg font-bold text-rock-900 flex items-center gap-2">
+          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 近期测评记录
         </h3>
-        <button class="text-sm font-medium text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors" @click="viewAll">
+        <button class="text-sm font-medium text-healing-600 hover:text-healing-800 bg-healing-50 hover:bg-healing-100 px-3 py-1 rounded-lg transition-colors" @click="viewAll">
           查看全部 →
         </button>
       </div>
@@ -129,7 +129,7 @@
             <div class="relative">
               <img :src="r.avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-slate-100" :alt="r.name" />
               <div class="absolute -bottom-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm"
-                :class="r.risk === 'HIGH' ? 'bg-rose-500' : 'bg-emerald-500'">
+                :class="r.risk === 'HIGH' ? 'bg-clay-500' : 'bg-healing-500'">
                 {{ r.risk === 'HIGH' ? '!' : '✓' }}
               </div>
             </div>
@@ -145,7 +145,7 @@
             </div>
             <span 
               class="text-xs px-3 py-1.5 rounded-xl font-bold transition-transform group-hover:scale-105"
-              :class="r.risk === 'HIGH' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
+              :class="r.risk === 'HIGH' ? 'bg-clay-100 text-clay-600' : 'bg-healing-100 text-healing-600'"
             >
               {{ r.risk === 'HIGH' ? '重点关注' : '安心状态' }}
             </span>
@@ -322,9 +322,9 @@ function updatePieChart(h: number, m: number, l: number) {
       itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
       label: { show: false },
       data: [
-        { value: h, name: '重点关注', itemStyle: { color: '#f43f5e' } }, // rose-500
+        { value: h, name: '重点关注', itemStyle: { color: '#E07A5F' } }, // clay-500
         { value: m, name: '一般关注', itemStyle: { color: '#f59e0b' } }, // amber-500
-        { value: l, name: '安心状态', itemStyle: { color: '#10b981' } }  // emerald-500
+        { value: l, name: '安心状态', itemStyle: { color: '#6B9080' } }  // healing-500
       ]
     }]
   }
@@ -361,9 +361,9 @@ function updateLineChart(total: number) {
       type: 'line',
       smooth: true,
       symbolSize: 8,
-      lineStyle: { color: '#3b82f6', width: 4 },
+      lineStyle: { color: '#6B9080', width: 4 }, // healing-500
       areaStyle: {
-        color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0, color:'rgba(59,130,246,0.3)'}, {offset:1, color:'rgba(59,130,246,0)'}])
+        color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0, color:'rgba(107, 144, 128, 0.3)'}, {offset:1, color:'rgba(107, 144, 128, 0)'}])
       }
     }]
   }
@@ -395,4 +395,62 @@ function markAllAsRead() { notifications.value = []; showNotifications.value = f
 <style scoped>
 .fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === 🚑 紧急修复：手动定义治愈系主题色 === */
+/* 这样写可以绕过 Tailwind 配置问题，强制生效 */
+
+/* 1. 主色 - 青瓷绿 (Healing) */
+.bg-healing-500 { background-color: #6B9080 !important; }
+.bg-healing-600 { background-color: #557366 !important; }
+.hover\:bg-healing-600:hover { background-color: #557366 !important; }
+.text-healing-500 { color: #6B9080 !important; }
+.text-healing-600 { color: #557366 !important; }
+.text-healing-800 { color: #557366 !important; }
+.bg-healing-50 { background-color: #F0F7F4 !important; }
+.bg-healing-100 { background-color: #E1EFE9 !important; }
+.border-healing-100 { border-color: #E1EFE9 !important; }
+.border-healing-200 { border-color: #C2DFCE !important; }
+
+/* 2. 背景色 - 米汤白 (Cream) */
+.bg-cream-100 { background-color: #F6F4F1 !important; }
+.bg-cream-50 { background-color: #FBF9F7 !important; }
+.bg-cream-200 { background-color: #EBE6E0 !important; }
+.border-cream-200 { border-color: #EBE6E0 !important; }
+
+/* 3. 强调色 - 落日陶土 (Clay) */
+.bg-clay-500 { background-color: #E07A5F !important; }
+.bg-clay-600 { background-color: #B3614C !important; }
+.bg-clay-100 { background-color: #F9E5E1 !important; }
+.bg-clay-50 { background-color: #FDF4F1 !important; }
+.text-clay-500 { color: #E07A5F !important; }
+.text-clay-600 { color: #B3614C !important; }
+.text-clay-700 { color: #8B4C3A !important; }
+.border-clay-200 { border-color: #F3D1C9 !important; }
+.hover\:bg-clay-600:hover { background-color: #B3614C !important; }
+
+/* 4. 文字色 - 岩石灰 (Rock) */
+.text-rock-900 { color: #22223B !important; }
+.text-rock-800 { color: #4A4E69 !important; }
+.text-rock-600 { color: #7B7B8D !important; }
+.text-rock-400 { color: #A7A7B3 !important; }
+
+/* 5. 渐变背景 */
+.from-healing-500 { 
+  background-image: linear-gradient(to bottom right, #6B9080, var(--tw-gradient-to, rgba(107, 144, 128, 0))) !important; 
+}
+.to-healing-600 { 
+  --tw-gradient-to: #557366 !important; 
+}
+.from-clay-500 { 
+  background-image: linear-gradient(to bottom right, #E07A5F, var(--tw-gradient-to, rgba(224, 122, 95, 0))) !important; 
+}
+.to-clay-600 { 
+  --tw-gradient-to: #B3614C !important; 
+}
+
+/* 6. 阴影优化 */
+.shadow-healing-500\/10 { box-shadow: 0 4px 6px -1px rgba(107, 144, 128, 0.1), 0 2px 4px -1px rgba(107, 144, 128, 0.06) !important; }
+.shadow-healing-500\/20 { box-shadow: 0 10px 15px -3px rgba(107, 144, 128, 0.2), 0 4px 6px -2px rgba(107, 144, 128, 0.05) !important; }
+.shadow-clay-500\/20 { box-shadow: 0 10px 15px -3px rgba(224, 122, 95, 0.2), 0 4px 6px -2px rgba(224, 122, 95, 0.05) !important; }
+.hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; }
 </style>

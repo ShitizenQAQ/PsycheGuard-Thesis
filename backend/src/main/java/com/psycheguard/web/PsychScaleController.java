@@ -25,19 +25,28 @@ public class PsychScaleController {
 
   @GetMapping
   public List<PsychScale> list() {
-    return scaleRepository.findAll();
+    List<PsychScale> list = scaleRepository.findAll();
+    System.out.println("DEBUG: Fetching scales, found: " + list.size());
+    if (list.size() > 0) {
+      System.out.println("DEBUG: First scale: " + list.get(0).getName());
+    } else {
+      System.out.println("DEBUG: List is empty. Count from DB: " + scaleRepository.count());
+    }
+    return list;
   }
 
   @GetMapping("/{id}")
   public PsychScale get(@PathVariable Long id) {
-    return scaleRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
+    return scaleRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
   }
 
   @PostMapping
   public ResponseEntity<PsychScale> create(@RequestBody Map<String, Object> body) {
     String name = String.valueOf(body.getOrDefault("name", "")).trim();
     String description = body.get("description") == null ? null : String.valueOf(body.get("description"));
-    if (name.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name required");
+    if (name.isEmpty())
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name required");
     PsychScale s = new PsychScale();
     s.setName(name);
     s.setDescription(description);
@@ -47,10 +56,12 @@ public class PsychScaleController {
 
   @PutMapping("/{id}")
   public PsychScale update(@PathVariable Long id, @RequestBody Map<String, Object> body) {
-    PsychScale s = scaleRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
+    PsychScale s = scaleRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
     if (body.containsKey("name")) {
       String name = String.valueOf(body.get("name")).trim();
-      if (name.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name required");
+      if (name.isEmpty())
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name required");
       s.setName(name);
     }
     if (body.containsKey("description")) {
@@ -61,7 +72,8 @@ public class PsychScaleController {
 
   @GetMapping("/{id}/questions")
   public List<com.psycheguard.web.dto.ScaleQuestionResponse> questions(@PathVariable Long id) {
-    PsychScale s = scaleRepository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
+    PsychScale s = scaleRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
     List<ScaleQuestion> list = questionRepository.findByScale_Id(s.getId());
     java.util.List<com.psycheguard.web.dto.ScaleQuestionResponse> out = new java.util.ArrayList<>(list.size());
     for (ScaleQuestion q : list) {
@@ -75,4 +87,3 @@ public class PsychScaleController {
     return out;
   }
 }
-

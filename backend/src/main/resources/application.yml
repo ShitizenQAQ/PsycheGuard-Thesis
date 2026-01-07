@@ -10,7 +10,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: false
+    defer-datasource-initialization: true
     show-sql: true
 server:
   port: 9090

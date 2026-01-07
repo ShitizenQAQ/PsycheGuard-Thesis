@@ -1,9 +1,9 @@
 <template>
-  <el-container class="layout-container bg-gradient-to-br from-slate-50 to-blue-50/50">
+  <el-container class="layout-container bg-cream-100">
     <el-aside width="260px" class="sidebar bg-white/60 backdrop-blur-xl border-r border-white/40 shadow-xl shadow-slate-200/40 z-20 flex flex-col">
       <div class="sidebar-header flex items-center justify-center gap-3 py-8">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30 flex items-center justify-center text-white font-bold text-lg">PG</div>
-        <h2 class="sidebar-title text-xl font-bold text-slate-700 tracking-tight">PsycheGuard</h2>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-healing-500 to-healing-600 shadow-lg shadow-healing-500/30 flex items-center justify-center text-white font-bold text-lg">PG</div>
+        <h2 class="sidebar-title text-xl font-bold text-rock-800 tracking-tight">PsycheGuard</h2>
       </div>
       
       <el-menu
@@ -12,14 +12,14 @@
         router
         :collapse-transition="false"
       >
-        <div class="text-xs font-bold text-slate-400 px-4 py-2 mt-2 mb-1 uppercase tracking-wider">Dashboard</div>
+        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-2 mb-1 uppercase tracking-wider">Dashboard</div>
         
         <el-menu-item index="/dashboard">
           <el-icon><Odometer /></el-icon>
           <span>工作台大屏</span>
         </el-menu-item>
 
-        <div class="text-xs font-bold text-slate-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">Management</div>
+        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">Management</div>
 
         <el-menu-item index="/assess">
           <el-icon><Edit /></el-icon>
@@ -38,7 +38,7 @@
           <span>预警干预</span>
         </el-menu-item>
 
-        <div class="text-xs font-bold text-slate-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">System</div>
+        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">System</div>
 
         <el-menu-item index="/scales">
           <el-icon><Setting /></el-icon>
@@ -58,13 +58,13 @@
     <el-container class="relative">
       <el-header class="header h-20 px-8 flex items-center justify-between sticky top-0 z-10 bg-white/40 backdrop-blur-md border-b border-white/40">
         <div class="header-left">
-          <h2 class="text-xl font-bold text-slate-800">{{ currentRouteName }}</h2>
-          <p class="text-xs text-slate-500 mt-0.5">欢迎使用智能心理评估系统</p>
+          <h2 class="text-xl font-bold text-rock-800">{{ currentRouteName }}</h2>
+          <p class="text-xs text-rock-600 mt-0.5">欢迎使用智能心理评估系统</p>
         </div>
         
         <div class="header-right flex items-center gap-6">
-          <button class="relative p-2 text-slate-400 hover:text-slate-600 transition-colors" @click="openNotifications" aria-label="打开通知">
-            <span class="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full border border-white"></span>
+          <button class="relative p-2 text-rock-400 hover:text-rock-600 transition-colors" @click="openNotifications" aria-label="打开通知">
+            <span class="absolute top-2 right-2 w-2 h-2 bg-clay-500 rounded-full border border-white"></span>
             <el-icon :size="20"><Bell /></el-icon>
           </button>
 
@@ -72,16 +72,16 @@
             <div class="flex items-center gap-3 cursor-pointer py-1 px-2 rounded-xl hover:bg-white/50 transition-colors">
               <el-avatar :size="40" :src="userAvatar" class="border-2 border-white shadow-sm" />
               <div class="flex flex-col text-left">
-                <span class="text-sm font-bold text-slate-700">{{ displayName }}</span>
-                <span class="text-[10px] text-slate-500 font-medium bg-slate-100 px-1.5 rounded w-fit">管理员</span>
+                <span class="text-sm font-bold text-rock-800">{{ displayName }}</span>
+                <span class="text-[10px] text-rock-600 font-medium bg-cream-50 px-1.5 rounded w-fit">管理员</span>
               </div>
-              <el-icon class="text-slate-400 ml-1"><ArrowDown /></el-icon>
+              <el-icon class="text-rock-400 ml-1"><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu class="!rounded-xl !p-2">
                 <el-dropdown-item command="profile">👤 个人中心</el-dropdown-item>
                 <el-dropdown-item command="test">📝 发起测评</el-dropdown-item>
-                <el-dropdown-item divided command="logout"><span class="text-rose-500">🚪 退出登录</span></el-dropdown-item>
+                <el-dropdown-item divided command="logout"><span class="text-clay-500">🚪 退出登录</span></el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -177,7 +177,7 @@ function openNotifications() {
   line-height: 50px;
   margin: 4px 0;
   border-radius: 12px;
-  color: #64748b;
+  color: #7B7B8D; /* rock-600 */
   font-weight: 500;
   border: 1px solid transparent;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -185,16 +185,16 @@ function openNotifications() {
 
 :deep(.el-menu-item:hover) {
   background-color: rgba(255, 255, 255, 0.6) !important;
-  color: #334155;
+  color: #4A4E69; /* rock-800 */
   transform: translateX(4px);
 }
 
 :deep(.el-menu-item.is-active) {
-  background: linear-gradient(90deg, #eff6ff 0%, #ffffff 100%) !important;
-  color: #2563eb !important;
+  background: linear-gradient(90deg, #F0F7F4 0%, #FFFFFF 100%) !important; /* healing-50 base */
+  color: #6B9080 !important; /* healing-500 */
   font-weight: 700;
-  border: 1px solid #dbeafe;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
+  border: 1px solid #E1EFE9; /* healing-100 */
+  box-shadow: 0 4px 12px rgba(107, 144, 128, 0.05);
 }
 
 :deep(.el-menu-item .el-icon) {
@@ -205,7 +205,7 @@ function openNotifications() {
 
 :deep(.el-menu-item.is-active .el-icon) {
   transform: scale(1.1);
-  color: #2563eb;
+  color: #6B9080;
 }
 
 /* 页面切换动画 */
@@ -223,4 +223,19 @@ function openNotifications() {
   opacity: 0;
   transform: translateY(-10px);
 }
+
+/* === 莫兰迪治愈色系定义 === */
+.bg-cream-100 { background-color: #F6F4F1 !important; }
+.bg-cream-50 { background-color: #FBF9F7 !important; }
+.text-rock-800 { color: #4A4E69 !important; }
+.text-rock-600 { color: #7B7B8D !important; }
+.text-rock-400 { color: #A7A7B3 !important; }
+
+.bg-healing-500 { background-color: #6B9080 !important; }
+.from-healing-500 { --tw-gradient-from: #6B9080 !important; --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important; }
+.to-healing-600 { --tw-gradient-to: #557366 !important; }
+.text-healing-600 { color: #557366 !important; }
+
+.bg-clay-500 { background-color: #E07A5F !important; }
+.text-clay-500 { color: #E07A5F !important; }
 </style>

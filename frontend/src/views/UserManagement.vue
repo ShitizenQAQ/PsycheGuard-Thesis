@@ -21,7 +21,7 @@
         </select>
         <button 
           @click="newVisible=true" 
-          class="px-6 py-3 rounded-xl bg-slate-900 text-white font-bold shadow-lg shadow-slate-900/20 hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2"
+          class="px-6 py-3 rounded-xl bg-healing-500 text-white font-bold shadow-lg shadow-healing-500/20 hover:bg-healing-600 hover:scale-105 active:scale-95 transition-all w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2"
         >
           <span>+ 新建档案</span>
         </button>
@@ -37,11 +37,11 @@
       <div 
         v-for="u in filtered" 
         :key="u.id" 
-        class="group relative bg-white/60 backdrop-blur-md rounded-[2rem] p-6 border border-white/60 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:bg-white/90"
+        class="group relative bg-white/60 backdrop-blur-md rounded-[2rem] p-6 border border-white/60 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-lg hover:shadow-healing-500/10 hover:bg-white/90"
       >
         <div class="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <el-dropdown v-if="isCounselor" trigger="click" @command="(cmd: string) => onCardCommand(cmd, u)">
-            <button class="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors">
+            <button class="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-rock-400 hover:text-healing-600 transition-colors">
               <MoreHorizontal :size="18" />
             </button>
             <template #dropdown>
@@ -49,7 +49,7 @@
                 <el-dropdown-item command="edit">✏️ 编辑信息</el-dropdown-item>
                 <el-dropdown-item command="profile">📂 查看档案</el-dropdown-item>
                 <el-dropdown-item command="archive">{{ u.archived ? '📤 取消归档' : '📥 归档' }}</el-dropdown-item>
-                <el-dropdown-item divided command="delete"><span class="text-rose-500">🗑️ 删除来访者</span></el-dropdown-item>
+                <el-dropdown-item divided command="delete"><span class="text-clay-500">🗑️ 删除来访者</span></el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -69,15 +69,15 @@
             </div>
           </div>
 
-          <h3 class="text-xl font-bold text-slate-800 mb-1 tracking-tight">{{ u.realName }}</h3>
+          <h3 class="text-xl font-bold text-rock-900 mb-1 tracking-tight">{{ u.realName }}</h3>
           <div class="flex items-center gap-2 mb-4">
-            <span class="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">ID: {{ u.prisonId }}</span>
-            <span v-if="u.role === 'ROLE_COUNSELOR'" class="text-[10px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">咨询师</span>
+            <span class="text-xs font-mono text-rock-400 bg-white px-2 py-0.5 rounded-md border border-gray-200">ID: {{ u.prisonId }}</span>
+            <span v-if="u.role === 'ROLE_COUNSELOR'" class="text-[10px] font-bold bg-healing-100 text-healing-600 px-1.5 py-0.5 rounded">咨询师</span>
           </div>
 
           <div class="flex flex-wrap justify-center gap-2 mb-6 w-full px-2">
-            <span v-if="u.archived" class="text-xs px-3 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-medium">📥 已归档</span>
-            <span v-else class="text-xs px-3 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100 font-medium animate-pulse">⚡ 待评估</span>
+            <span v-if="u.archived" class="text-xs px-3 py-1 rounded-full bg-gray-100 text-gray-500 border border-gray-200 font-medium">📥 已归档</span>
+            <span v-else class="text-xs px-3 py-1 rounded-full bg-healing-50 text-healing-600 border border-healing-100 font-medium animate-pulse">⚡ 待评估</span>
             
             <span class="text-xs px-3 py-1 rounded-full font-bold border" :class="[riskInfo(u.lastRiskLevel).badge, riskInfo(u.lastRiskLevel).borderColor]">
               {{ riskInfo(u.lastRiskLevel).label }}
@@ -86,14 +86,14 @@
 
           <div class="grid grid-cols-2 gap-3 w-full mt-auto">
             <button 
-              class="py-2.5 text-sm font-bold text-slate-600 bg-slate-50 hover:bg-slate-100 hover:text-slate-800 rounded-xl border border-slate-200 transition-colors"
+              class="py-2.5 text-sm font-bold text-rock-600 bg-white hover:bg-healing-50 hover:text-healing-800 rounded-xl border border-gray-200 transition-colors"
               @click="viewProfile(u)"
             >
               查看档案
             </button>
             <button 
               v-if="u.role === 'ROLE_CLIENT'"
-              class="py-2.5 text-sm font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 rounded-xl shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              class="py-2.5 text-sm font-bold text-white bg-gradient-to-r from-healing-500 to-healing-600 hover:from-healing-400 hover:to-healing-500 rounded-xl shadow-md shadow-healing-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               @click="startTest(u)"
             >
               发起测评
@@ -196,9 +196,9 @@ const filtered = computed(() => {
 
 function riskInfo(level: RiskLevel | undefined) {
   const l: RiskLevel = level || 'LOW'
-  if (l === 'HIGH') return { label: '高关注', labelShort: '高', color: 'text-rose-600', bg: 'bg-rose-50', badge: 'bg-rose-100 text-rose-700', borderColor: 'border-rose-200' }
+  if (l === 'HIGH') return { label: '高关注', labelShort: '高', color: 'text-clay-600', bg: 'bg-clay-50', badge: 'bg-clay-100 text-clay-700', borderColor: 'border-clay-200' }
   if (l === 'MEDIUM') return { label: '中关注', labelShort: '中', color: 'text-amber-600', bg: 'bg-amber-50', badge: 'bg-amber-100 text-amber-700', borderColor: 'border-amber-200' }
-  return { label: '低关注', labelShort: '低', color: 'text-emerald-600', bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', borderColor: 'border-emerald-200' }
+  return { label: '低关注', labelShort: '低', color: 'text-healing-600', bg: 'bg-healing-50', badge: 'bg-healing-100 text-healing-700', borderColor: 'border-healing-200' }
 }
 
 function mapBackend(u: any): UserData {
@@ -344,4 +344,53 @@ async function saveEdit() {
   padding: 20px 24px;
   background: #f8fafc;
 }
+
+/* === 🚑 紧急修复：手动定义治愈系主题色 === */
+/* 1. 主色 - 青瓷绿 (Healing) */
+.bg-healing-500 { background-color: #6B9080 !important; }
+.bg-healing-600 { background-color: #557366 !important; }
+.bg-healing-50 { background-color: #F0F7F4 !important; }
+.bg-healing-100 { background-color: #E1EFE9 !important; }
+.text-healing-500 { color: #6B9080 !important; }
+.text-healing-600 { color: #557366 !important; }
+.text-healing-800 { color: #557366 !important; }
+.border-healing-100 { border-color: #E1EFE9 !important; }
+.hover\:bg-healing-50:hover { background-color: #F0F7F4 !important; }
+.hover\:bg-healing-500:hover { background-color: #6B9080 !important; }
+.hover\:bg-healing-600:hover { background-color: #557366 !important; }
+.hover\:text-healing-800:hover { color: #557366 !important; }
+
+/* 2. 强调色 - 落日陶土 (Clay) */
+.bg-clay-500 { background-color: #E07A5F !important; }
+.bg-clay-600 { background-color: #B3614C !important; }
+.bg-clay-50 { background-color: #FDF4F1 !important; }
+.bg-clay-100 { background-color: #F9E5E1 !important; }
+.text-clay-500 { color: #E07A5F !important; }
+.text-clay-600 { color: #B3614C !important; }
+.text-clay-700 { color: #8B4C3A !important; }
+.border-clay-200 { border-color: #F3D1C9 !important; }
+
+/* 3. 文字色 - 岩石灰 (Rock) */
+.text-rock-900 { color: #22223B !important; }
+.text-rock-800 { color: #4A4E69 !important; }
+.text-rock-600 { color: #7B7B8D !important; }
+.text-rock-400 { color: #A7A7B3 !important; }
+
+/* 4. 渐变背景 */
+.from-healing-500 { 
+  background-image: linear-gradient(to right, #6B9080, var(--tw-gradient-to, rgba(107, 144, 128, 0))) !important; 
+}
+.to-healing-500 { 
+  --tw-gradient-to: #6B9080 !important; 
+}
+.to-healing-600 { 
+  --tw-gradient-to: #557366 !important; 
+}
+.from-healing-400 { 
+  background-image: linear-gradient(to right, #8CAE9D, var(--tw-gradient-to, rgba(140, 174, 157, 0))) !important; 
+}
+
+/* 5. 阴影 */
+.shadow-healing-500\/10 { box-shadow: 0 4px 6px -1px rgba(107, 144, 128, 0.1), 0 2px 4px -1px rgba(107, 144, 128, 0.06) !important; }
+.shadow-healing-500\/20 { box-shadow: 0 10px 15px -3px rgba(107, 144, 128, 0.2), 0 4px 6px -2px rgba(107, 144, 128, 0.05) !important; }
 </style>

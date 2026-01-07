@@ -11,10 +11,13 @@ const ScaleConfig = () => import('@/views/ScaleConfig.vue')
 const Intervention = () => import('@/views/Intervention.vue')
 const TeachingLibrary = () => import('@/views/TeachingLibrary.vue')
 
+const ClientDashboard = () => import('@/views/client/ClientDashboard.vue')
+
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'Login', component: Login },
   { path: '/test', name: 'Assessment', component: Assessment },
   { path: '/result/:id', name: 'Result', component: Result },
+  { path: '/client-dashboard', name: 'ClientDashboard', component: ClientDashboard },
   {
     path: '/',
     component: MainLayout,
@@ -40,20 +43,30 @@ router.beforeEach((to, _from, next) => {
   const role = localStorage.getItem('user_role')
   const isAuthenticated = !!role
 
+  // 1. 已登录用户访问登录页 -> 跳转到各自首页
   if (to.path === '/login') {
-    if (isAuthenticated) return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/test')
+    if (isAuthenticated) {
+      return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/client-dashboard')
+    }
     return next()
   }
 
+  // 2. 未登录用户 -> 跳转登录
   if (!isAuthenticated) return next('/login')
 
+  // 3. 根路径 -> 跳转各自首页
   if (to.path === '/') {
-    return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/test')
+    return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/client-dashboard')
   }
 
+  // 4. Client 角色权限控制
   if (role === 'ROLE_CLIENT') {
-    if (!to.path.startsWith('/test') && !to.path.startsWith('/result')) {
-      return next('/test')
+    // 允许访问的路径前缀
+    const clientAllowed = ['/client-dashboard', '/test', '/result', '/history']
+    const isAllowed = clientAllowed.some(prefix => to.path.startsWith(prefix))
+
+    if (!isAllowed) {
+      return next('/client-dashboard')
     }
   }
 
