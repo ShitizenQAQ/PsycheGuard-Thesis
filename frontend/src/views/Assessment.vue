@@ -23,7 +23,7 @@
               <p class="text-sm text-slate-500 mt-1">请从下方在押人员列表中选择一位发起评估</p>
             </div>
             <div class="flex items-center gap-3 text-sm text-slate-600">
-              <span class="px-2 py-1 rounded-full bg-slate-100">在押人员总数：{{ prisonerList.length }}</span>
+              <span class="px-2 py-1 rounded-full bg-slate-100">来访者总数：{{ prisonerList.length }}</span>
               <span class="px-2 py-1 rounded-full bg-slate-100">真实：{{ realCount }}，模拟：{{ simCount }}</span>
             </div>
           </div>
@@ -32,7 +32,7 @@
           <div v-for="p in prisonerList" :key="p.id" class="glass-card group relative p-6 rounded-2xl border border-white shadow-pg">
             <div class="flex items-center gap-4">
               <img :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(p.name)}`" class="w-14 h-14 rounded-full border-4 border-white shadow-md bg-slate-100" :alt="p.name" />
-              <div>
+               <div>
                 <div class="text-lg font-bold text-slate-800">{{ p.name }}</div>
                 <div class="text-xs font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">ID: {{ p.prisonerId }}</div>
               </div>
@@ -62,7 +62,7 @@
           </div>
 
           <div class="glass-card p-0 rounded-3xl shadow-xl min-h-[400px] flex flex-col relative transition-all duration-300">
-            <div v-if="role === 'DOCTOR'" class="bg-slate-50 border-b border-slate-200 p-6 rounded-t-3xl flex items-center justify-between">
+            <div v-if="role === 'ROLE_COUNSELOR'" class="bg-slate-50 border-b border-slate-200 p-6 rounded-t-3xl flex items-center justify-between">
               <div>
                 <button class="bg-white border border-slate-300 shadow-sm px-4 py-2 rounded-lg text-slate-700 font-medium text-sm hover:bg-slate-50 hover:text-cyan-600 hover:border-cyan-300 transition-all flex items-center gap-2" @click="backToList">← 返回列表</button>
               </div>
@@ -75,7 +75,7 @@
                 </div>
               </div>
               <div class="flex items-center gap-4">
-                <div class="text-sm text-slate-700">👨‍⚕️ 主评医生: {{ assessorName }}</div>
+                <div class="text-sm text-slate-700">👨‍⚕️ 咨询师: {{ assessorName }}</div>
                 <el-select v-model="currentScaleId" placeholder="选择量表" style="width: 220px" @change="loadQuestions">
                   <el-option v-for="s in scales" :key="s.id" :label="s.name" :value="s.id" />
                 </el-select>
@@ -139,7 +139,7 @@
             <CheckCircle :size="48" class="text-emerald-600" />
           </div>
           <h2 class="text-xl font-bold text-slate-800 mb-2">评估已完成 (Assessment Completed)</h2>
-          <p class="text-slate-600 mb-6">评估结果：{{ lastRiskLabel }}</p>
+          <p class="text-slate-600 mb-6">心理状态评估结论：{{ lastRiskLabel }}</p>
           <div class="flex items-center gap-3">
             <button class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 bg-white hover:bg-slate-50" @click="backAfterDone">返回列表</button>
             <button class="px-4 py-2 rounded-xl bg-blue-600 text-white hover:bg-blue-700" @click="viewReport">查看详情报告</button>
@@ -196,9 +196,9 @@ const currentScaleName = computed(() => {
 })
 const targetUserId = ref<number | null>(null)
 const targetUserName = ref<string | null>(null)
-const role = computed(() => userStore.user?.role || JSON.parse(localStorage.getItem('pg_user') || 'null')?.role || 'PRISONER')
-const assessorName = computed(() => userStore.user?.realName || userStore.user?.username || 'Dr. Admin')
-const targetNamePlain = computed(() => (targetUserName.value || '').split('(')[0].trim() || '在押人员')
+const role = computed(() => userStore.user?.role || JSON.parse(localStorage.getItem('pg_user') || 'null')?.role || 'ROLE_CLIENT')
+const assessorName = computed(() => userStore.user?.realName || userStore.user?.username || 'Admin')
+const targetNamePlain = computed(() => (targetUserName.value || '').split('(')[0].trim() || '来访者')
 const profileAvatarUrl = computed(() => `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(targetNamePlain.value || 'patient')}`)
 const ratingOptions = [
   { score: 0, label: '0分 - 不符合 (No)' },
@@ -208,7 +208,7 @@ const ratingOptions = [
 const viewMode = ref<'LIST' | 'QUESTION' | 'DONE'>('LIST')
 const lastResultId = ref<number | null>(null)
 const lastRiskLevel = ref<string>('')
-const lastRiskLabel = computed(() => lastRiskLevel.value === 'HIGH' ? '高风险' : (lastRiskLevel.value === 'MEDIUM' ? '中风险' : '低风险'))
+const lastRiskLabel = computed(() => lastRiskLevel.value === 'HIGH' ? '重点关注' : (lastRiskLevel.value === 'MEDIUM' ? '一般关注' : '安心状态'))
 type PrisonerCard = { id: number; name: string; prisonerId: string; status: 'Pending' | 'Archived'; simulated?: boolean }
 const prisonerList = ref<PrisonerCard[]>([])
 const assessedIds = ref<number[]>(JSON.parse(localStorage.getItem('assessed_ids') || '[]'))
@@ -217,7 +217,7 @@ const simCount = computed(() => prisonerList.value.filter(p => p.simulated).leng
 
 async function fetchPrisoners() {
   try {
-    const res = await axios.get('/api/users', { params: { role: 'PRISONER' } })
+    const res = await axios.get('/api/users', { params: { role: 'ROLE_CLIENT' } })
     const base = (res.data || []).map((u: any) => ({
       id: u.id,
       name: u.realName || u.username,
@@ -245,7 +245,7 @@ onMounted(async () => {
     scales.value = (data || []).map((s: any) => ({ id: s.id, name: s.name }))
     if (scales.value.length === 1) currentScaleId.value = scales.value[0].id
   } catch {}
-  if (role.value === 'PRISONER') {
+  if (role.value === 'ROLE_CLIENT') {
     targetUserId.value = userStore.user?.id || null
     targetUserName.value = userStore.user?.realName || userStore.user?.username || null
     if (localStorage.getItem('assessment_done') === 'true') {
@@ -300,7 +300,7 @@ async function ensureScaleThenLoad() {
 
 async function startAssessment(p: PrisonerCard) {
   if (p.simulated) {
-    ElMessage.warning('模拟数据不可发起评估，请选择真实在押人员')
+    ElMessage.warning('模拟数据不可发起评估，请选择真实来访者')
     return
   }
   targetUserId.value = p.id
@@ -341,13 +341,13 @@ const submitAssessment = async () => {
     submitLoading.value = true
     const prisonerIdStr = localStorage.getItem('user_id')
     const currentUserId = prisonerIdStr ? parseInt(prisonerIdStr) : (userStore.user?.id || 0)
-    if (role.value === 'DOCTOR') {
+    if (role.value === 'ROLE_COUNSELOR') {
       if (!targetUserId.value) {
         ElMessage.warning('请先选择评估对象')
         return
       }
     }
-    const userId = role.value === 'DOCTOR' ? (targetUserId.value as number) : currentUserId
+    const userId = role.value === 'ROLE_COUNSELOR' ? (targetUserId.value as number) : currentUserId
   if (!currentScaleId.value) { ElMessage.warning('请先选择量表'); return }
   const payload = { userId, scaleId: currentScaleId.value, answers: answers.value }
   const res = await axios.post('/api/assessments', payload)
@@ -357,14 +357,14 @@ const submitAssessment = async () => {
     lastRiskLevel.value = detail.data?.riskLevel || ''
   } catch {}
   ElMessage.success('评估已完成')
-  if (role.value === 'DOCTOR' && targetUserId.value) {
+  if (role.value === 'ROLE_COUNSELOR' && targetUserId.value) {
     if (!assessedIds.value.includes(targetUserId.value)) {
       assessedIds.value = [...assessedIds.value, targetUserId.value]
       localStorage.setItem('assessed_ids', JSON.stringify(assessedIds.value))
     }
   }
   viewMode.value = 'DONE'
-  if (role.value === 'PRISONER') {
+  if (role.value === 'ROLE_CLIENT') {
     localStorage.setItem('assessment_done', 'true')
   }
 } catch (error: any) {
@@ -375,7 +375,7 @@ const submitAssessment = async () => {
 }
 
 function backAfterDone() {
-  if (role.value === 'DOCTOR') {
+  if (role.value === 'ROLE_COUNSELOR') {
     viewMode.value = 'LIST'
     targetUserId.value = null
     targetUserName.value = null

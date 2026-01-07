@@ -5,7 +5,7 @@
         <input 
           v-model="search" 
           type="text" 
-          placeholder="🔍 搜索姓名、编号或警号..." 
+          placeholder="🔍 搜索姓名、编号..." 
           class="w-full pl-5 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/60 transition-all shadow-inner" 
         />
       </div>
@@ -23,14 +23,14 @@
           @click="newVisible=true" 
           class="px-6 py-3 rounded-xl bg-slate-900 text-white font-bold shadow-lg shadow-slate-900/20 hover:bg-slate-800 hover:scale-105 active:scale-95 transition-all w-full md:w-auto whitespace-nowrap flex items-center justify-center gap-2"
         >
-          <span>+ 新建人员</span>
+          <span>+ 新建档案</span>
         </button>
       </div>
     </div>
 
     <div v-if="filtered.length === 0" class="flex flex-col items-center justify-center py-20 bg-white/40 backdrop-blur-sm rounded-3xl border border-white/50">
       <div class="text-6xl mb-4">👻</div>
-      <p class="text-slate-500 font-medium">暂无符合条件的人员</p>
+      <p class="text-slate-500 font-medium">暂无符合条件的来访者</p>
     </div>
 
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -40,7 +40,7 @@
         class="group relative bg-white/60 backdrop-blur-md rounded-[2rem] p-6 border border-white/60 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:bg-white/90"
       >
         <div class="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <el-dropdown v-if="isDoctor" trigger="click" @command="(cmd: string) => onCardCommand(cmd, u)">
+          <el-dropdown v-if="isCounselor" trigger="click" @command="(cmd: string) => onCardCommand(cmd, u)">
             <button class="w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-slate-400 hover:text-blue-600 transition-colors">
               <MoreHorizontal :size="18" />
             </button>
@@ -49,7 +49,7 @@
                 <el-dropdown-item command="edit">✏️ 编辑信息</el-dropdown-item>
                 <el-dropdown-item command="profile">📂 查看档案</el-dropdown-item>
                 <el-dropdown-item command="archive">{{ u.archived ? '📤 取消归档' : '📥 归档' }}</el-dropdown-item>
-                <el-dropdown-item divided command="delete"><span class="text-rose-500">🗑️ 删除人员</span></el-dropdown-item>
+                <el-dropdown-item divided command="delete"><span class="text-rose-500">🗑️ 删除来访者</span></el-dropdown-item>
               </el-dropdown-menu>
             </template>
           </el-dropdown>
@@ -72,7 +72,7 @@
           <h3 class="text-xl font-bold text-slate-800 mb-1 tracking-tight">{{ u.realName }}</h3>
           <div class="flex items-center gap-2 mb-4">
             <span class="text-xs font-mono text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">ID: {{ u.prisonId }}</span>
-            <span v-if="u.role === 'DOCTOR'" class="text-[10px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">医生</span>
+            <span v-if="u.role === 'ROLE_COUNSELOR'" class="text-[10px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded">咨询师</span>
           </div>
 
           <div class="flex flex-wrap justify-center gap-2 mb-6 w-full px-2">
@@ -92,7 +92,7 @@
               查看档案
             </button>
             <button 
-              v-if="u.role === 'PRISONER'"
+              v-if="u.role === 'ROLE_CLIENT'"
               class="py-2.5 text-sm font-bold text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 rounded-xl shadow-md shadow-blue-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
               @click="startTest(u)"
             >
@@ -110,19 +110,19 @@
       </div>
     </div>
 
-    <el-dialog v-model="editVisible" title="✏️ 编辑人员信息" width="480px" class="!rounded-2xl">
+    <el-dialog v-model="editVisible" title="✏️ 编辑用户信息" width="480px" class="!rounded-2xl">
       <el-form label-position="top" class="mt-2">
         <el-form-item label="真实姓名"><el-input v-model="editForm.realName" class="!rounded-lg" /></el-form-item>
         <el-form-item label="登录账号"><el-input v-model="editForm.username" /></el-form-item>
-        <el-form-item label="编号/警号"><el-input v-model="editForm.prisonId" /></el-form-item>
+        <el-form-item label="用户编号"><el-input v-model="editForm.prisonId" /></el-form-item>
         <el-form-item label="系统角色">
           <el-select v-model="editForm.role" class="w-full">
-            <el-option label="👨‍⚕️ 医生 (管理员)" value="DOCTOR" />
-            <el-option label="👤 罪犯 (受测者)" value="PRISONER" />
+            <el-option label="👨‍⚕️ 咨询师 (管理员)" value="ROLE_COUNSELOR" />
+            <el-option label="👤 来访者 (受测者)" value="ROLE_CLIENT" />
           </el-select>
         </el-form-item>
         <el-form-item label="标签 (逗号分隔)">
-          <el-input v-model="editTags" placeholder="例如：重点关注, 暴力倾向" />
+          <el-input v-model="editTags" placeholder="例如：重点关注, 心理创伤" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -133,14 +133,14 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="newVisible" title="✨ 新增人员档案" width="480px" class="!rounded-2xl">
+    <el-dialog v-model="newVisible" title="✨ 新增用户档案" width="480px" class="!rounded-2xl">
       <el-form label-position="top" class="mt-2">
         <el-form-item label="真实姓名"><el-input v-model="newForm.realName" placeholder="例如：张三" /></el-form-item>
-        <el-form-item label="登录账号"><el-input v-model="newForm.username" placeholder="建议使用拼音或工号" /></el-form-item>
+        <el-form-item label="登录账号"><el-input v-model="newForm.username" placeholder="建议使用拼音或编号" /></el-form-item>
         <el-form-item label="系统角色">
           <el-select v-model="newForm.role" class="w-full">
-            <el-option label="👨‍⚕️ 医生 (管理员)" value="DOCTOR" />
-            <el-option label="👤 罪犯 (受测者)" value="PRISONER" />
+            <el-option label="👨‍⚕️ 咨询师 (管理员)" value="ROLE_COUNSELOR" />
+            <el-option label="👤 来访者 (受测者)" value="ROLE_CLIENT" />
           </el-select>
         </el-form-item>
         <el-form-item label="初始密码">
@@ -164,7 +164,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { MoreHorizontal } from 'lucide-vue-next'
 import axios from 'axios'
 
-type Role = 'DOCTOR' | 'PRISONER'
+type Role = 'ROLE_COUNSELOR' | 'ROLE_CLIENT'
 type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH'
 
 type UserData = {
@@ -183,7 +183,7 @@ const search = ref('')
 const risk = ref<'ALL' | RiskLevel>('ALL')
 const router = useRouter()
 const route = useRoute()
-const isDoctor = computed(() => (localStorage.getItem('user_role') || '') === 'DOCTOR')
+const isCounselor = computed(() => (localStorage.getItem('user_role') || '') === 'ROLE_COUNSELOR')
 
 const filtered = computed(() => {
   const q = search.value.trim().toLowerCase()
@@ -196,9 +196,9 @@ const filtered = computed(() => {
 
 function riskInfo(level: RiskLevel | undefined) {
   const l: RiskLevel = level || 'LOW'
-  if (l === 'HIGH') return { label: '高风险', labelShort: '高', color: 'text-rose-600', bg: 'bg-rose-50', badge: 'bg-rose-100 text-rose-700', borderColor: 'border-rose-200' }
-  if (l === 'MEDIUM') return { label: '中风险', labelShort: '中', color: 'text-amber-600', bg: 'bg-amber-50', badge: 'bg-amber-100 text-amber-700', borderColor: 'border-amber-200' }
-  return { label: '低风险', labelShort: '低', color: 'text-emerald-600', bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', borderColor: 'border-emerald-200' }
+  if (l === 'HIGH') return { label: '高关注', labelShort: '高', color: 'text-rose-600', bg: 'bg-rose-50', badge: 'bg-rose-100 text-rose-700', borderColor: 'border-rose-200' }
+  if (l === 'MEDIUM') return { label: '中关注', labelShort: '中', color: 'text-amber-600', bg: 'bg-amber-50', badge: 'bg-amber-100 text-amber-700', borderColor: 'border-amber-200' }
+  return { label: '低关注', labelShort: '低', color: 'text-emerald-600', bg: 'bg-emerald-50', badge: 'bg-emerald-100 text-emerald-700', borderColor: 'border-emerald-200' }
 }
 
 function mapBackend(u: any): UserData {
@@ -217,14 +217,13 @@ function mapBackend(u: any): UserData {
 onMounted(async () => {
   try {
     const res = await axios.get('/api/users')
-    const prisoners = (res.data || []).filter((u: any) => String(u.role || '').toUpperCase() === 'PRISONER')
-    ALL_USERS.value = prisoners.map(mapBackend)
+    ALL_USERS.value = (res.data || []).map(mapBackend)
     const assessed = JSON.parse(localStorage.getItem('assessed_ids') || '[]') as number[]
     if (Array.isArray(assessed) && assessed.length) {
       ALL_USERS.value = ALL_USERS.value.map(u => ({ ...u, archived: assessed.includes(u.id) || u.archived }))
     }
   } catch (e: any) {
-    ElMessage.error('加载人员失败')
+    ElMessage.error('加载用户失败')
     ALL_USERS.value = []
   }
 })
@@ -237,7 +236,7 @@ onMounted(() => {
 })
 
 const newVisible = ref(false)
-const newForm = ref<{ realName: string; username: string; role: Role; password?: string }>({ realName: '', username: '', role: 'PRISONER', password: '' })
+const newForm = ref<{ realName: string; username: string; role: Role; password?: string }>({ realName: '', username: '', role: 'ROLE_CLIENT', password: '' })
 
 async function createNewUser() {
   try {
@@ -250,7 +249,7 @@ async function createNewUser() {
     const res = await axios.post('/api/users', payload)
     ElMessage.success('新建成功')
     newVisible.value = false
-    newForm.value = { realName: '', username: '', role: 'PRISONER', password: '' }
+    newForm.value = { realName: '', username: '', role: 'ROLE_CLIENT', password: '' }
     const fresh = await axios.get('/api/users')
     ALL_USERS.value = (fresh.data || []).map(mapBackend)
   } catch (e: any) {
@@ -263,15 +262,15 @@ function viewProfile(u: UserData) {
 }
 
 function startTest(u: UserData) {
-  if (u.role !== 'PRISONER') {
-    ElMessage.warning('仅可对在押人员发起测评')
+  if (u.role !== 'ROLE_CLIENT') {
+    ElMessage.warning('仅可对来访者发起测评')
     return
   }
   router.push({ path: '/test', query: { targetId: u.id, targetName: u.realName } })
 }
 
 const editVisible = ref(false)
-const editForm = ref<UserData>({ id: 0, username: '', realName: '', role: 'PRISONER', avatar: '', prisonId: '', lastRiskLevel: 'LOW' })
+const editForm = ref<UserData>({ id: 0, username: '', realName: '', role: 'ROLE_CLIENT', avatar: '', prisonId: '', lastRiskLevel: 'LOW' })
 let editingId: number | null = null
 const editTags = ref('')
 
@@ -292,7 +291,7 @@ function onCardCommand(cmd: string, u: UserData) {
   } else if (cmd === 'profile') {
     viewProfile(u)
   } else if (cmd === 'delete') {
-    ElMessageBox.confirm('确认删除该人员吗？', '警告', { 
+    ElMessageBox.confirm('确认删除该来访者吗？', '警告', { 
       confirmButtonText: '删除', 
       cancelButtonText: '取消', 
       type: 'warning' 

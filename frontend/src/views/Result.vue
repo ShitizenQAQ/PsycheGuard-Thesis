@@ -2,7 +2,7 @@
   <div class="result-container bg-slate-50 min-h-screen">
     <div class="medical-report">
       <div class="report-header">
-        <button v-if="isDoctor" @click="goBack"
+        <button v-if="isCounselor" @click="goBack"
           class="absolute left-6 top-6 z-20 bg-white/20 backdrop-blur-sm border border-white/30 text-white font-semibold rounded-xl px-4 py-2 flex items-center gap-2 hover:bg-white/30 transition-all duration-200 shadow-sm">
           <ArrowLeft :size="18" />
           <span>返回记录</span>
@@ -41,7 +41,7 @@
             <span class="font-bold">{{ currentDate }}</span>
           </div>
           <div class="flex justify-between items-center gap-4">
-            <span class="text-blue-100 text-sm">主评医师</span>
+            <span class="text-blue-100 text-sm">主评咨询师</span>
             <span class="font-bold">{{ doctorName }}</span>
           </div>
         </div>
@@ -51,16 +51,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center justify-center">
             <div class="text-slate-500 text-sm font-medium mb-2 uppercase tracking-wider">综合评分</div>
-            <div class="text-5xl font-black text-slate-800">{{ totalScore }} <span class="text-lg text-slate-400 font-normal">/ 分</span></div>
+            <div class="text-5xl font-black text-slate-800">{{ totalScore }} <span class="text-lg text-slate-400 font-normal">/ 40分</span></div>
           </div>
           <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col items-center justify-center">
-            <div class="text-slate-500 text-sm font-medium mb-2 uppercase tracking-wider">风险评级</div>
+            <div class="text-slate-500 text-sm font-medium mb-2 uppercase tracking-wider">关注等级</div>
             <el-tag 
               :type="riskLevel === 'HIGH' ? 'danger' : 'success'"
               effect="dark"
               class="!text-lg !px-6 !py-6 !rounded-xl font-bold"
             >
-              {{ riskLevel === 'HIGH' ? '高风险' : '低风险' }}
+              {{ riskLevel === 'HIGH' ? '重点关注' : '安心状态' }}
             </el-tag>
           </div>
         </div>
@@ -75,18 +75,18 @@
           </div>
         </div>
 
-        <div v-if="isDoctor || expertAnnotation" class="bg-amber-50 rounded-2xl border border-amber-100 p-6">
+        <div v-if="isCounselor || expertAnnotation" class="bg-amber-50 rounded-2xl border border-amber-100 p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-lg font-bold text-amber-900 flex items-center gap-2">
               <span>👨‍⚕️</span> 专家研判与批注
             </h2>
-            <div v-if="isDoctor" class="flex gap-2">
+            <div v-if="isCounselor" class="flex gap-2">
                <el-tag v-if="isTeachingCase" type="success" effect="dark" round>已入库</el-tag>
                <el-button v-else type="warning" size="small" plain round @click="addToTeachingLibrary">加入案例库</el-button>
             </div>
           </div>
           
-          <div v-if="isDoctor">
+          <div v-if="isCounselor">
             <el-input
               v-model="expertAnnotation"
               type="textarea"
@@ -109,10 +109,10 @@
           </h2>
           <p :class="riskLevel === 'HIGH' ? 'text-rose-700' : 'text-emerald-700'" class="leading-relaxed">
             <span v-if="riskLevel === 'HIGH'">
-              ⚠️ 警示：评估结果显示该对象存在较高的心理风险。建议立即启动二级干预流程，安排专业心理医师进行一对一访谈，并密切关注其日常行为表现。
+              ⚠️ 提示：评估结果显示该来访者存在需要关注的心理特征。建议安排专业咨询师进行一对一访谈，并关注其情绪与行为变化。
             </span>
             <span v-else>
-              ✅ 结论：评估结果显示心理状况良好，各项指标均在正常范围内。建议继续保持当前的生活状态，定期进行常规心理体检即可。
+              ✅ 结论：评估结果显示心理状况平稳，各项指标均在正常范围内。建议继续保持当前状态，定期进行心理健康维护。
             </span>
           </p>
         </div>
@@ -120,7 +120,7 @@
       
       <div class="report-footer bg-slate-50 p-8 border-t border-slate-200">
         <div class="text-center text-slate-400 text-xs italic mb-8">
-          * 本报告由 PsycheGuard 智能评估系统自动生成，仅供临床参考，不作为最终司法鉴定依据。
+          * 本报告由 PsycheGuard 智能评估系统自动生成，仅供咨询参考。
         </div>
         <div class="flex justify-between items-end pt-8 border-t border-slate-200 border-dashed">
           <div class="text-slate-500 text-sm">
@@ -149,10 +149,10 @@ import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
-const isDoctor = computed(() => {
+const isCounselor = computed(() => {
   try {
     const u = JSON.parse(localStorage.getItem('pg_user') || 'null')
-    return u?.role === 'DOCTOR'
+    return u?.role === 'ROLE_COUNSELOR'
   } catch { return false }
 })
 const isExporting = ref(false)
@@ -164,14 +164,14 @@ const isTeachingCase = ref(false)
 const expertAnnotation = ref('')
 const subjectName = computed(() => {
   const q = route.query?.name as string | undefined
-  return q && q.trim() ? q : '评估对象'
+  return q && q.trim() ? q : '来访者'
 })
 const doctorName = computed(() => {
   try {
     const u = JSON.parse(localStorage.getItem('pg_user') || 'null')
-    if (u?.role === 'DOCTOR') return u?.realName || u?.username || '张主任'
-    return '张主任'
-  } catch { return '张主任' }
+    if (u?.role === 'ROLE_COUNSELOR') return u?.realName || u?.username || '咨询师'
+    return '咨询师'
+  } catch { return '咨询师' }
 })
 
 const currentDate = computed(() => {
@@ -188,20 +188,36 @@ onMounted(async () => {
     
     // 图表数据逻辑...
     const dim: Record<string, number> = data.dimensionScore || {}
-    const keys = Object.keys(dim).length ? Object.keys(dim) : ['情感冷漠', '冲动控制', '反社会', '认知扭曲', '生活方式']
-    // 防止没有维度数据时报错，给点默认值
+    const rawKeys = Object.keys(dim).length ? Object.keys(dim) : ['情感冷漠', '冲动控制', '反社会', '认知扭曲', '生活方式']
+    
+    // 维度名称映射表: 后端原始名称 -> 前端专业展示名称
+    const termMapping: Record<string, string> = {
+      '人际操控': '人际关系',
+      '情感冷漠': '情感反应',
+      '感觉寻求': '行为模式',
+      '冲动控制': '冲动性',
+      '认知扭曲': '认知模式',
+      '情感': '情感稳定性',
+      '反社会': '社会适应',
+      '生活方式': '生活方式'
+    }
+
+    // 维度满分值映射
     const indicatorMap: Record<string, number> = {
-      '人际操控': 2, '情感冷漠': 2, '感觉寻求': 2, '冲动控制': 4,
-      '认知扭曲': 4, '情感': 6, '反社会': 2, '生活方式': 2
+      '人际操控': 8, '情感冷漠': 8, '感觉寻求': 10, '冲动控制': 10,
+      '认知扭曲': 8, '情感': 8, '反社会': 10, '生活方式': 10
     }
     
-    const indicators = keys.map(k => ({ name: k, max: indicatorMap[k] ?? 4 }))
-    const values = keys.map((k, i) => Math.min((indicators[i].max as number), dim[k] || Math.floor(Math.random()*2)))
+    const indicators = rawKeys.map(k => ({ 
+      name: termMapping[k] || k, // 使用映射后的名称，如果没有则使用原名
+      max: indicatorMap[k] ?? 10 
+    }))
+    const values = rawKeys.map((k, i) => Math.min((indicators[i].max as number), dim[k] || 0))
 
     if (chartRef.value) {
       const chart = echarts.init(chartRef.value)
       const isHigh = riskLevel.value === 'HIGH'
-      const mainColor = isHigh ? '#ef4444' : '#3b82f6'
+      const mainColor = isHigh ? '#ef4444' : '#10b981' // Red or Emerald
       
       chart.setOption({
         tooltip: { trigger: 'item' },
@@ -209,7 +225,15 @@ onMounted(async () => {
           indicator: indicators,
           shape: 'circle',
           splitNumber: 4,
-          axisName: { color: '#64748b', fontSize: 12, fontWeight: 'bold' },
+          axisName: {
+            formatter: function (value: string) {
+              // 根据isCounselor决定是否显示原始术语
+              return isCounselor.value ? value : (termMapping[value] || value);
+            },
+            color: '#64748b',
+            fontSize: 12,
+            fontWeight: 'bold'
+          },
           splitLine: { lineStyle: { color: '#e2e8f0' } },
           splitArea: { show: true, areaStyle: { color: ['#f8fafc', '#fff'] } },
           axisLine: { lineStyle: { color: '#cbd5e1' } }
@@ -232,14 +256,14 @@ onMounted(async () => {
     const status = error?.response?.status
     if (status === 404) {
       ElMessage.warning('评估记录不存在或已删除')
-      return router.replace(isDoctor.value ? '/history' : '/test')
+      return router.replace(isCounselor.value ? '/history' : '/test')
     }
     // 即使报错也允许页面展示（可能只有部分数据）
     console.error(error)
   }
 })
 
-function goBack() { router.push(isDoctor.value ? '/history' : '/test') }
+function goBack() { router.push(isCounselor.value ? '/history' : '/test') }
 
 function goLogin() {
   localStorage.clear()

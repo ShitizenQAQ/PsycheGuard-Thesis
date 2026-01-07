@@ -6,83 +6,81 @@
         <p class="text-sm text-slate-500 mt-1">创建与维护心理测评量表及题库</p>
       </div>
       <div>
-        <el-button type="primary" size="large" class="!rounded-xl shadow-lg shadow-blue-500/30" @click="openCreateScale">+ 新建量表</el-button>
+        <el-button type="primary" size="large" class="!rounded-xl shadow-lg shadow-blue-500/30" @click="handleAddScale">+ 新建量表</el-button>
       </div>
     </div>
 
-    <div class="glass-card p-1 rounded-3xl overflow-hidden shadow-lg border border白/60">
-      <el-table :data="scales" style="width: 100%" @row-click="onRowClick" highlight-current-row :header-cell-style="{ background: '#f8fafc', color: '#475569', fontWeight: '600' }" :row-style="{ background: 'transparent', cursor: 'pointer' }">
-        <el-table-column prop="id" label="ID" width="80" align="center" />
-        <el-table-column label="量表名称" min-width="200">
-          <template #default="{ row }">
-            <span class="font-bold text-slate-700">{{ row.name }}</span>
-            <div class="text-xs text-slate-400 truncate">{{ row.description }}</div>
+    <div class="glass-card p-4 rounded-3xl overflow-hidden shadow-lg border border-white/60 min-h-[500px]">
+      <el-collapse v-model="activeName" accordion @change="handleCollapseChange">
+        <el-collapse-item v-for="(scale, index) in scales" :key="scale.id" :name="scale.id">
+          <template #title>
+            <div class="flex items-center justify-between w-full pr-4">
+              <div class="flex items-center gap-3">
+                <el-switch v-if="scale.id !== -1" v-model="scale.isEnabled" active-text="启用" inactive-text="停用" inline-prompt @change="toggleScale(scale)" @click.stop />
+                <span class="font-bold text-slate-700 text-lg" :class="{ 'opacity-50': !scale.isEnabled }">{{ scale.name || '未命名量表' }}</span>
+                <el-tag size="small" effect="plain" round>{{ scale.items }} 题</el-tag>
+                <el-tag v-if="scale.id === -1" type="warning" size="small" effect="dark">新建中</el-tag>
+              </div>
+              <div class="text-xs text-slate-400 truncate max-w-[300px]">{{ scale.description }}</div>
+            </div>
           </template>
-        </el-table-column>
-        <el-table-column label="题目数" width="120" align="center">
-          <template #default="{ row }"><el-tag type="info" effect="plain" round>{{ row.items || '-' }} 题</el-tag></template>
-        </el-table-column>
-        <el-table-column label="操作" width="200" align="right">
-          <template #default="{ row }">
-            <el-button size="small" :icon="Edit" circle @click.stop="openEditScale(row)" />
-            <el-button size="small" type="primary" class="!rounded-lg" @click.stop="selectScale(row)">管理题目</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+
+          <div class="p-4 bg-white/40 rounded-xl mt-2">
+            <!-- Scale Basic Info Form -->
+            <el-form :model="scale" label-position="top" class="mb-6 border-b border-slate-200/50 pb-4">
+              <el-row :gutter="20">
+                <el-col :span="8">
+                  <el-form-item label="量表名称">
+                    <el-input v-model="scale.name" placeholder="请输入量表名称" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item label="简介描述">
+                    <el-input v-model="scale.description" placeholder="请输入简介" />
+                  </el-form-item>
+                </el-col>
+                <el-col :span="4" class="flex items-end pb-4">
+                  <el-button type="primary" @click="saveScale(scale)">保存配置</el-button>
+                  <el-button v-if="scale.id !== -1" type="danger" plain @click="deleteScale(scale)">删除</el-button>
+                  <el-button v-else @click="cancelCreate(index)">取消</el-button>
+                </el-col>
+              </el-row>
+            </el-form>
+
+            <!-- Questions Manager (Only show if scale is saved) -->
+            <div v-if="scale.id !== -1">
+              <div class="flex items-center justify-between mb-4">
+                <h4 class="font-bold text-slate-600 flex items-center gap-2">📄 题目列表</h4>
+                <el-button type="primary" size="small" @click="openCreateQuestion(scale)">+ 新增题目</el-button>
+              </div>
+
+              <el-table :data="scale.questions || []" style="width: 100%" size="small" :header-cell-style="{ background: 'transparent' }" :row-style="{ background: 'transparent' }">
+                <el-table-column prop="id" label="ID" width="60" />
+                <el-table-column label="维度" width="100">
+                  <template #default="{ row }">
+                    <el-tag v-if="extractDimension(row.content)" size="small" effect="dark">{{ extractDimension(row.content) }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="content" label="题干" min-width="200">
+                  <template #default="{ row }">{{ row.content.replace(/维度:\s*[^，\s)]+/, '').trim() }}</template>
+                </el-table-column>
+                <el-table-column label="操作" width="120" align="right">
+                  <template #default="{ row }">
+                    <el-button link type="primary" size="small" @click="openEditQuestion(row, scale)">编辑</el-button>
+                    <el-button link type="danger" size="small" @click="deleteQuestion(row, scale)">删除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+            <div v-else class="text-center py-8 text-slate-400">
+              请先保存量表基本信息，再添加题目
+            </div>
+          </div>
+        </el-collapse-item>
+      </el-collapse>
     </div>
 
-    <div v-if="selectedScale" class="glass-card p-6 rounded-3xl border border-blue-100 bg-blue-50/30">
-      <div class="flex items-center justify-between mb-6">
-        <div>
-          <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2"><span class="text-blue-600">📝</span> 题目管理 <span class="text-sm font-normal text-slate-400 bg-white px-2 py-0.5 rounded-md border border-slate-200">{{ selectedScale.name }}</span></h3>
-        </div>
-        <el-button type="primary" @click="openCreateQuestion">新增题目</el-button>
-      </div>
-      <el-table :data="questions" style="width: 100%" class="!bg-transparent" :header-cell-style="{ background: 'rgba(255,255,255,0.5)' }" :row-style="{ background: 'transparent' }">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="维度" width="120">
-          <template #default="{ row }">
-            <el-tag v-if="extractDimension(row.content)" size="small" effect="dark">{{ extractDimension(row.content) }}</el-tag>
-            <span v-else class="text-slate-300">-</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="content" label="题干内容" min-width="300">
-          <template #default="{ row }">{{ row.content.replace(/维度:\s*[^，\s)]+/, '').trim() }}</template>
-        </el-table-column>
-        <el-table-column label="操作" width="180" align="right">
-          <template #default="{ row }">
-            <el-button size="small" text type="primary" @click="openEditQuestion(row)">编辑</el-button>
-            <el-button size="small" text type="danger" @click="deleteQuestion(row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
-
-    <!-- 新建量表 -->
-    <el-dialog v-model="createScaleVisible" title="新建量表" width="500px" class="!rounded-2xl">
-      <el-form label-position="top">
-        <el-form-item label="量表名称"><el-input v-model="createScaleForm.name" /></el-form-item>
-        <el-form-item label="量表简介"><el-input type="textarea" v-model="createScaleForm.description" rows="3" /></el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="createScaleVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveCreateScale">保存</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 编辑量表 -->
-    <el-dialog v-model="editScaleVisible" title="编辑量表" width="500px" class="!rounded-2xl">
-      <el-form label-position="top">
-        <el-form-item label="量表名称"><el-input v-model="editScaleForm.name" /></el-form-item>
-        <el-form-item label="量表简介"><el-input type="textarea" v-model="editScaleForm.description" rows="3" /></el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="editScaleVisible = false">取消</el-button>
-        <el-button type="primary" @click="saveEditScale">保存</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 新建/编辑题目 -->
+    <!-- Question Dialog (Reused) -->
     <el-dialog v-model="editQuestionVisible" :title="questionEditing ? '编辑题目' : '新增题目'" width="680px" class="!rounded-2xl">
       <el-form label-position="top">
         <el-form-item label="所属维度">
@@ -114,24 +112,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { ElMessage } from 'element-plus'
-import { Edit } from '@element-plus/icons-vue'
+import { ref, onMounted, nextTick } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import axios from 'axios'
 
-type ScaleRow = { id: number; name: string; description?: string; items?: number }
+type ScaleRow = { id: number; name: string; description?: string; items?: number; questions?: any[] }
 type QuestionRow = { id: number; content: string; options: Array<Record<string, any>> }
 
 const scales = ref<ScaleRow[]>([])
-const selectedScale = ref<ScaleRow | null>(null)
-const questions = ref<QuestionRow[]>([])
+const activeName = ref<number | string>('') // Controls Collapse expansion
+const currentScale = ref<ScaleRow | null>(null) // For Question Dialog context
 
-const createScaleVisible = ref(false)
-const createScaleForm = ref<{ name: string; description?: string }>({ name: '', description: '' })
-
-const editScaleVisible = ref(false)
-const editScaleForm = ref<{ id: number | null; name: string; description?: string }>({ id: null, name: '', description: '' })
-
+// Question Dialog State
 const editQuestionVisible = ref(false)
 const questionEditing = ref(false)
 const questionForm = ref<{ id?: number; dimension: string; content: string; optionsJson: string }>({ content: '', dimension: '', optionsJson: '' })
@@ -141,78 +133,154 @@ onMounted(async () => { await loadScales() })
 async function loadScales() {
   try {
     const { data } = await axios.get('/api/scales')
-    const list: Array<{ id: number; name: string; description?: string }> = data || []
-    scales.value = list.map(s => ({ id: s.id, name: s.name, description: s.description, items: 0 }))
-    if (selectedScale.value) await loadQuestions(selectedScale.value.id)
+    scales.value = (data || []).map((s: any) => ({ ...s, items: 0, questions: [] }))
+    // If we have an active scale, reload its questions
+    if (activeName.value && activeName.value !== -1) {
+        await loadQuestions(Number(activeName.value))
+    }
   } catch (e) { console.error(e) }
 }
 
 async function loadQuestions(scaleId: number) {
+  if (scaleId === -1) return
   try {
     const { data } = await axios.get(`/api/scales/${scaleId}/questions`)
-    questions.value = (data || [])
     const scale = scales.value.find(s => s.id === scaleId)
-    if (scale) scale.items = questions.value.length
+    if (scale) {
+      scale.questions = data || []
+      scale.items = scale.questions.length
+    }
   } catch (e) { console.error(e) }
 }
 
-function onRowClick(row: ScaleRow) { selectScale(row) }
-function selectScale(row: ScaleRow) { selectedScale.value = row; loadQuestions(row.id) }
-
-function openCreateScale() { createScaleVisible.value = true }
-async function saveCreateScale() {
-  if (!createScaleForm.value.name.trim()) return
-  await axios.post('/api/scales', { name: createScaleForm.value.name.trim(), description: createScaleForm.value.description || '' })
-  createScaleVisible.value = false
-  createScaleForm.value = { name: '', description: '' }
-  ElMessage.success('量表已创建')
-  await loadScales()
+// --- Collapse Logic ---
+function handleCollapseChange(val: number | string) {
+    if (val && val !== -1) loadQuestions(Number(val))
 }
 
-function openEditScale(row: ScaleRow) { editScaleForm.value = { id: row.id, name: row.name, description: row.description || '' }; editScaleVisible.value = true }
-async function saveEditScale() {
-  if (!editScaleForm.value.id) return
-  await axios.put(`/api/scales/${editScaleForm.value.id}`, { name: editScaleForm.value.name.trim(), description: editScaleForm.value.description || '' })
-  editScaleVisible.value = false
-  ElMessage.success('量表已更新')
-  await loadScales()
+// --- Scale Actions ---
+async function handleAddScale() {
+  // Check if already creating
+  if (scales.value.some(s => s.id === -1)) {
+    ElMessage.warning('请先保存当前正在新建的量表')
+    activeName.value = -1
+    return
+  }
+
+  const newScale = { id: -1, name: '', description: '', items: 0, questions: [] }
+  scales.value.unshift(newScale) // Add to top
+  
+  // FIX: Force layout update to ensure expansion works
+  await nextTick()
+  activeName.value = -1
 }
 
-function openCreateQuestion() { questionEditing.value = false; questionForm.value = { content: '', dimension: '', optionsJson: JSON.stringify([{label:"是",score:1},{label:"否",score:0}]) }; editQuestionVisible.value = true }
-function openEditQuestion(row: QuestionRow) { questionEditing.value = true; questionForm.value = { id: row.id, content: row.content, dimension: extractDimension(row.content), optionsJson: JSON.stringify(row.options) }; editQuestionVisible.value = true }
+function cancelCreate(index: number) {
+    scales.value.splice(index, 1)
+    activeName.value = ''
+}
+
+async function saveScale(scale: ScaleRow) {
+    if (!scale.name.trim()) return ElMessage.warning('名称不能为空')
+    
+    try {
+        if (scale.id === -1) {
+            // Create
+            const { data } = await axios.post('/api/scales', { name: scale.name, description: scale.description })
+            scale.id = data.id // Update ID from backend
+            ElMessage.success('量表创建成功')
+            // Remove the temporary -1 key logic if needed, or just reload
+            await loadScales()
+            activeName.value = data.id // Expand the real ID
+        } else {
+            // Update
+            await axios.put(`/api/scales/${scale.id}`, { name: scale.name, description: scale.description })
+            ElMessage.success('量表更新成功')
+        }
+    } catch (e) {
+        ElMessage.error('保存失败')
+    }
+}
+
+async function deleteScale(scale: ScaleRow) {
+    try {
+        await ElMessageBox.confirm('确定删除该量表及其所有题目吗？', '警告', { type: 'warning' })
+        await axios.delete(`/api/scales/${scale.id}`) 
+        ElMessage.success('已删除')
+        await loadScales()
+    } catch (e) {
+        // ignore cancel
+    }
+}
+
+// --- Question Actions ---
+function openCreateQuestion(scale: ScaleRow) {
+    currentScale.value = scale
+    questionEditing.value = false
+    questionForm.value = { content: '', dimension: '', optionsJson: JSON.stringify([{label:"是",score:1},{label:"否",score:0}]) }
+    editQuestionVisible.value = true
+}
+
+function openEditQuestion(row: QuestionRow, scale: ScaleRow) {
+    currentScale.value = scale
+    questionEditing.value = true
+    questionForm.value = { 
+        id: row.id, 
+        content: row.content, 
+        dimension: extractDimension(row.content), 
+        optionsJson: JSON.stringify(row.options) 
+    }
+    editQuestionVisible.value = true
+}
 
 async function saveQuestion() {
-  if (!selectedScale.value) return
-  const dim = questionForm.value.dimension.trim()
-  const text = questionForm.value.content.trim()
-  let options: any
-  try { options = JSON.parse(questionForm.value.optionsJson || '[]') } catch (e) { ElMessage.error('选项 JSON 解析失败'); return }
-  const content = dim ? `维度:${dim} ${text}` : text
-  const payload = { scaleId: selectedScale.value.id, content, options }
-  if (questionEditing.value && questionForm.value.id) {
-    await axios.put(`/api/questions/${questionForm.value.id}`, payload)
-    ElMessage.success('题目已更新')
-  } else {
-    await axios.post('/api/questions', payload)
-    ElMessage.success('题目已创建')
-  }
-  editQuestionVisible.value = false
-  await loadQuestions(selectedScale.value.id)
+    if (!currentScale.value) return
+    const dim = questionForm.value.dimension.trim()
+    const text = questionForm.value.content.trim()
+    let options: any
+    try { options = JSON.parse(questionForm.value.optionsJson || '[]') } catch (e) { ElMessage.error('选项 JSON 解析失败'); return }
+    
+    const content = dim ? `维度:${dim} ${text}` : text
+    const payload = { scaleId: currentScale.value.id, content, options }
+    
+    try {
+        if (questionEditing.value && questionForm.value.id) {
+            await axios.put(`/api/questions/${questionForm.value.id}`, payload)
+            ElMessage.success('更新成功')
+        } else {
+            await axios.post('/api/questions', payload)
+            ElMessage.success('创建成功')
+        }
+        editQuestionVisible.value = false
+        await loadQuestions(currentScale.value.id)
+    } catch (e) {
+        ElMessage.error('操作失败')
+    }
 }
 
-async function deleteQuestion(row: QuestionRow) {
-  await axios.delete(`/api/questions/${row.id}`)
-  ElMessage.success('题目已删除')
-  if (selectedScale.value) await loadQuestions(selectedScale.value.id)
+async function deleteQuestion(row: QuestionRow, scale: ScaleRow) {
+    try {
+        await axios.delete(`/api/questions/${row.id}`)
+        ElMessage.success('已删除')
+        await loadQuestions(scale.id)
+    } catch (e) { ElMessage.error('删除失败') }
 }
 
 function extractDimension(content: string) { const m = content?.match(/维度:\s*([^，\s)]+)/); return m?.[1] || '' }
+function fillTemplate(type: string) {
+    if (type === 'yesno') questionForm.value.optionsJson = JSON.stringify([{label:"是",score:1},{label:"否",score:0}])
+    if (type === 'degree') questionForm.value.optionsJson = JSON.stringify([{label:"完全不符",score:0},{label:"有点符合",score:1},{label:"完全符合",score:2}])
+}
 </script>
 
 <style scoped>
 .glass-card { background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); box-shadow: 0 8px 32px rgba(31, 38, 135, 0.07); }
 .fade-up { animation: fadeUp 0.5s ease-out both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-:deep(.el-table) { background-color: transparent !important; --el-table-bg-color: transparent !important; --el-table-tr-bg-color: transparent !important; }
-:deep(.el-table__inner-wrapper::before) { display: none; }
+
+/* Collapse Styles Override */
+:deep(.el-collapse) { border: none; --el-collapse-header-bg-color: transparent; --el-collapse-content-bg-color: transparent; }
+:deep(.el-collapse-item__header) { background: transparent; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 16px; }
+:deep(.el-collapse-item__wrap) { background: transparent; border-bottom: none; }
+:deep(.el-collapse-item__content) { padding-bottom: 0; }
 </style>

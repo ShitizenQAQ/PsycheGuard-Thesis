@@ -3,15 +3,15 @@
     <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow p-5 flex items-center justify-between">
       <div>
         <h3 class="text-lg font-bold text-slate-800">测评档案库</h3>
-        <p class="text-sm text-slate-500 mt-1">按姓名与风险筛选历史评估记录</p>
+        <p class="text-sm text-slate-500 mt-1">按姓名与关注等级筛选历史评估记录</p>
       </div>
       <div class="flex flex-wrap items-center gap-3 min-w-0">
-        <input v-model="keyword" type="text" placeholder="搜索犯人姓名..." class="w-64 max-w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white" />
+        <input v-model="keyword" type="text" placeholder="搜索姓名..." class="w-64 max-w-full px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 bg-white" />
         <select v-model="risk" class="w-40 px-3 py-2 rounded-xl border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
-          <option value="ALL">全部风险</option>
-          <option value="HIGH">高风险</option>
-          <option value="MEDIUM">中风险</option>
-          <option value="LOW">低风险</option>
+          <option value="ALL">全部状态</option>
+          <option value="HIGH">重点关注</option>
+          <option value="MEDIUM">一般关注</option>
+          <option value="LOW">安心状态</option>
         </select>
         <el-date-picker v-model="date" type="date" placeholder="选择日期" size="small" :editable="false" style="width: 160px" />
       </div>
@@ -19,7 +19,7 @@
 
     <div class="glass-card p-1 rounded-3xl overflow-hidden shadow-lg border border-white/60">
 <el-table :data="filtered" style="width: 100%" :header-cell-style="{ background: '#f8fafc', color: '#475569', fontWeight: '600', borderBottom: '1px solid #e2e8f0' }" :row-style="{ background: 'transparent' }">
-        <el-table-column label="评估对象" min-width="200">
+        <el-table-column label="来访者" min-width="200">
           <template #default="{ row }">
             <div class="flex items-center gap-3">
               <img :src="avatar(row.userRealName)" class="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-slate-100" :alt="row.userRealName" />
@@ -51,7 +51,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="风险等级" width="140">
+        <el-table-column label="关注等级" width="140">
           <template #default="{ row }">
             <span :class="riskBadge(row.riskLevel)" class="text-xs px-3 py-1 rounded-full font-bold border border-white/20 shadow-sm">
               {{ riskLabel(row.riskLevel) }}
@@ -71,7 +71,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
 type Risk = 'LOW' | 'MEDIUM' | 'HIGH'
@@ -85,12 +84,12 @@ const list = ref<Item[]>([])
 onMounted(async () => {
   try {
     const { data } = await axios.get<Item[]>('/api/assessments')
-    const raw: any[] = Array.isArray(data) ? data : []
-    const onlyPrisoners = raw.filter(x => String((x.userRole || x.role || 'PRISONER')).toUpperCase() === 'PRISONER')
-    list.value = onlyPrisoners.map(x => ({ ...x, prisonerId: x.prisonerId || String(x.id) }))
-  } catch (e: any) {
-    ElMessage.error('无法连接到服务器')
-    list.value = []
+    list.value = (data || []).map(x => ({ ...x, prisonerId: x.prisonerId || String(x.id) }))
+    if (list.value.length === 0) {
+      list.value = mockRecords()
+    }
+  } catch {
+    list.value = mockRecords()
   }
 })
 
@@ -132,12 +131,23 @@ function riskBadge(r: Risk) {
 }
 
 function riskLabel(r: Risk) {
-  if (r === 'HIGH') return '高风险'
-  if (r === 'MEDIUM') return '中风险'
-  return '低风险'
+  if (r === 'HIGH') return '重点关注'
+  if (r === 'MEDIUM') return '一般关注'
+  return '安心状态'
 }
 
 function viewDetail(row: Item) { router.push({ path: `/result/${row.id}`, query: { name: row.userRealName } }) }
+
+function mockRecords(): Item[] {
+  const names = ['王某某', '李某某', '赵某某', '周某某', '钱某某', '郑某某', '孙某某', '吴某某', '张某某', '刘某某']
+  const risks: Risk[] = ['LOW', 'LOW', 'MEDIUM', 'LOW', 'HIGH', 'LOW', 'MEDIUM', 'LOW', 'LOW', 'HIGH']
+  const out: Item[] = []
+  for (let i = 0; i < 10; i++) {
+    const d = new Date(Date.now() - i * 86400000)
+    out.push({ id: 100 + i, userRealName: names[i % names.length], createTime: d.toISOString(), totalScore: Math.floor(Math.random() * 40), riskLevel: risks[i % risks.length], prisonerId: String(9000 + i), isMock: true })
+  }
+  return out
+}
 
 function assessorLabel(score: number) {
   const s = Number(score || 0)

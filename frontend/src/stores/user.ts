@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-export type Role = 'DOCTOR' | 'PRISONER'
+export type Role = 'ROLE_COUNSELOR' | 'ROLE_CLIENT'
 
 export type User = {
   id: number
@@ -19,7 +19,7 @@ export const useUserStore = defineStore('user', {
   },
   actions: {
     load() {
-      try { const raw = localStorage.getItem(KEY); if (raw) this.user = JSON.parse(raw) } catch {}
+      try { const raw = localStorage.getItem(KEY); if (raw) this.user = JSON.parse(raw) } catch { }
     },
     login(u: User) {
       this.user = u

@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS sys_user (
   username VARCHAR(255) NOT NULL UNIQUE,
   role VARCHAR(32) NOT NULL,
   tags TEXT[],
-  CONSTRAINT sys_user_role_chk CHECK (role IN ('DOCTOR','PRISONER'))
+  CONSTRAINT sys_user_role_chk CHECK (role IN ('COUNSELOR','CLIENT','DOCTOR','PRISONER'))
 );
 
 CREATE TABLE IF NOT EXISTS psych_scale (

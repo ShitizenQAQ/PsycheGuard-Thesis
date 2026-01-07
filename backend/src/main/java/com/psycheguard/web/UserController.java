@@ -24,7 +24,7 @@ public class UserController {
 
   @GetMapping
   public List<SysUserDTO> list(@RequestParam(value = "keyword", required = false) String keyword,
-                               @RequestParam(value = "role", required = false) String role) {
+      @RequestParam(value = "role", required = false) String role) {
     List<SysUser> users;
     if (keyword != null && !keyword.isBlank()) {
       users = userRepository.findByUsernameContainingIgnoreCase(keyword);
@@ -51,7 +51,7 @@ public class UserController {
   @GetMapping("/{id}")
   public SysUser get(@PathVariable Long id) {
     return userRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
   }
 
   @PostMapping
@@ -65,9 +65,10 @@ public class UserController {
     SysUser u = new SysUser();
     u.setUsername(input.getUsername());
     u.setRealName(input.getRealName());
-    // TODO: Use BCryptPasswordEncoder to hash passwords instead of storing plain text
+    // TODO: Use BCryptPasswordEncoder to hash passwords instead of storing plain
+    // text
     u.setPassword(input.getPassword() == null || input.getPassword().isBlank() ? "123456" : input.getPassword());
-    u.setRole(input.getRole() == null ? "PRISONER" : input.getRole());
+    u.setRole(input.getRole() == null ? "ROLE_CLIENT" : input.getRole());
     u.setTags(input.getTags());
     SysUser saved = userRepository.save(u);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -76,11 +77,15 @@ public class UserController {
   @PutMapping("/{id}")
   public SysUser update(@PathVariable Long id, @RequestBody SysUser input) {
     SysUser u = userRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
-    if (input.getUsername() != null) u.setUsername(input.getUsername());
-    if (input.getRealName() != null) u.setRealName(input.getRealName());
-    if (input.getRole() != null) u.setRole(input.getRole());
-    if (input.getTags() != null) u.setTags(input.getTags());
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+    if (input.getUsername() != null)
+      u.setUsername(input.getUsername());
+    if (input.getRealName() != null)
+      u.setRealName(input.getRealName());
+    if (input.getRole() != null)
+      u.setRole(input.getRole());
+    if (input.getTags() != null)
+      u.setTags(input.getTags());
     return userRepository.save(u);
   }
 
@@ -88,9 +93,9 @@ public class UserController {
   @org.springframework.transaction.annotation.Transactional
   public ResponseEntity<java.util.Map<String, Long>> delete(@PathVariable Long id) {
     SysUser u = userRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
-    if ("DOCTOR".equalsIgnoreCase(u.getRole())) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "doctor cannot be deleted");
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+    if ("COUNSELOR".equalsIgnoreCase(u.getRole()) || "DOCTOR".equalsIgnoreCase(u.getRole())) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "咨询师账号不可删除");
     }
     try {
       recordRepository.deleteByUser_Id(id);

@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl shadow-sm border border-white/50 relative z-10 isolate">
       <div>
         <p class="text-sm text-slate-500">欢迎回来，控制中心</p>
-        <h2 class="text-xl font-bold text-slate-800">Dr. Admin</h2>
+        <h2 class="text-xl font-bold text-slate-800">咨询师</h2>
       </div>
       <div class="relative">
         <button class="relative w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20" @click="showNotifications = !showNotifications">
@@ -41,7 +41,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
       <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-blue-500 to-blue-600 shadow-xl shadow-blue-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group" @click="router.push('/users')">
         <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">在押总人数</span>
+          <span class="text-sm font-medium opacity-90">来访者总数</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
             <span class="text-lg">👥</span>
           </div>
@@ -55,7 +55,7 @@
 
       <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-rose-500 to-rose-600 shadow-xl shadow-rose-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer group" @click="goHighRisk()">
         <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">高风险预警</span>
+          <span class="text-sm font-medium opacity-90">重点关注预警</span>
           <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
             <span class="text-lg animate-pulse">⚠️</span>
           </div>
@@ -99,7 +99,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
       <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/60">
         <h3 class="text-base font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <span class="w-2 h-6 bg-blue-500 rounded-full"></span> 风险等级分布
+          <span class="w-2 h-6 bg-blue-500 rounded-full"></span> 心理状态分布
         </h3>
         <div ref="pieRef" class="w-full h-[300px]"></div>
       </div>
@@ -147,7 +147,7 @@
               class="text-xs px-3 py-1.5 rounded-xl font-bold transition-transform group-hover:scale-105"
               :class="r.risk === 'HIGH' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'"
             >
-              {{ r.risk === 'HIGH' ? '高风险' : '低风险' }}
+              {{ r.risk === 'HIGH' ? '重点关注' : '安心状态' }}
             </span>
           </div>
         </div>
@@ -216,7 +216,7 @@ async function fetchStatsAndCharts() {
   try {
     // 1. Fetch Users & Assessments
     const [usersRes, assessRes] = await Promise.all([
-      axios.get('/api/users', { params: { role: 'PRISONER' } }),
+      axios.get('/api/users', { params: { role: 'ROLE_CLIENT' } }),
       axios.get('/api/assessments')
     ])
     
@@ -245,7 +245,7 @@ async function fetchStatsAndCharts() {
       }
     }
     // If user has no assessment, they are not in the chart (or count as Low/Unknown)
-    // For demo consistency with "Total Prisoners", we can assume unassessed are Low or separate
+    // For demo consistency with "Total Clients", we can assume unassessed are Low or separate
     // Let's stick to assessed users for the pie chart to be accurate
     
     animateNumber(displayHighRiskCount, high)
@@ -290,7 +290,7 @@ async function fetchNotifications() {
     notifications.value = (data || []).map((i: any) => ({
       id: i.id,
       type: 'ALERT',
-      content: `⚠️ 发现高风险人员：${i.prisonerName}`,
+      content: `⚠️ 发现重点关注人员：${i.prisonerName}`,
       time: new Date(i.createTime).toLocaleTimeString(),
       read: false
     }))
@@ -322,9 +322,9 @@ function updatePieChart(h: number, m: number, l: number) {
       itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
       label: { show: false },
       data: [
-        { value: h, name: '高风险', itemStyle: { color: '#f43f5e' } }, // rose-500
-        { value: m, name: '中风险', itemStyle: { color: '#f59e0b' } }, // amber-500
-        { value: l, name: '低风险', itemStyle: { color: '#10b981' } }  // emerald-500
+        { value: h, name: '重点关注', itemStyle: { color: '#f43f5e' } }, // rose-500
+        { value: m, name: '一般关注', itemStyle: { color: '#f59e0b' } }, // amber-500
+        { value: l, name: '安心状态', itemStyle: { color: '#10b981' } }  // emerald-500
       ]
     }]
   }
@@ -333,7 +333,7 @@ function updatePieChart(h: number, m: number, l: number) {
   // Click event
   pieChart.off('click')
   pieChart.on('click', (params: any) => {
-    const riskMap: any = { '高风险': 'HIGH', '中风险': 'MEDIUM', '低风险': 'LOW' }
+    const riskMap: any = { '重点关注': 'HIGH', '一般关注': 'MEDIUM', '安心状态': 'LOW' }
     if (riskMap[params.name]) router.push({ path: '/users', query: { risk: riskMap[params.name] } })
   })
 }

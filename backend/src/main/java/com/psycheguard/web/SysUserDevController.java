@@ -21,7 +21,7 @@ public class SysUserDevController {
     if (userRepository.count() == 0) {
       SysUser u = new SysUser();
       u.setUsername("prisoner");
-      u.setRole("PRISONER");
+      u.setRole("CLIENT");
       u.setTags(java.util.List.of("测试"));
       SysUser saved = userRepository.save(u);
       return ResponseEntity.ok(saved.getId());
@@ -29,4 +29,3 @@ public class SysUserDevController {
     return ResponseEntity.ok(userRepository.findAll().get(0).getId());
   }
 }
-

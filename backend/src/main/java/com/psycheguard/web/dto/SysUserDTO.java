@@ -12,4 +12,3 @@ public class SysUserDTO {
   private List<String> tags;
   private String lastRiskLevel;
 }
-

@@ -22,10 +22,10 @@ const routes: RouteRecordRaw[] = [
       { path: 'dashboard', name: 'Dashboard', component: Dashboard },
       { path: 'history', name: 'History', component: History },
       { path: 'users', name: 'Users', component: UserManagement }
-      ,{ path: 'scales', name: 'ScaleConfig', component: ScaleConfig }
-      ,{ path: 'intervention', name: 'Intervention', component: Intervention }
-      ,{ path: 'assess', name: 'AssessInLayout', component: Assessment }
-      ,{ path: 'teaching', name: 'TeachingLibrary', component: TeachingLibrary }
+      , { path: 'scales', name: 'ScaleConfig', component: ScaleConfig }
+      , { path: 'intervention', name: 'Intervention', component: Intervention }
+      , { path: 'assess', name: 'AssessInLayout', component: Assessment }
+      , { path: 'teaching', name: 'TeachingLibrary', component: TeachingLibrary }
     ]
   }
 ]
@@ -41,17 +41,17 @@ router.beforeEach((to, _from, next) => {
   const isAuthenticated = !!role
 
   if (to.path === '/login') {
-    if (isAuthenticated) return next(role === 'DOCTOR' ? '/dashboard' : '/test')
+    if (isAuthenticated) return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/test')
     return next()
   }
 
   if (!isAuthenticated) return next('/login')
 
   if (to.path === '/') {
-    return next(role === 'DOCTOR' ? '/dashboard' : '/test')
+    return next(role === 'ROLE_COUNSELOR' ? '/dashboard' : '/test')
   }
 
-  if (role === 'PRISONER') {
+  if (role === 'ROLE_CLIENT') {
     if (!to.path.startsWith('/test') && !to.path.startsWith('/result')) {
       return next('/test')
     }

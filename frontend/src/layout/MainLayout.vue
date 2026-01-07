@@ -109,7 +109,7 @@ import { ElMessage } from 'element-plus'
 
 const store = useUserStore()
 store.load()
-const displayName = computed(() => store.user?.realName || 'Dr. Admin')
+const displayName = computed(() => store.user?.realName || 'Admin')
 const userAvatar = computed(() => store.user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${store.user?.username || 'admin'}`)
 const router = useRouter()
 const route = useRoute()

@@ -27,7 +27,8 @@
             PG
           </div>
           <h1 class="text-3xl font-bold text-slate-800 tracking-tight">PsycheGuard</h1>
-          <p class="mt-2 text-sm text-slate-500 font-medium">罪犯心理测评与分级预警系统</p>
+          <h1 class="text-3xl font-bold text-slate-800 tracking-tight">PsycheGuard</h1>
+          <p class="mt-2 text-sm text-slate-500 font-medium">心理测评与分级预警系统</p>
         </div>
 
         <div class="mt-10 space-y-5">
@@ -38,7 +39,7 @@
             <input 
               v-model="username" 
               type="text" 
-              placeholder="请输入用户名 / 警号" 
+              placeholder="请输入用户名 / 编号" 
               class="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white/50 border border-slate-200 text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 transition-all focus:bg-white"
               @keyup.enter="doLogin"
               :disabled="loginState === 'loading' || loginState === 'success'"
@@ -140,10 +141,14 @@ async function doLogin() {
   
   try {
     const res = await axios.post('/api/login', { username: username.value, password: password.value })
-    const user = res.data
+    // The backend now returns { token: '...', user: {...} }
+    // We need to adjust extraction logic
+    const data = res.data
+    const token = data.token
+    const user = data.user
     
     // 存储数据
-    localStorage.setItem('pg_token', 'dummy-token')
+    localStorage.setItem('pg_token', token)
     localStorage.setItem('pg_user', JSON.stringify(user))
     localStorage.setItem('user_role', user.role || '')
     localStorage.setItem('user_id', String(user.id || ''))
@@ -155,11 +160,11 @@ async function doLogin() {
     // 2. 等待动画执行完 (1秒) 后再跳转
     setTimeout(() => {
       const role = user.role
-      if (role === 'DOCTOR') {
+      if (role === 'ROLE_COUNSELOR') {
         ElMessage.success(`欢迎回来，${user.realName || user.username}`)
         router.replace('/dashboard')
       } else {
-        ElMessage.success(`欢迎登录，${user.realName || user.username}`)
+        ElMessage.success(`欢迎进入，${user.realName || user.username}`)
         router.replace('/test')
       }
     }, 800) // 800ms 稍微小于动画的 1000ms，衔接感更好

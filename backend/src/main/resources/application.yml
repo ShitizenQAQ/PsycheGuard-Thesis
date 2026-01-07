@@ -5,13 +5,13 @@ spring:
     password: ${POSTGRES_PASSWORD:psycheguard_dev_2025}
   sql:
     init:
-      mode: always
-      continue-on-error: true
+      mode: never
       encoding: UTF-8
   jpa:
     hibernate:
       ddl-auto: update
-    defer-datasource-initialization: true
+    defer-datasource-initialization: false
     show-sql: true
 server:
-  port: 8081
+  port: 9090
+

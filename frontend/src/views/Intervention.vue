@@ -2,8 +2,8 @@
   <div class="p-6 space-y-6 fade-up">
     <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-white/50 p-5 flex items-center justify-between">
       <div>
-        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span>🛡️</span> 高危预警干预台账</h3>
-        <p class="text-sm text-slate-500 mt-1">记录与跟踪高风险人员的干预措施与执行状态</p>
+        <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2"><span>🛡️</span> 重点关注干预记录</h3>
+        <p class="text-sm text-slate-500 mt-1">记录与跟踪重点关注对象的干预措施与执行状态</p>
       </div>
       <div class="bg-slate-100/50 p-1 rounded-xl flex gap-1">
         <button v-for="tab in tabs" :key="tab.key" @click="setFilter(tab.key)"
@@ -18,7 +18,7 @@
       <el-table :data="filteredData" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="姓名" />
-        <el-table-column prop="riskLevel" label="风险等级" width="120" />
+        <el-table-column prop="riskLevel" label="关注等级" width="120" />
         <el-table-column prop="plan" label="干预方案" />
         <el-table-column prop="owner" label="责任人" width="120" />
         <el-table-column prop="time" label="更新时间" width="160" />
@@ -142,7 +142,7 @@ onMounted(async () => {
       name: item.prisonerName || '未知用户',
       riskLevel: 'HIGH',
       plan: '待制定干预方案',
-      owner: '张主任',
+      owner: '咨询师',
       time: new Date(item.createTime).toLocaleString(),
       status: (item.status as Status) || 'PENDING'
     }))
@@ -153,7 +153,7 @@ onMounted(async () => {
         name: n,
         riskLevel: 'HIGH',
         plan: '模拟：待制定干预方案',
-        owner: '张主任',
+        owner: '咨询师',
         time: new Date(Date.now() - i * 3600_000).toLocaleString(),
         status: 'PENDING',
         simulated: true

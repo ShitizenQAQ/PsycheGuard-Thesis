@@ -1,84 +1,89 @@
 package com.psycheguard.web;
 
+import com.psycheguard.backend.security.JwtUtils;
 import com.psycheguard.domain.SysUser;
 import com.psycheguard.repository.SysUserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
 public class AuthController {
   private final SysUserRepository userRepository;
+  private final JwtUtils jwtUtils;
+  private final PasswordEncoder passwordEncoder;
 
-  public AuthController(SysUserRepository userRepository) {
+  public AuthController(SysUserRepository userRepository, JwtUtils jwtUtils, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.jwtUtils = jwtUtils;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @PostMapping("/login")
   public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> payload) {
     String username = payload.get("username");
     String password = payload.get("password");
+
     if (username == null || password == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "username/password required");
     }
-    try {
-      SysUser u = userRepository.findByUsername(username)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid credentials"));
-      if (!password.equals(u.getPassword())) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid credentials");
-      }
-      Map<String, Object> body = Map.of(
-        "id", u.getId(),
-        "username", u.getUsername(),
-        "realName", u.getRealName() == null ? u.getUsername() : u.getRealName(),
-        "role", u.getRole()
-      );
-      return ResponseEntity.ok(body);
-    } catch (Exception ex) {
-      if ("doctor".equals(username) && "123456".equals(password)) {
-        SysUser du = userRepository.findByUsernameIgnoreCase("doctor");
-        if (du == null) {
-          du = new SysUser();
-          du.setUsername("doctor");
-          du.setRealName("张主任");
-          du.setPassword("123456");
-          du.setRole("DOCTOR");
-          du = userRepository.save(du);
-        }
-        Map<String, Object> body = Map.of(
-          "id", du.getId(),
-          "username", du.getUsername(),
-          "realName", du.getRealName() == null ? du.getUsername() : du.getRealName(),
-          "role", du.getRole()
-        );
-        return ResponseEntity.ok(body);
-      }
-      if ("prisoner".equals(username) && "123456".equals(password)) {
-        SysUser pu = userRepository.findByUsernameIgnoreCase("prisoner");
-        if (pu == null) {
-          pu = new SysUser();
-          pu.setUsername("prisoner");
-          pu.setRealName("测试犯人");
-          pu.setPassword("123456");
-          pu.setRole("PRISONER");
-          pu = userRepository.save(pu);
-        }
-        Map<String, Object> body = Map.of(
-          "id", pu.getId(),
-          "username", pu.getUsername(),
-          "realName", pu.getRealName() == null ? pu.getUsername() : pu.getRealName(),
-          "role", pu.getRole()
-        );
-        return ResponseEntity.ok(body);
-      }
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "invalid credentials");
+
+    // Temporary logic for Migration/Demo: Create default users if they don't exist
+    if ("doctor".equals(username)) {
+      ensureUserExists(username, "123456", "ROLE_COUNSELOR");
+    } else if ("prisoner".equals(username)) {
+      ensureUserExists(username, "123456", "ROLE_CLIENT");
+    }
+
+    SysUser user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+
+    // Check password (In real world, database passwords should be BCrypt encoded)
+    // For this refactor, if the DB has plain text "123456" and matches, we allow
+    // it.
+    // OR we can rely on encoder.matches().
+    // Since we just created them with plain text "123456" in ensureUserExists
+    // (wait, I need to encode them there),
+    // I will update ensureUserExists to encode passwords.
+    // For existing users in DB that might have plain text, this might fail if we
+    // enforce BCrypt.
+    // BUT, the prompt asked for "Security Must Have", so enforcing BCrypt is
+    // correct.
+
+    if (!passwordEncoder.matches(password, user.getPassword())) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+    }
+
+    String token = jwtUtils.generateToken(user.getUsername(), user.getRole());
+
+    Map<String, Object> body = new HashMap<>();
+    body.put("token", token);
+    body.put("user", Map.of(
+        "id", user.getId(),
+        "username", user.getUsername(),
+        "realName", user.getRealName() == null ? user.getUsername() : user.getRealName(),
+        "role", user.getRole()));
+
+    return ResponseEntity.ok(body);
+  }
+
+  private void ensureUserExists(String username, String rawPassword, String role) {
+    if (userRepository.findByUsername(username).isEmpty()) {
+      SysUser u = new SysUser();
+      u.setUsername(username);
+      u.setPassword(passwordEncoder.encode(rawPassword));
+      u.setRole(role);
+      u.setRealName(role.equals("ROLE_COUNSELOR") ? "咨询师" : "来访者");
+      userRepository.save(u);
     }
   }
 }
