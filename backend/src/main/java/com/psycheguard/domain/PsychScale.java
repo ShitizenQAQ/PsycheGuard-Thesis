@@ -20,5 +20,21 @@ public class PsychScale {
 
   @Column
   private String description;
-}
 
+  @Column(name = "is_enabled")
+  private Boolean isEnabled = true;
+
+  /**
+   * 危险阈值 - 达到或超过此分数视为高风险
+   * 默认值为 6，确保向后兼容
+   */
+  @Column(name = "danger_threshold")
+  private Integer dangerThreshold = 6;
+
+  /**
+   * 量表满分 - 用于前端展示和验证
+   * 可选字段
+   */
+  @Column(name = "max_score")
+  private Integer maxScore;
+}

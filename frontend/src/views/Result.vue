@@ -24,10 +24,10 @@
               <ArrowLeft :size="16" />
               <span>返回列表</span>
             </button>
-            <button v-else @click="goLogin"
+            <button v-else @click="goBackToClientDashboard"
              class="bg-white/60 hover:bg-white backdrop-blur-md text-rock-600 font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm border border-white/50">
-              <LogOut :size="16" />
-              <span>退出登录</span>
+              <ArrowLeft :size="16" />
+              <span>返回</span>
             </button>
             
             <button
@@ -78,7 +78,7 @@
             <div class="text-rock-400 text-xs font-bold mb-2 uppercase tracking-widest">综合评分 / Score</div>
             <div class="flex items-baseline gap-2 z-10">
                <span class="text-5xl font-black text-rock-800">{{ totalScore }}</span>
-               <span class="text-lg text-rock-400 font-medium">/ 40</span>
+               <span class="text-lg text-rock-400 font-medium">/ {{ maxScore || 40 }}</span>
             </div>
             <!-- 背景装饰 -->
             <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-healing-100 rounded-full opacity-50 mix-blend-multiply filter blur-xl group-hover:bg-healing-200 transition-colors"></div>
@@ -190,6 +190,44 @@ import { ElMessage, ElLoading } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
+
+// ========== 量表配置字典 ==========
+// 定义不同量表的维度名称映射和满分标准
+const SCALE_CONFIGS: Record<string, any> = {
+  // 精神病态量表 (PCL-R)
+  'PCL-R': {
+    labels: { 
+      '人际操控': '人际关系', 
+      '情感冷漠': '情感反应', 
+      '感觉寻求': '行为模式', 
+      '冲动控制': '冲动性',
+      '认知扭曲': '认知模式', 
+      '情感': '情感稳定性',
+      '反社会': '社会适应', 
+      '生活方式': '生活方式' 
+    },
+    maxScores: { 
+      '人际操控': 8, '情感冷漠': 8, '感觉寻求': 10, '冲动控制': 10, 
+      '认知扭曲': 8, '情感': 8, '反社会': 10, '生活方式': 10 
+    }
+  },
+  // 焦虑自评量表 (SAS)
+  'SAS': {
+    labels: { '躯体性': '躯体症状', '精神性': '精神症状' },
+    maxScores: { '躯体性': 40, '精神性': 40 }
+  },
+  // 抑郁自评量表 (SDS)
+  'SDS': {
+    labels: { '核心抑郁': '核心抑郁', '生理机能': '生理机能' },
+    maxScores: { '核心抑郁': 40, '生理机能': 40 }
+  },
+  // 默认兜底配置
+  'DEFAULT': { 
+    labels: {}, 
+    defaultMax: 10 
+  }
+}
+
 const isCounselor = computed(() => {
   try {
     const u = JSON.parse(localStorage.getItem('pg_user') || 'null')
@@ -201,6 +239,7 @@ const id = route.params.id as string
 const chartRef = ref<HTMLDivElement | null>(null)
 const riskLevel = ref('')
 const totalScore = ref(0)
+const maxScore = ref(0)
 const isTeachingCase = ref(false)
 const expertAnnotation = ref('')
 const subjectName = computed(() => {
@@ -224,27 +263,38 @@ onMounted(async () => {
     const { data } = await axios.get(`/api/assessments/${id}`)
     riskLevel.value = data.riskLevel
     totalScore.value = data.totalScore
+    maxScore.value = data.maxScore
     isTeachingCase.value = !!data.isTeachingCase
     expertAnnotation.value = data.expertAnnotation || ''
     
-    const dim: Record<string, number> = data.dimensionScore || {}
-    const rawKeys = Object.keys(dim).length ? Object.keys(dim) : ['情感冷漠', '冲动控制', '反社会', '认知扭曲', '生活方式']
+    // ========== 动态量表适配逻辑 ==========
+    // 1. 确定当前量表类型
+    const currentScaleKey = data.scaleName || 
+      (data.scaleId === 3 ? 'SAS' : (data.scaleId === 2 ? 'SDS' : 'PCL-R'))
     
-    const termMapping: Record<string, string> = {
-      '人际操控': '人际关系', '情感冷漠': '情感反应', '感觉寻求': '行为模式', '冲动控制': '冲动性',
-      '认知扭曲': '认知模式', '情感': '情感稳定性', '反社会': '社会适应', '生活方式': '生活方式'
-    }
-
-    const indicatorMap: Record<string, number> = {
-      '人际操控': 8, '情感冷漠': 8, '感觉寻求': 10, '冲动控制': 10,
-      '认知扭曲': 8, '情感': 8, '反社会': 10, '生活方式': 10
-    }
+    // 2. 获取对应的配置（如果没有则使用 DEFAULT）
+    const config = SCALE_CONFIGS[currentScaleKey] || SCALE_CONFIGS['DEFAULT']
     
-    const indicators = rawKeys.map(k => ({ 
-      name: termMapping[k] || k, 
-      max: indicatorMap[k] ?? 10 
-    }))
-    const values = rawKeys.map((k, i) => Math.min((indicators[i].max as number), dim[k] || 0))
+    // 3. 提取维度数据
+    const dimensionData: Record<string, number> = data.dimensionAnalysis || data.dimensionScore || {}
+    const rawKeys = Object.keys(dimensionData)
+    
+    // 4. 动态生成雷达图指标
+    const indicators = rawKeys.map(dimensionName => {
+      // 使用配置中的标签映射，如果不存在则使用原始名称
+      const displayName = config.labels[dimensionName] || dimensionName
+      
+      // 使用配置中的最大值，如果不存在则使用默认值或动态计算
+      const actualValue = dimensionData[dimensionName] || 0
+      const configuredMax = config.maxScores?.[dimensionName]
+      const calculatedMax = Math.max(Math.ceil(actualValue * 1.2), 10)
+      const max = configuredMax || config.defaultMax || calculatedMax
+      
+      return { name: displayName, max }
+    })
+    
+    // 5. 提取维度分数值
+    const values = rawKeys.map((k, i) => Math.min((indicators[i].max as number), dimensionData[k] || 0))
 
     if (chartRef.value) {
       const chart = echarts.init(chartRef.value)
@@ -261,7 +311,7 @@ onMounted(async () => {
           shape: 'circle',
           splitNumber: 4,
           axisName: {
-            formatter: (value: string) => isCounselor.value ? value : (termMapping[value] || value),
+            formatter: (value: string) => value,
             color: '#7B7B8D', // rock-600
             fontSize: 12,
             fontWeight: '600'
@@ -296,6 +346,10 @@ onMounted(async () => {
 })
 
 function goBack() { router.push(isCounselor.value ? '/history' : '/test') }
+
+function goBackToClientDashboard() {
+  router.push('/client-dashboard')
+}
 
 function goLogin() {
   localStorage.clear()

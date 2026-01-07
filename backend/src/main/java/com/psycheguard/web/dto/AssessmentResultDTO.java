@@ -9,6 +9,8 @@ public class AssessmentResultDTO {
   private Map<String, Object> dimensionScore;
   private Boolean isTeachingCase;
   private String expertAnnotation;
+  private Integer maxScore; // 量表满分
+  private String scaleName; // 量表名称
 
   public Long getId() {
     return id;
@@ -56,5 +58,21 @@ public class AssessmentResultDTO {
 
   public void setExpertAnnotation(String expertAnnotation) {
     this.expertAnnotation = expertAnnotation;
+  }
+
+  public Integer getMaxScore() {
+    return maxScore;
+  }
+
+  public void setMaxScore(Integer maxScore) {
+    this.maxScore = maxScore;
+  }
+
+  public String getScaleName() {
+    return scaleName;
+  }
+
+  public void setScaleName(String scaleName) {
+    this.scaleName = scaleName;
   }
 }

@@ -62,7 +62,7 @@ router.beforeEach((to, _from, next) => {
   // 4. Client 角色权限控制
   if (role === 'ROLE_CLIENT') {
     // 允许访问的路径前缀
-    const clientAllowed = ['/client-dashboard', '/test', '/result', '/history']
+    const clientAllowed = ['/client-dashboard', '/test', '/result', '/history', '/assess']
     const isAllowed = clientAllowed.some(prefix => to.path.startsWith(prefix))
 
     if (!isAllowed) {

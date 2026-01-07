@@ -3,6 +3,14 @@ import { ElMessage } from 'element-plus'
 
 axios.defaults.timeout = 15000
 
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem('pg_token')
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`
+  }
+  return config
+})
+
 axios.interceptors.response.use(
   (resp) => resp,
   (error) => {

@@ -50,6 +50,17 @@ public class PsychScaleController {
     PsychScale s = new PsychScale();
     s.setName(name);
     s.setDescription(description);
+    if (body.containsKey("isEnabled")) {
+      s.setIsEnabled(Boolean.valueOf(String.valueOf(body.get("isEnabled"))));
+    }
+    if (body.containsKey("dangerThreshold")) {
+      Object val = body.get("dangerThreshold");
+      s.setDangerThreshold(val == null ? null : Integer.valueOf(String.valueOf(val)));
+    }
+    if (body.containsKey("maxScore")) {
+      Object val = body.get("maxScore");
+      s.setMaxScore(val == null ? null : Integer.valueOf(String.valueOf(val)));
+    }
     PsychScale saved = scaleRepository.save(s);
     return ResponseEntity.status(HttpStatus.CREATED).body(saved);
   }
@@ -67,7 +78,33 @@ public class PsychScaleController {
     if (body.containsKey("description")) {
       s.setDescription(body.get("description") == null ? null : String.valueOf(body.get("description")));
     }
+    if (body.containsKey("isEnabled")) {
+      s.setIsEnabled(Boolean.valueOf(String.valueOf(body.get("isEnabled"))));
+    }
+    if (body.containsKey("dangerThreshold")) {
+      Object val = body.get("dangerThreshold");
+      s.setDangerThreshold(val == null ? null : Integer.valueOf(String.valueOf(val)));
+    }
+    if (body.containsKey("maxScore")) {
+      Object val = body.get("maxScore");
+      s.setMaxScore(val == null ? null : Integer.valueOf(String.valueOf(val)));
+    }
     return scaleRepository.save(s);
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable Long id) {
+    if (!scaleRepository.existsById(id)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found");
+    }
+    // Delete associated questions first if cascade is not set, but assuming simple
+    // delete for now
+    // Ideally use CascadeType.ALL or delete manually
+    List<ScaleQuestion> questions = questionRepository.findByScale_Id(id);
+    questionRepository.deleteAll(questions);
+
+    scaleRepository.deleteById(id);
+    return ResponseEntity.noContent().build();
   }
 
   @GetMapping("/{id}/questions")

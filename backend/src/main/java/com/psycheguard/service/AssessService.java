@@ -24,9 +24,13 @@ public class AssessService {
   public AssessRecord submit(SysUser user, PsychScale scale, Map<Long, Integer> answers) {
     int total = 0;
     if (answers != null) {
-      for (Integer v : answers.values()) total += v == null ? 0 : v;
+      for (Integer v : answers.values())
+        total += v == null ? 0 : v;
     }
-    String risk = total > 6 ? "HIGH" : "LOW";
+
+    // 使用量表配置的危险阈值，如果未设置则使用默认值 6
+    int threshold = (scale.getDangerThreshold() != null) ? scale.getDangerThreshold() : 6;
+    String risk = total >= threshold ? "HIGH" : "LOW";
     Map<String, Object> ans = new HashMap<>();
     if (answers != null) {
       for (Map.Entry<Long, Integer> e : answers.entrySet()) {
@@ -54,13 +58,17 @@ public class AssessService {
   }
 
   private String extractDimension(ScaleQuestion q) {
-    if (q == null || q.getContent() == null) return "Unknown";
+    if (q == null || q.getContent() == null)
+      return "Unknown";
     String c = q.getContent();
     int idx = c.indexOf("维度:");
     if (idx >= 0) {
       String tail = c.substring(idx + 3).trim();
-      // remove any trailing punctuation
-      return tail.replaceAll("[\\)\\]\\}]+$", "").trim();
+      // 取第一个空格前的部分作为维度名，如果没空格则取全部
+      int spaceIdx = tail.indexOf(" ");
+      String dim = spaceIdx >= 0 ? tail.substring(0, spaceIdx) : tail;
+      // 移除末尾可能的标点符号
+      return dim.replaceAll("[\\)\\]\\}：:，,。.]+$", "").trim();
     }
     return "Unknown";
   }

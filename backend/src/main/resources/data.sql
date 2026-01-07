@@ -5,7 +5,7 @@ TRUNCATE TABLE psych_scale RESTART IDENTITY CASCADE;
 TRUNCATE TABLE sys_user RESTART IDENTITY CASCADE;
 
 -- 2. 插入量表 (PCL-R)
-INSERT INTO psych_scale (id, name, description) VALUES (1, 'PCL-R', '精神病态评估量表 (Hare Psychopathy Checklist-Revised)');
+INSERT INTO psych_scale (id, name, description, danger_threshold, max_score) VALUES (1, 'PCL-R', '精神病态评估量表 (Hare Psychopathy Checklist-Revised)', 20, 40);
 
 -- 3. 插入题目 (PCL-R 20道题，满分40分)
 INSERT INTO scale_question (scale_id, content, options) VALUES
@@ -82,5 +82,58 @@ INSERT INTO assess_record (user_id, scale_id, total_score, risk_level, answers, 
 -- 7. 修复自增序列 (最关键的一步，防止后续报错)
 SELECT setval(pg_get_serial_sequence('sys_user','id'), (SELECT MAX(id) FROM sys_user));
 SELECT setval(pg_get_serial_sequence('assess_record','id'), (SELECT MAX(id) FROM assess_record));
+SELECT setval(pg_get_serial_sequence('psych_scale','id'), (SELECT MAX(id) FROM psych_scale));
+SELECT setval(pg_get_serial_sequence('scale_question','id'), (SELECT MAX(id) FROM scale_question));
+
+-- =====================================================
+-- === 追加：SAS (焦虑自评量表) 数据 ===
+-- =====================================================
+-- 插入量表定义 (使用 NOT EXISTS 确保幂等性)
+INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled) 
+SELECT 'SAS', '焦虑自评量表 (Self-Rating Anxiety Scale)', 50, 80, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'SAS');
+
+-- 插入 SAS 题目 (使用 WITH 子查询动态获取 scale_id)
+WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SAS' LIMIT 1)
+INSERT INTO scale_question (scale_id, content, options) 
+SELECT id, '维度:躯体性 我觉得比平常容易紧张和着急', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%容易紧张和着急%')
+UNION ALL
+SELECT id, '维度:躯体性 我无缘无故地感到害怕', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%无缘无故地感到害怕%')
+UNION ALL
+SELECT id, '维度:精神性 我容易心里烦乱或觉得惊恐', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%心里烦乱或觉得惊恐%')
+UNION ALL
+SELECT id, '维度:精神性 我觉得可能将要发疯', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%可能将要发疯%')
+UNION ALL
+SELECT id, '维度:躯体性 我觉得手脚发抖打颤', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%手脚发抖打颤%');
+
+-- =====================================================
+-- === 追加：SDS (抑郁自评量表) 数据 ===
+-- =====================================================
+-- 插入量表定义
+INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled) 
+SELECT 'SDS', '抑郁自评量表 (Self-Rating Depression Scale)', 53, 80, TRUE
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'SDS');
+
+-- 插入 SDS 题目
+WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SDS' LIMIT 1)
+INSERT INTO scale_question (scale_id, content, options) 
+SELECT id, '维度:核心抑郁 我觉得闷闷不乐，情绪低沉', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%闷闷不乐，情绪低沉%')
+UNION ALL
+SELECT id, '维度:核心抑郁 我觉得一天之中早晨最好', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%一天之中早晨最好%')
+UNION ALL
+SELECT id, '维度:生理机能 我吃饭象平时一样香', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%吃饭象平时一样香%')
+UNION ALL
+SELECT id, '维度:生理机能 我睡眠不佳', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%睡眠不佳%');
+
+-- 修复自增序列 (确保新增数据后序列正确)
 SELECT setval(pg_get_serial_sequence('psych_scale','id'), (SELECT MAX(id) FROM psych_scale));
 SELECT setval(pg_get_serial_sequence('scale_question','id'), (SELECT MAX(id) FROM scale_question));

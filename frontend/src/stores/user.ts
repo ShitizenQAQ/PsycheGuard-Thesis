@@ -16,6 +16,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({ user: null as User | null }),
   getters: {
     loggedIn: (s) => !!s.user,
+    isCounselor: (s) => s.user?.role === 'ROLE_COUNSELOR'
   },
   actions: {
     load() {

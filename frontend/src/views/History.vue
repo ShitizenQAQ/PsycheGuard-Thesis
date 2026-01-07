@@ -5,9 +5,11 @@
       <div class="text-center md:text-left">
         <h3 class="text-2xl font-bold text-rock-800 tracking-tight flex items-center gap-3 justify-center md:justify-start">
           <span class="w-2 h-8 rounded-full bg-healing-500"></span>
-          测评档案库
+          {{ isCounselor ? '测评档案库' : '我的测评记录' }}
         </h3>
-        <p class="text-rock-500 mt-2 font-medium">Archived Assessments & Records</p>
+        <p class="text-rock-500 mt-2 font-medium">
+          {{ isCounselor ? 'Archived Assessments & Records' : 'My Assessment History' }}
+        </p>
       </div>
       
       <!-- Filters -->
@@ -54,7 +56,6 @@
 
     <!-- Table Card -->
     <div class="glass-card p-1 rounded-[2rem] overflow-hidden shadow-xl border border-white/60 relative">
-      <!-- Decorative background blob -->
       <div class="absolute top-0 right-0 w-64 h-64 bg-healing-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 pointer-events-none"></div>
 
       <el-table 
@@ -77,7 +78,7 @@
               </div>
               <div>
                 <div class="font-bold text-rock-800 text-lg group-hover:text-healing-600 transition-colors">{{ row.userRealName }}</div>
-                <div class="text-xs text-rock-400 font-mono mt-1 bg-white/60 px-2 py-0.5 rounded-md inline-block border border-cream-200">NO.{{ row.prisonerId }}</div>
+                <div class="text-xs text-rock-400 font-mono mt-1 bg-white/60 px-2 py-0.5 rounded-md inline-block border border-cream-200">ID:{{ row.prisonerId }}</div>
               </div>
             </div>
           </template>
@@ -148,26 +149,28 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 type Risk = 'LOW' | 'MEDIUM' | 'HIGH'
-type Item = { id: number; userRealName: string; createTime: string; totalScore: number; riskLevel: Risk; prisonerId: string; isMock?: boolean }
+type Item = { id: number; userRealName: string; createTime: string; totalScore: number; riskLevel: Risk; prisonerId: string }
+
 const router = useRouter()
+const userStore = useUserStore()
+const list = ref<Item[]>([])
 const keyword = ref('')
 const risk = ref<'ALL' | Risk>('ALL')
 const date = ref<string | null>(null)
-const list = ref<Item[]>([])
+
+// 判断角色
+const isCounselor = computed(() => userStore.isCounselor)
 
 onMounted(async () => {
+  userStore.load()
   try {
     const { data } = await axios.get<Item[]>('/api/assessments')
     list.value = (data || []).map(x => ({ ...x, prisonerId: x.prisonerId || String(x.id) }))
-    
-    // 如果没有数据，使用 Mock 数据展示效果
-    if (list.value.length === 0) {
-      list.value = mockRecords()
-    }
-  } catch {
-    list.value = mockRecords()
+  } catch (err) {
+    console.error('Failed to fetch assessments:', err)
   }
 })
 
@@ -215,22 +218,13 @@ function riskDotInfo(r: Risk) {
 }
 
 function riskLabel(r: Risk) {
-  if (r === 'HIGH') return '重点关注' // Clay
-  if (r === 'MEDIUM') return '一般关注' // Cream/Neutral
-  return '安心状态' // Healing Green
+  if (r === 'HIGH') return '重点关注'
+  if (r === 'MEDIUM') return '一般关注'
+  return '安心状态'
 }
 
-function viewDetail(row: Item) { router.push({ path: `/result/${row.id}`, query: { name: row.userRealName } }) }
-
-function mockRecords(): Item[] {
-  const names = ['王安心', '李宁静', '赵希望', '周明朗', '钱平和', '郑愉悦', '孙温柔', '吴自在', '张治愈', '刘舒适']
-  const risks: Risk[] = ['LOW', 'LOW', 'MEDIUM', 'LOW', 'HIGH', 'LOW', 'MEDIUM', 'LOW', 'LOW', 'HIGH']
-  const out: Item[] = []
-  for (let i = 0; i < 10; i++) {
-    const d = new Date(Date.now() - i * 86400000)
-    out.push({ id: 100 + i, userRealName: names[i % names.length], createTime: d.toISOString(), totalScore: Math.floor(Math.random() * 40), riskLevel: risks[i % risks.length], prisonerId: String(2023000 + i), isMock: true })
-  }
-  return out
+function viewDetail(row: Item) {
+  router.push({ path: `/result/${row.id}`, query: { name: row.userRealName } })
 }
 
 function assessorLabel(score: number) {
@@ -250,6 +244,7 @@ function assessorClass(score: number) {
   backdrop-filter: blur(20px); 
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 8px 32px rgba(107, 144, 128, 0.08); 
+  border-radius: 2rem !important;
 }
 .shadow-pg { box-shadow: 0 8px 24px rgba(74, 78, 105, 0.06); }
 .fade-up { animation: fadeUp 0.6s ease-out both; }
@@ -259,14 +254,12 @@ function assessorClass(score: number) {
   to { opacity: 1; transform: translateY(0); } 
 }
 
-/* === 色彩补丁 === */
 .bg-cream-50 { background-color: #FBF9F7 !important; }
 .bg-cream-100 { background-color: #F6F4F1 !important; }
 .bg-cream-200 { background-color: #EBE6E0 !important; }
 
 .text-rock-800 { color: #4A4E69 !important; }
 .text-rock-700 { color: #5C5F77 !important; }
-.text-rock-600 { color: #7B7B8D !important; }
 .text-rock-500 { color: #8F91A3 !important; }
 .text-rock-400 { color: #A7A7B3 !important; }
 .text-rock-300 { color: #C4C5D0 !important; }
@@ -275,9 +268,7 @@ function assessorClass(score: number) {
 .bg-healing-100 { background-color: #E1EFE9 !important; }
 .bg-healing-500 { background-color: #6B9080 !important; }
 .bg-healing-600 { background-color: #557366 !important; }
-.text-healing-500 { color: #6B9080 !important; }
 .text-healing-600 { color: #557366 !important; }
-.border-healing-500 { border-color: #6B9080 !important; }
 .border-healing-200 { border-color: #C2DFCE !important; }
 
 .bg-clay-100 { background-color: #FBECE8 !important; }
@@ -285,27 +276,19 @@ function assessorClass(score: number) {
 .text-clay-600 { color: #B3614C !important; }
 .border-clay-200 { border-color: #F0BCAE !important; }
 
-/* Table Element Plus Override */
 :deep(.el-table) {
   background-color: transparent !important;
   --el-table-bg-color: transparent !important;
   --el-table-tr-bg-color: transparent !important;
   --el-table-header-bg-color: transparent !important;
-  --el-table-row-hover-bg-color: #F0F7F4 !important; /* Healing-50 on hover */
-  --el-table-border-color: rgba(107, 144, 128, 0.1) !important;
+  --el-table-row-hover-bg-color: #F0F7F4 !important;
 }
 :deep(.el-table__inner-wrapper::before) { display: none; }
-:deep(.el-table__row) { transition: background-color 0.3s ease; }
 
-/* DatePicker Override */
 :deep(.el-input__wrapper) {
   background-color: rgba(255,255,255,0.8) !important;
   border-radius: 12px !important;
   box-shadow: none !important;
   border: 2px solid #EBE6E0 !important;
-  padding: 4px 12px !important;
-}
-:deep(.el-input__wrapper:hover), :deep(.el-input__wrapper.is-focus) {
-  border-color: #6B9080 !important;
 }
 </style>

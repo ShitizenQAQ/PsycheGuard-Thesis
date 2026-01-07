@@ -162,16 +162,98 @@
         </div>
       </div>
 
-      <div v-else-if="viewMode === 'DONE'" class="w-full">
-        <div class="glass-card p-8 rounded-3xl shadow-xl flex flex-col items-center text-center">
-          <div class="mb-4">
-            <CheckCircle :size="48" class="text-emerald-600" />
+      <div v-else-if="viewMode === 'DONE'" class="w-full max-w-2xl mx-auto">
+        <!-- HIGH RISK - 危机干预视图 -->
+        <div v-if="lastRiskLevel === 'HIGH'" class="bg-white/80 backdrop-blur-xl border-2 border-orange-300 p-8 md:p-12 rounded-3xl shadow-2xl shadow-orange-500/20">
+          <div class="flex flex-col items-center text-center mb-8">
+            <div class="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-6 animate-pulse">
+              <svg class="w-10 h-10 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            </div>
+            <h2 class="text-2xl font-bold text-orange-600 mb-3">检测到您当前情绪波动较大</h2>
+            <p class="text-rock-600 text-sm leading-relaxed max-w-md">
+              测评结果显示您可能正在经历一定程度的心理压力。请不要担心，这是可以改善的，我们建议您及时寻求专业支持。
+            </p>
           </div>
-          <h2 class="text-xl font-bold text-rock-800 mb-2">测评已完成</h2>
-          <p class="text-rock-600 mb-6">您的状态报告已生成</p>
-          <div class="flex items-center gap-3">
-             <button class="px-4 py-2 rounded-xl border border-cream-200 text-rock-600 bg-white hover:bg-cream-50" @click="backToScaleList">返回测评中心</button>
-            <button class="px-4 py-2 rounded-xl bg-healing-500 text-white hover:bg-healing-600 shadow-lg shadow-healing-500/20" @click="viewReport">查看详情报告</button>
+
+          <!-- 危机干预资源 -->
+          <div class="bg-orange-50 border border-orange-200 rounded-2xl p-6 mb-6">
+            <h3 class="text-lg font-bold text-orange-700 mb-4 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+              </svg>
+              寻求帮助
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-start gap-3 bg-white p-4 rounded-xl border border-orange-100">
+                <span class="text-2xl">📞</span>
+                <div class="flex-1">
+                  <p class="font-bold text-rock-800">24小时心理援助热线</p>
+                  <p class="text-orange-600 text-lg font-mono font-bold mt-1">400-161-9995</p>
+                  <p class="text-xs text-rock-400 mt-1">全国通用，免费咨询</p>
+                </div>
+              </div>
+              <button 
+                @click="contactCounselor"
+                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] transition-all"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                联系在线咨询师
+              </button>
+            </div>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <button 
+              class="w-full sm:w-auto px-6 py-3 rounded-xl border-2 border-orange-200 text-orange-600 bg-white hover:bg-orange-50 font-medium transition-colors" 
+              @click="backAfterDone"
+            >
+              返回测评中心
+            </button>
+            <button 
+              class="w-full sm:w-auto px-6 py-3 rounded-xl bg-orange-500 text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20 font-bold transition-all" 
+              @click="viewReport"
+            >
+              查看详细报告
+            </button>
+          </div>
+        </div>
+
+        <!-- LOW RISK - 治愈系视图 -->
+        <div v-else class="bg-white/80 backdrop-blur-xl border border-healing-200 p-8 md:p-12 rounded-3xl shadow-xl shadow-healing-500/10">
+          <div class="flex flex-col items-center text-center mb-8">
+            <div class="w-20 h-20 rounded-full bg-healing-100 flex items-center justify-center mb-6">
+              <CheckCircle :size="40" class="text-healing-600" />
+            </div>
+            <h2 class="text-2xl font-bold text-rock-800 mb-3">测评已完成</h2>
+            <p class="text-rock-600 leading-relaxed max-w-md">
+              您的心理状态报告已生成。根据评估结果，您当前的心理健康状况良好，请继续保持积极的生活态度。
+            </p>
+          </div>
+
+          <div class="bg-healing-50 border border-healing-100 rounded-2xl p-6 mb-6">
+            <h3 class="text-sm font-bold text-healing-700 mb-2">💡 温馨提示</h3>
+            <p class="text-sm text-rock-600 leading-relaxed">
+              定期进行心理健康自评有助于及时发现潜在问题。建议您每月进行一次测评，保持对自身状态的关注。
+            </p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-3">
+            <button 
+              class="w-full sm:w-auto px-6 py-3 rounded-xl border-2 border-cream-200 text-rock-600 bg-white hover:bg-cream-50 font-medium transition-colors" 
+              @click="backAfterDone"
+            >
+              返回测评中心
+            </button>
+            <button 
+              class="w-full sm:w-auto px-6 py-3 rounded-xl bg-healing-500 text-white hover:bg-healing-600 shadow-lg shadow-healing-500/20 font-bold transition-all" 
+              @click="viewReport"
+            >
+              查看详细报告
+            </button>
           </div>
         </div>
       </div>
@@ -276,7 +358,7 @@ const currentScaleName = computed(() => {
 })
 const targetUserId = ref<number | null>(null)
 const targetUserName = ref<string | null>(null)
-const role = computed(() => userStore.user?.role || JSON.parse(localStorage.getItem('pg_user') || 'null')?.role || 'ROLE_CLIENT')
+const role = computed(() => userStore.isCounselor ? 'ROLE_COUNSELOR' : 'ROLE_CLIENT')
 const assessorName = computed(() => userStore.user?.realName || userStore.user?.username || 'Admin')
 const targetNamePlain = computed(() => (targetUserName.value || '').split('(')[0].trim() || '来访者')
 const profileAvatarUrl = computed(() => `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(targetNamePlain.value || 'patient')}`)
@@ -285,7 +367,9 @@ const ratingOptions = [
   { score: 1, label: '1分 - 部分符合 (Maybe)' },
   { score: 2, label: '2分 - 完全符合 (Yes)' }
 ]
-const viewMode = ref<'LIST' | 'QUESTION' | 'DONE' | 'SCALE_LIST'>('LIST')
+const viewMode = ref<'LIST' | 'QUESTION' | 'DONE' | 'SCALE_LIST'>(
+  userStore.isCounselor ? 'LIST' : 'SCALE_LIST'
+)
 const lastResultId = ref<number | null>(null)
 const lastRiskLevel = ref<string>('')
 const lastRiskLabel = computed(() => lastRiskLevel.value === 'HIGH' ? '重点关注' : (lastRiskLevel.value === 'MEDIUM' ? '一般关注' : '安心状态'))
@@ -465,11 +549,32 @@ async function startAssessment(p: PrisonerCard) {
 }
 
 async function startClientAssessment(scaleId: number) {
-  currentScaleId.value = scaleId
-  viewMode.value = 'QUESTION'
-  answers.value = {}
-  currentQuestionIndex.value = 0
-  await loadQuestions()
+  try {
+    await ElMessageBox.confirm(
+      '本测评结果仅供心理健康状态参考，不能替代专业医疗机构的临床诊断。\n\n' +
+      '测评结果将严格保密，仅限授权咨询师查看。\n\n' +
+      '如果您在答题过程中感到严重不适，请立即停止测评并寻求专业帮助。',
+      '测评知情同意书',
+      {
+        confirmButtonText: '我已阅读并同意',
+        cancelButtonText: '取消',
+        type: 'info',
+        customClass: 'informed-consent-dialog',
+        confirmButtonClass: '!bg-healing-500 !border-healing-500',
+        center: true
+      }
+    )
+    
+    // 用户同意后才开始测评
+    currentScaleId.value = scaleId
+    viewMode.value = 'QUESTION'
+    answers.value = {}
+    currentQuestionIndex.value = 0
+    await loadQuestions()
+  } catch {
+    // 用户点击取消，不执行任何操作
+    return
+  }
 }
 
 async function backToList() {
@@ -570,6 +675,18 @@ function backAfterDone() {
 function viewReport() {
   if (lastResultId.value != null) router.push(`/result/${lastResultId.value}`)
 }
+
+function contactCounselor() {
+  ElMessage.info({
+    message: '正在为您连接在线咨询师，请稍候...',
+    duration: 2000
+  })
+  // 实际应用中可以跳转到咨询师聊天页面或预约系统
+  setTimeout(() => {
+    router.push('/users') // 示例：跳转到用户管理页面查看咨询师列表
+  }, 2000)
+}
+
 
 function handleLogout() {
   localStorage.clear()

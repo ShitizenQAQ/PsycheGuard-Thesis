@@ -17,7 +17,13 @@
       
       <el-table :data="filteredData" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="姓名" />
+        <el-table-column label="姓名" width="120">
+          <template #default="{ row }">
+            <el-tooltip :content="row.name" placement="top">
+              <span class="cursor-help">{{ maskName(row.name) }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="riskLevel" label="关注等级" width="120" />
         <el-table-column prop="plan" label="干预方案" />
         <el-table-column prop="owner" label="责任人" width="120" />
@@ -85,6 +91,32 @@ const filteredData = computed(() => {
   return tableData.value.filter(r => r.status === statusFilter.value)
 })
 function setFilter(v: 'ALL' | Status) { statusFilter.value = v }
+
+/**
+ * 姓名脱敏工具函数
+ * @param name 完整姓名
+ * @returns 脱敏后的姓名（保留姓氏，隐藏名字）
+ * @example maskName('王小明') => '王**'
+ * @example maskName('李四') => '李*'
+ * @example maskName('欧阳娜娜') => '欧阳**'
+ */
+function maskName(name: string): string {
+  if (!name || name.length === 0) return '***'
+  if (name.length === 1) return name // 单字名不脱敏
+  if (name.length === 2) return name[0] + '*' // 两字名：保留姓氏
+  
+  // 三字及以上：判断是否为复姓
+  const doubleSurnames = ['欧阳', '上官', '司马', '诸葛', '皇甫', '尉迟', '公孙', '慕容', '令狐', '宇文', '长孙', '东方']
+  const isDoubleSurname = doubleSurnames.some(s => name.startsWith(s))
+  
+  if (isDoubleSurname && name.length >= 3) {
+    // 复姓：保留复姓，隐藏名字
+    return name.substring(0, 2) + '*'.repeat(name.length - 2)
+  } else {
+    // 单姓：保留姓氏，隐藏名字
+    return name[0] + '*'.repeat(name.length - 1)
+  }
+}
 
 const router = useRouter()
 function viewResult(row: RowSim) {

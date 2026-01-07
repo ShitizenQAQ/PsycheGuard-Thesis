@@ -117,6 +117,7 @@ import { useRouter } from 'vue-router'
 import { User, Lock } from '@element-plus/icons-vue'
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const username = ref('')
@@ -142,6 +143,9 @@ async function doLogin() {
     if (token && user) {
       localStorage.setItem('pg_token', token)
       localStorage.setItem('pg_user', JSON.stringify(user))
+      const userStore = useUserStore()
+      userStore.login(user) 
+      // 同时也保留这些，以兼容某些直接读取 localStorage 的旧代码
       localStorage.setItem('user_role', user.role || '')
       localStorage.setItem('user_id', String(user.id || ''))
 

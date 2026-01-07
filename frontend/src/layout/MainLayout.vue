@@ -12,14 +12,15 @@
         router
         :collapse-transition="false"
       >
-        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-2 mb-1 uppercase tracking-wider">Dashboard</div>
-        
-        <el-menu-item index="/dashboard">
-          <el-icon><Odometer /></el-icon>
-          <span>工作台大屏</span>
-        </el-menu-item>
+        <div v-if="isCounselor">
+          <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-2 mb-1 uppercase tracking-wider">Dashboard</div>
+          <el-menu-item index="/dashboard">
+            <el-icon><Odometer /></el-icon>
+            <span>工作台大屏</span>
+          </el-menu-item>
+        </div>
 
-        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">Management</div>
+        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">Services</div>
 
         <el-menu-item index="/assess">
           <el-icon><Edit /></el-icon>
@@ -29,25 +30,28 @@
           <el-icon><Document /></el-icon>
           <span>测评记录</span>
         </el-menu-item>
-        <el-menu-item index="/users">
-          <el-icon><User /></el-icon>
-          <span>人员档案</span>
-        </el-menu-item>
-        <el-menu-item index="/intervention">
-          <el-icon><ShieldAlert /></el-icon>
-          <span>预警干预</span>
-        </el-menu-item>
 
-        <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">System</div>
+        <div v-if="isCounselor">
+          <el-menu-item index="/users">
+            <el-icon><User /></el-icon>
+            <span>人员档案</span>
+          </el-menu-item>
+          <el-menu-item index="/intervention">
+            <el-icon><ShieldAlert /></el-icon>
+            <span>预警干预</span>
+          </el-menu-item>
 
-        <el-menu-item index="/scales">
-          <el-icon><Setting /></el-icon>
-          <span>量表配置</span>
-        </el-menu-item>
-        <el-menu-item index="/teaching">
-          <el-icon><BookOpen /></el-icon>
-          <span>经典案例库</span>
-        </el-menu-item>
+          <div class="text-xs font-bold text-rock-400 px-4 py-2 mt-6 mb-1 uppercase tracking-wider">System</div>
+
+          <el-menu-item index="/scales">
+            <el-icon><Setting /></el-icon>
+            <span>量表配置</span>
+          </el-menu-item>
+          <el-menu-item index="/teaching">
+            <el-icon><BookOpen /></el-icon>
+            <span>经典案例库</span>
+          </el-menu-item>
+        </div>
       </el-menu>
 
       <div class="p-6 text-center text-xs text-slate-400">
@@ -73,13 +77,15 @@
               <el-avatar :size="40" :src="userAvatar" class="border-2 border-white shadow-sm" />
               <div class="flex flex-col text-left">
                 <span class="text-sm font-bold text-rock-800">{{ displayName }}</span>
-                <span class="text-[10px] text-rock-600 font-medium bg-cream-50 px-1.5 rounded w-fit">管理员</span>
+                <span class="text-[10px] text-rock-600 font-medium bg-cream-50 px-1.5 rounded w-fit">
+                  {{ isCounselor ? '咨询师/管理员' : '来访者' }}
+                </span>
               </div>
               <el-icon class="text-rock-400 ml-1"><ArrowDown /></el-icon>
             </div>
             <template #dropdown>
               <el-dropdown-menu class="!rounded-xl !p-2">
-                <el-dropdown-item command="profile">👤 个人中心</el-dropdown-item>
+                <el-dropdown-item command="profile" v-if="isCounselor">👤 个人中心</el-dropdown-item>
                 <el-dropdown-item command="test">📝 发起测评</el-dropdown-item>
                 <el-dropdown-item divided command="logout"><span class="text-clay-500">🚪 退出登录</span></el-dropdown-item>
               </el-dropdown-menu>
@@ -111,6 +117,7 @@ const store = useUserStore()
 store.load()
 const displayName = computed(() => store.user?.realName || 'Admin')
 const userAvatar = computed(() => store.user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${store.user?.username || 'admin'}`)
+const isCounselor = computed(() => store.isCounselor)
 const router = useRouter()
 const route = useRoute()
 

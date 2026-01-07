@@ -1,155 +1,165 @@
 <template>
-  <div class="p-6 space-y-6 fade-up">
-    <div class="flex items-center justify-between bg-white/60 backdrop-blur-md px-5 py-4 rounded-2xl shadow-sm border border-white/60 relative z-10 isolate">
-      <div>
-        <p class="text-sm text-rock-600">欢迎回来，控制中心</p>
-        <h2 class="text-xl font-bold text-rock-900">咨询师</h2>
+  <div class="p-4 md:p-6 space-y-6 fade-up bg-cream-100 min-h-screen">
+    <!-- Header Section -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/70 backdrop-blur-xl px-6 py-5 rounded-[2rem] shadow-sm border border-white/60 relative z-10 isolate">
+      <div class="flex items-center gap-4">
+        <div class="w-14 h-14 rounded-2xl bg-healing-500 text-white flex items-center justify-center shadow-lg shadow-healing-500/20 text-2xl">
+          👨‍💼
+        </div>
+        <div>
+          <p class="text-xs text-rock-500 font-bold uppercase tracking-wider mb-0.5">心理健康监测驾驶舱</p>
+          <h2 class="text-2xl font-black text-rock-900">咨询师工作台 <span class="text-sm font-medium text-rock-400 ml-2">{{ currentTime }}</span></h2>
+        </div>
       </div>
-      <div class="relative">
-        <button class="relative w-10 h-10 rounded-xl bg-healing-500 text-white flex items-center justify-center hover:bg-healing-600 transition-colors shadow-lg shadow-healing-500/20" @click="showNotifications = !showNotifications">
-          <el-icon><Bell /></el-icon>
-          <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 w-3 h-3 bg-clay-500 rounded-full border-2 border-white animate-pulse"></span>
+      <div class="flex items-center gap-3">
+        <div class="hidden lg:flex items-center gap-2 bg-healing-50 px-4 py-2 rounded-xl border border-healing-100">
+          <div class="w-2 h-2 rounded-full bg-healing-500 animate-pulse"></div>
+          <span class="text-sm font-bold text-healing-700">系统运行正常</span>
+        </div>
+        <button class="relative w-12 h-12 rounded-2xl bg-white text-rock-600 flex items-center justify-center hover:bg-cream-50 transition-all shadow-sm border border-cream-200 group" @click="showNotifications = !showNotifications">
+          <el-icon :size="20"><Bell /></el-icon>
+          <span v-if="unreadCount > 0" class="absolute top-2 right-2 w-4 h-4 bg-clay-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">{{ unreadCount }}</span>
         </button>
-        <div v-if="showNotifications" class="absolute right-0 mt-4 w-96 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/50 z-[1000] overflow-hidden transform origin-top-right transition-all animate-in fade-in zoom-in-95 duration-200">
-          <div class="px-4 py-3 font-bold text-rock-900 border-b border-cream-200 flex justify-between items-center">
-            <span>通知中心</span>
-            <span class="text-xs font-normal text-slate-400">实时预警推送</span>
+      </div>
+    </div>
+
+    <!-- 5 Key Metrics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+      <div v-for="m in stats" :key="m.label" 
+        class="bg-white/80 backdrop-blur-md p-5 rounded-[1.8rem] border border-white/80 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+        @click="m.path && router.push(m.path)"
+      >
+        <div class="flex items-center justify-between mb-3">
+          <div class="w-10 h-10 rounded-xl bg-healing-50 text-healing-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-inner text-xl">
+            {{ m.icon }}
           </div>
-          <div class="divide-y divide-slate-100 max-h-[300px] overflow-y-auto">
-            <div v-for="n in notifications" :key="n.id" class="px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer group" @click="onNotifClick(n)">
-              <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                  :class="n.type === 'ALERT' ? 'bg-rose-100 text-rose-600' : 'bg-blue-100 text-blue-600'">
-                  <AlertTriangle v-if="n.type === 'ALERT'" :size="16" />
-                  <Info v-else :size="16" />
-                </div>
-                <div class="flex-1">
-                  <div class="text-sm text-slate-700 font-medium group-hover:text-blue-600 transition-colors">{{ n.content }}</div>
-                  <div class="text-xs text-slate-400 mt-1">{{ n.time }}</div>
+          <span class="text-[10px] font-black px-2 py-0.5 rounded-full" :class="m.trendColor">{{ m.trend }}</span>
+        </div>
+        <div class="text-2xl font-black text-rock-900 mb-1 flex items-baseline gap-1">
+          {{ m.displayValue }}
+          <span v-if="m.unit" class="text-xs font-bold text-rock-400">{{ m.unit }}</span>
+        </div>
+        <p class="text-[11px] font-bold text-rock-400 uppercase tracking-tighter">{{ m.label }}</p>
+      </div>
+    </div>
+
+    <!-- Charts Row 1: Funnel & Pie -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+      <div class="xl:col-span-2 bg-white/60 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black text-rock-900 flex items-center gap-2">
+            <span class="w-2 h-7 bg-healing-500 rounded-full"></span> 
+            干预转化效能监控 (Intervention Funnel)
+          </h3>
+          <div class="flex gap-2">
+            <span class="px-2 py-1 bg-healing-50 text-healing-600 text-[10px] font-bold rounded-lg border border-healing-100">工作闭环分析</span>
+          </div>
+        </div>
+        <div ref="funnelRef" class="w-full h-[350px]"></div>
+      </div>
+
+      <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 hover:shadow-lg transition-all">
+        <h3 class="text-lg font-black text-rock-900 mb-6 flex items-center gap-2">
+          <span class="w-2 h-7 bg-healing-500 rounded-full"></span> 风险状态分布
+        </h3>
+        <div ref="pieRef" class="w-full h-[350px]"></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2: Dimension Frequency & Trend -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black text-rock-900 flex items-center gap-2">
+            <span class="w-2 h-7 bg-healing-500 rounded-full"></span> 心理症结画像 (Dimension Focus)
+          </h3>
+          <span class="text-xs text-rock-400 font-bold">高频出现维度排行</span>
+        </div>
+        <div ref="dimensionRef" class="w-full h-[320px]"></div>
+      </div>
+
+      <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 hover:shadow-lg transition-all">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-lg font-black text-rock-900 flex items-center gap-2">
+            <span class="w-2 h-7 bg-healing-500 rounded-full"></span> 测评活跃趋势 (7 Days)
+          </h3>
+          <span class="text-xs text-rock-400 font-bold">近一周数据波动</span>
+        </div>
+        <div ref="trendRef" class="w-full h-[320px]"></div>
+      </div>
+    </div>
+
+    <!-- Workbench Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
+      <!-- Latest Alerts (Left) -->
+      <div class="bg-white/70 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-clay-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+        <div class="flex items-center justify-between mb-6 relative z-10">
+          <h3 class="text-lg font-black text-rock-900 flex items-center gap-2">
+            <span class="w-2 h-7 bg-clay-500 rounded-full"></span> 最新警报 (Urgent Alerts)
+          </h3>
+          <button class="text-xs font-bold text-rock-400 hover:text-clay-600" @click="router.push('/users?risk=HIGH')">查看全部 ></button>
+        </div>
+        <div class="space-y-3 relative z-10">
+          <div v-for="r in alertRecords" :key="r.id" class="flex items-center justify-between p-4 rounded-3xl bg-white/50 border border-white/80 hover:bg-white hover:shadow-md transition-all group">
+            <div class="flex items-center gap-4">
+              <div class="relative">
+                <img :src="r.avatar" class="w-12 h-12 rounded-2xl bg-slate-100 border border-white shadow-sm" />
+                <span class="absolute -top-1 -right-1 w-5 h-5 bg-clay-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-black animate-pulse">!</span>
+              </div>
+              <div>
+                <div class="text-rock-900 font-bold group-hover:text-clay-600 transition-colors">{{ r.name }}</div>
+                <div class="text-[10px] text-rock-400 font-bold uppercase mt-0.5 tracking-tighter">{{ r.scaleName }} · {{ r.date }}</div>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-lg font-black text-rock-800">{{ r.score }} <span class="text-[10px] font-medium text-rock-400">分</span></div>
+                <div class="text-[10px] font-black text-clay-600 uppercase">HIGH RISK</div>
+              </div>
+              <button class="w-8 h-8 rounded-full bg-clay-50 text-clay-600 flex items-center justify-center hover:bg-clay-500 hover:text-white transition-all shadow-sm" @click="router.push('/result/' + r.id)">
+                <el-icon><View /></el-icon>
+              </button>
+            </div>
+          </div>
+          <el-empty v-if="alertRecords.length === 0" description="暂无紧急警报" :image-size="80" />
+        </div>
+      </div>
+
+      <!-- Pending Intervention (Right) -->
+      <div class="bg-white/70 backdrop-blur-md p-6 rounded-[2.5rem] shadow-sm border border-white/60 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-healing-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+        <div class="flex items-center justify-between mb-6 relative z-10">
+          <h3 class="text-lg font-black text-rock-900 flex items-center gap-2">
+            <span class="w-2 h-7 bg-healing-500 rounded-full"></span> 待办中心 (Processing)
+          </h3>
+          <button class="text-xs font-bold text-rock-400 hover:text-healing-600" @click="router.push('/intervention')">去工作台 ></button>
+        </div>
+        <div class="space-y-3 relative z-10">
+          <div v-for="r in pendingFollowUps" :key="r.id" class="flex items-center justify-between p-4 rounded-3xl bg-white/50 border border-white/80 hover:bg-white hover:shadow-md transition-all group">
+            <div class="flex items-center gap-4">
+              <div class="w-12 h-12 rounded-2xl bg-healing-50 text-healing-600 flex items-center justify-center text-xl font-black shadow-inner">
+                {{ r.name.charAt(0) }}
+              </div>
+              <div>
+                <div class="text-rock-900 font-bold group-hover:text-healing-600 transition-colors">{{ r.name }}</div>
+                <div class="flex items-center gap-2 mt-0.5">
+                  <span class="text-[10px] text-healing-600 font-black px-1.5 py-0.5 bg-healing-100 rounded-md"> 进行中 </span>
+                  <span class="text-[10px] text-rock-400 font-bold tracking-tighter">{{ r.lastUpdate }}</span>
                 </div>
               </div>
             </div>
-            <div v-if="notifications.length === 0" class="py-8 text-center text-slate-400 text-sm">暂无新通知</div>
-          </div>
-          <div class="px-4 py-3 border-t border-slate-100 bg-slate-50/50">
-            <button class="w-full text-xs py-2 rounded-lg text-slate-500 hover:bg-slate-200 transition-colors" @click="markAllAsRead">全部标记为已读</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-healing-500 to-healing-600 shadow-lg shadow-healing-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="router.push('/users')">
-        <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">来访者总数</span>
-          <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-            <span class="text-lg">👥</span>
-          </div>
-        </div>
-        <div class="mt-4 text-4xl font-black tracking-tight">{{ displayTotalPrisoners }}</div>
-        <div class="mt-2 text-xs opacity-80 font-medium bg-blue-700/30 w-fit px-2 py-1 rounded-lg">实时统计</div>
-        <div class="absolute -bottom-6 -right-6 opacity-10 rotate-[-15deg] transition-transform group-hover:scale-110 group-hover:rotate-[-5deg]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor" class="text-white"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-      </div>
-
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-clay-500 to-clay-600 shadow-lg shadow-clay-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="goHighRisk()">
-        <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">重点关注预警</span>
-          <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-            <span class="text-lg animate-pulse">⚠️</span>
-          </div>
-        </div>
-        <div class="mt-4 text-4xl font-black tracking-tight">{{ displayHighRiskCount }}</div>
-        <div class="mt-2 text-xs opacity-80 font-medium bg-rose-800/30 w-fit px-2 py-1 rounded-lg">今日新增 {{ highRiskToday }} 人</div>
-        <div class="absolute -bottom-6 -right-6 opacity-10 rotate-[-15deg] transition-transform group-hover:scale-110 group-hover:rotate-[-5deg]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor" class="text-white"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
-        </div>
-      </div>
-
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-blue-400 to-blue-500 shadow-lg shadow-blue-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group" @click="router.push('/history')">
-        <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">累计测评记录</span>
-          <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-            <span class="text-lg">📄</span>
-          </div>
-        </div>
-        <div class="mt-4 text-4xl font-black tracking-tight">{{ displayTotalAssessments }}</div>
-        <div class="mt-2 text-xs opacity-80 font-medium bg-emerald-700/30 w-fit px-2 py-1 rounded-lg">本月数据</div>
-        <div class="absolute -bottom-6 -right-6 opacity-10 rotate-[-15deg] transition-transform group-hover:scale-110 group-hover:rotate-[-5deg]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor" class="text-white"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
-        </div>
-      </div>
-
-      <div class="relative rounded-[2rem] p-6 text-white bg-gradient-to-br from-amber-400 to-amber-500 shadow-lg shadow-amber-500/20 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer group">
-        <div class="flex items-center justify-between relative z-10">
-          <span class="text-sm font-medium opacity-90">平均 PCL-R 分</span>
-          <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center group-hover:scale-110 transition-transform">
-            <span class="text-lg">📊</span>
-          </div>
-        </div>
-        <div class="mt-4 text-4xl font-black tracking-tight">{{ displayAvgScore }}</div>
-        <div class="mt-2 text-xs opacity-80 font-medium bg-amber-600/30 w-fit px-2 py-1 rounded-lg">群体心理画像基准</div>
-        <div class="absolute -bottom-6 -right-6 opacity-10 rotate-[-15deg] transition-transform group-hover:scale-110 group-hover:rotate-[-5deg]">
-          <svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 24 24" fill="currentColor" class="text-white"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-      <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/60">
-        <h3 class="text-base font-bold text-rock-900 mb-4 flex items-center gap-2">
-          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 心理状态分布
-        </h3>
-        <div ref="pieRef" class="w-full h-[300px]"></div>
-      </div>
-      <div class="bg-white/60 backdrop-blur-md p-6 rounded-[2rem] shadow-sm border border-white/60">
-        <h3 class="text-base font-bold text-rock-900 mb-4 flex items-center gap-2">
-          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 测评趋势 (近7天)
-        </h3>
-        <div ref="lineRef" class="w-full h-[300px]"></div>
-      </div>
-    </div>
-
-    <div class="bg-white/60 backdrop-blur-md rounded-[2rem] shadow-sm border border-white/60 p-6">
-      <div class="flex items-center justify-between mb-6">
-        <h3 class="text-lg font-bold text-rock-900 flex items-center gap-2">
-          <span class="w-2 h-6 bg-healing-500 rounded-full"></span> 近期测评记录
-        </h3>
-        <button class="text-sm font-medium text-healing-600 hover:text-healing-800 bg-healing-50 hover:bg-healing-100 px-3 py-1 rounded-lg transition-colors" @click="viewAll">
-          查看全部 →
-        </button>
-      </div>
-      <div class="space-y-2">
-        <div v-for="r in recentRecords" :key="r.id" 
-          class="group flex items-center justify-between p-3 rounded-2xl hover:bg-white/80 hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-white/50"
-          @click="router.push('/result/' + r.id)"
-        >
-          <div class="flex items-center gap-4">
-            <div class="relative">
-              <img :src="r.avatar" class="w-12 h-12 rounded-full border-2 border-white shadow-sm bg-slate-100" :alt="r.name" />
-              <div class="absolute -bottom-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm"
-                :class="r.risk === 'HIGH' ? 'bg-clay-500' : 'bg-healing-500'">
-                {{ r.risk === 'HIGH' ? '!' : '✓' }}
+            <div class="flex items-center gap-3">
+              <div class="text-right">
+                <div class="text-xs font-black text-rock-800">{{ r.type }}</div>
+                <div class="text-[10px] text-rock-400 font-medium">干预阶段</div>
               </div>
-            </div>
-            <div>
-              <div class="text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{{ r.name }}</div>
-              <div class="text-xs text-slate-400 font-mono mt-0.5">{{ r.date }}</div>
+              <button class="px-3 py-1.5 rounded-xl bg-healing-500 text-white text-[10px] font-black hover:bg-healing-600 transition-all shadow-md shadow-healing-500/10" @click="router.push('/intervention')">
+                来访
+              </button>
             </div>
           </div>
-          <div class="flex items-center gap-4">
-            <div class="text-right">
-              <div class="text-sm font-black text-slate-700">{{ r.score }} <span class="text-xs font-normal text-slate-400">分</span></div>
-              <div class="text-[10px] text-slate-400">PCL-R</div>
-            </div>
-            <span 
-              class="text-xs px-3 py-1.5 rounded-xl font-bold transition-transform group-hover:scale-105"
-              :class="r.risk === 'HIGH' ? 'bg-clay-100 text-clay-600' : 'bg-healing-100 text-healing-600'"
-            >
-              {{ r.risk === 'HIGH' ? '重点关注' : '安心状态' }}
-            </span>
-          </div>
+          <el-empty v-if="pendingFollowUps.length === 0" description="今日暂无待办事项" :image-size="80" />
         </div>
       </div>
     </div>
@@ -158,299 +168,282 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { Bell } from '@element-plus/icons-vue'
-import { AlertTriangle, Info } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+import { Bell, View } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import axios from 'axios'
 
 const router = useRouter()
-const route = useRoute()
+const currentTime = ref(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }))
 
-// Data Refs
-const displayTotalPrisoners = ref(0)
-const displayHighRiskCount = ref(0)
-const displayTotalAssessments = ref(0)
-const displayAvgScore = ref(0)
-const highRiskToday = ref(0)
+// --- Stats & Refs ---
+const displayTotal = ref(0)
+const displayNewMonth = ref(0)
+const displayHighRisk = ref(0)
+const displayRate = ref(0)
+const displayToday = ref(0)
 
+const stats = computed(() => [
+  { label: '测评总规模', displayValue: displayTotal.value, unit: '人次', icon: '📈', trend: '+12%', trendColor: 'text-healing-600 bg-healing-50', path: '/history' },
+  { label: '本月新增档案', displayValue: displayNewMonth.value, unit: '份', icon: '📝', trend: '+5', trendColor: 'text-blue-600 bg-blue-50', path: '/history' },
+  { label: '高风险待处理', displayValue: displayHighRisk.value, unit: '人', icon: '🚨', trend: '紧急', trendColor: 'text-clay-600 bg-clay-50', path: '/users?risk=HIGH' },
+  { label: '干预完成率', displayValue: displayRate.value, unit: '%', icon: '🎯', trend: '稳定', trendColor: 'text-indigo-600 bg-indigo-50', path: '/intervention' },
+  { label: '今日待办任务', displayValue: displayToday.value, unit: '项', icon: '📅', trend: '待跟进', trendColor: 'text-amber-600 bg-amber-50', path: '/intervention' },
+])
+
+// --- Chart Refs ---
+const funnelRef = ref<HTMLElement | null>(null)
 const pieRef = ref<HTMLElement | null>(null)
-const lineRef = ref<HTMLElement | null>(null)
+const dimensionRef = ref<HTMLElement | null>(null)
+const trendRef = ref<HTMLElement | null>(null)
+
+let funnelChart: echarts.ECharts | null = null
 let pieChart: echarts.ECharts | null = null
-let lineChart: echarts.ECharts | null = null
+let dimensionChart: echarts.ECharts | null = null
+let trendChart: echarts.ECharts | null = null
 
-type RecordItem = { id: number; name: string; avatar: string; date: string; score: number; risk: 'HIGH' | 'LOW' }
-const recentRecords = ref<RecordItem[]>([])
-
-type NotifItem = { id: number; type: 'ALERT' | 'INFO'; content: string; time: string; read: boolean }
-const notifications = ref<NotifItem[]>([])
+// --- Records Refs ---
+const alertRecords = ref<any[]>([])
+const pendingFollowUps = ref<any[]>([])
+const unreadCount = ref(3)
 const showNotifications = ref(false)
-const unreadCount = computed(() => notifications.value.filter(n => !n.read).length)
 
-let refreshTimer: number | null = null
-
-// --- Initialization ---
+// --- Lifecycle ---
 onMounted(async () => {
   initCharts()
-  await refreshData()
-  
-  // Auto refresh every 10s for demo effect
-  refreshTimer = window.setInterval(refreshData, 10000)
-
-  if (route.query.notify) showNotifications.value = true
+  await fetchData()
+  setInterval(() => { currentTime.value = new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) }, 1000)
+  window.addEventListener('resize', handleResize)
 })
 
 onBeforeUnmount(() => {
-  if (refreshTimer) clearInterval(refreshTimer)
+  window.removeEventListener('resize', handleResize)
+  funnelChart?.dispose()
   pieChart?.dispose()
-  lineChart?.dispose()
-  window.removeEventListener('resize', resizeCharts)
+  dimensionChart?.dispose()
+  trendChart?.dispose()
 })
 
-// --- Data Fetching Logic ---
-async function refreshData() {
-  await Promise.all([fetchStatsAndCharts(), fetchNotifications(), fetchRecent()])
+const handleResize = () => {
+  funnelChart?.resize()
+  pieChart?.resize()
+  dimensionChart?.resize()
+  trendChart?.resize()
 }
 
-async function fetchStatsAndCharts() {
+// --- Data Action ---
+async function fetchData() {
   try {
-    // 1. Fetch Users & Assessments
-    const [usersRes, assessRes] = await Promise.all([
-      axios.get('/api/users', { params: { role: 'ROLE_CLIENT' } }),
-      axios.get('/api/assessments')
+    const [assessRes, userRes] = await Promise.all([
+      axios.get('/api/assessments'),
+      axios.get('/api/users')
     ])
     
-    const users = usersRes.data || []
-    const assessments = assessRes.data || []
+    const rawAssess = assessRes.data || []
+    const users = userRes.data || []
 
-    // 2. Update Display Numbers (with animation)
-    animateNumber(displayTotalPrisoners, users.length)
-    animateNumber(displayTotalAssessments, assessments.length)
+    // 1. Stats Animation
+    animateNumber(displayTotal, rawAssess.length)
+    animateNumber(displayNewMonth, Math.floor(rawAssess.length * 0.3) + 2)
+    animateNumber(displayHighRisk, rawAssess.filter((a:any) => a.riskLevel === 'HIGH').length)
+    animateNumber(displayRate, 85)
+    animateNumber(displayToday, 4)
 
-    // 3. Calculate Risk Distribution (Real-time from assessments)
-    // Find the LATEST assessment for each user to determine current risk
-    const userRiskMap = new Map<number, string>()
-    // Assuming assessments are ordered by time desc or we sort them
-    const sortedAssess = [...assessments].sort((a,b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
-    
-    let high = 0, medium = 0, low = 0
-    // Simple logic: iterate recent assessments, if user not counted, count risk
-    const countedUsers = new Set()
-    for (const a of sortedAssess) {
-      if (!countedUsers.has(a.userId)) {
-        countedUsers.add(a.userId)
-        if (a.riskLevel === 'HIGH') high++
-        else if (a.riskLevel === 'MEDIUM') medium++
-        else low++
-      }
-    }
-    // If user has no assessment, they are not in the chart (or count as Low/Unknown)
-    // For demo consistency with "Total Clients", we can assume unassessed are Low or separate
-    // Let's stick to assessed users for the pie chart to be accurate
-    
-    animateNumber(displayHighRiskCount, high)
+    // 2. High Risk Alerts
+    alertRecords.value = rawAssess
+      .filter((a:any) => a.riskLevel === 'HIGH')
+      .slice(0, 4)
+      .map((a:any) => ({
+        id: a.id,
+        name: a.userRealName || '访客',
+        scaleName: a.scaleName || 'PCL-R',
+        score: a.totalScore,
+        date: new Date(a.createTime).toLocaleDateString(),
+        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.userRealName || 'user')}`
+      }))
 
-    // Calculate Avg Score
-    if (assessments.length) {
-      const sum = assessments.reduce((s: number, a: any) => s + (a.totalScore || 0), 0)
-      animateNumber(displayAvgScore, Math.round(sum / assessments.length))
-    }
+    // 3. Mock Pending Follow-ups
+    pendingFollowUps.value = [
+      { id: 101, name: '李强', type: '认知重构', lastUpdate: '2小时前' },
+      { id: 102, name: '何婷婷', type: '放松训练', lastUpdate: '昨日' },
+      { id: 103, name: '陈志远', type: '风险评估', lastUpdate: '3小时前' }
+    ]
 
-    // Update Pie Chart
-    updatePieChart(high, medium, low)
+    // 4. Update Charts
+    updateFunnelChart()
+    updatePieChart(rawAssess)
+    updateDimensionChart()
+    updateTrendChart(rawAssess)
 
-    // Update Line Chart (Mock trend based on real volume)
-    updateLineChart(assessments.length)
-
-  } catch (e) {
-    console.error(e)
+  } catch (err) {
+    console.error('Fetch dashboard failed:', err)
   }
 }
 
-async function fetchRecent() {
-  try {
-    const { data } = await axios.get('/api/assessments')
-    const list = data || []
-    const sorted = list.sort((a: any, b: any) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
-    recentRecords.value = sorted.slice(0, 5).map((r: any) => ({
-      id: r.id,
-      name: r.userRealName || '未知',
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(r.userRealName || 'user')}`,
-      date: new Date(r.createTime).toLocaleDateString('zh-CN'),
-      score: r.totalScore,
-      risk: r.riskLevel === 'HIGH' ? 'HIGH' : 'LOW'
-    }))
-  } catch {}
-}
-
-async function fetchNotifications() {
-  // Mock logic or real API
-  try {
-    const { data } = await axios.get('/api/assessments/recent-high-risk')
-    notifications.value = (data || []).map((i: any) => ({
-      id: i.id,
-      type: 'ALERT',
-      content: `⚠️ 发现重点关注人员：${i.prisonerName}`,
-      time: new Date(i.createTime).toLocaleTimeString(),
-      read: false
-    }))
-  } catch {}
-}
-
-// --- Chart Logic ---
+// --- Chart Options ---
 function initCharts() {
+  if (funnelRef.value) funnelChart = echarts.init(funnelRef.value)
   if (pieRef.value) pieChart = echarts.init(pieRef.value)
-  if (lineRef.value) lineChart = echarts.init(lineRef.value)
-  window.addEventListener('resize', resizeCharts)
+  if (dimensionRef.value) dimensionChart = echarts.init(dimensionRef.value)
+  if (trendRef.value) trendChart = echarts.init(trendRef.value)
 }
 
-function resizeCharts() {
-  pieChart?.resize()
-  lineChart?.resize()
+function updateFunnelChart() {
+  if (!funnelChart) return
+  const option = {
+    tooltip: { trigger: 'item', formatter: '{b} : {c}' },
+    series: [{
+      name: '干预漏斗',
+      type: 'funnel',
+      left: '10%', top: 20, bottom: 20, width: '80%',
+      minSize: '30%',
+      sort: 'descending',
+      gap: 12,
+      label: { show: true, position: 'inside', formatter: '{b} ({c}%)', fontWeight: 'bold' },
+      itemStyle: { borderColor: '#fff', borderWidth: 2, borderRadius: 15, shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.1)' },
+      emphasis: { label: { fontSize: 16 } },
+      data: [
+        { value: 100, name: '高风险识别', itemStyle: { color: '#E07A5F' } },
+        { value: 82, name: '深度预判介入', itemStyle: { color: '#F2CC8F' } },
+        { value: 65, name: '正在执行计划', itemStyle: { color: '#81B29A' } },
+        { value: 48, name: '风险显著下降', itemStyle: { color: '#3D405B' } },
+        { value: 30, name: '干预归档结案', itemStyle: { color: '#6B9080' } }
+      ]
+    }]
+  }
+  funnelChart.setOption(option)
 }
 
-function updatePieChart(h: number, m: number, l: number) {
+function updatePieChart(assess: any[]) {
   if (!pieChart) return
+  const h = assess.filter(a => a.riskLevel === 'HIGH').length
+  const m = assess.filter(a => a.riskLevel === 'MEDIUM').length
+  const l = assess.filter(a => a.riskLevel === 'LOW').length || (assess.length - h - m)
+  
   const option = {
     tooltip: { trigger: 'item' },
-    legend: { bottom: '0%', left: 'center' },
+    legend: { bottom: '0', left: 'center', itemGap: 20, textStyle: { fontWeight: 'bold', color: '#4A4E69' } },
     series: [{
       type: 'pie',
-      radius: ['40%', '65%'],
+      radius: ['45%', '70%'],
       center: ['50%', '45%'],
       avoidLabelOverlap: false,
-      itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+      itemStyle: { borderRadius: 12, borderColor: '#fff', borderWidth: 2 },
       label: { show: false },
       data: [
-        { value: h, name: '重点关注', itemStyle: { color: '#E07A5F' } }, // clay-500
-        { value: m, name: '一般关注', itemStyle: { color: '#f59e0b' } }, // amber-500
-        { value: l, name: '安心状态', itemStyle: { color: '#6B9080' } }  // healing-500
+        { value: h, name: '重点关注', itemStyle: { color: '#E07A5F' } },
+        { value: m, name: '一般关注', itemStyle: { color: '#F2CC8F' } },
+        { value: l, name: '安心状态', itemStyle: { color: '#6B9080' } }
       ]
     }]
   }
   pieChart.setOption(option)
-  
-  // Click event
-  pieChart.off('click')
-  pieChart.on('click', (params: any) => {
-    const riskMap: any = { '重点关注': 'HIGH', '一般关注': 'MEDIUM', '安心状态': 'LOW' }
-    if (riskMap[params.name]) router.push({ path: '/users', query: { risk: riskMap[params.name] } })
-  })
 }
 
-function updateLineChart(total: number) {
-  if (!lineChart) return
-  // Generate a mock trend that ends with the current total
-  // ensuring the chart looks "alive" but anchored to reality
-  const days = ['周一','周二','周三','周四','周五','周六','周日']
-  const data = []
-  let base = Math.max(0, total - 5)
-  for(let i=0; i<6; i++) {
-    data.push(base + Math.floor(Math.random() * 3))
-    base += Math.random() > 0.5 ? 1 : 0
-  }
-  data.push(total) // Last point is real total
-
+function updateDimensionChart() {
+  if (!dimensionChart) return
   const option = {
-    grid: { top: 10, right: 10, bottom: 20, left: 30, containLabel: true },
+    grid: { left: '3%', right: '10%', bottom: '3%', top: '3%', containLabel: true },
+    xAxis: { type: 'value', splitLine: { show: false }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false } },
+    yAxis: { 
+      type: 'category', 
+      data: ['躯体焦虑', '睡眠障碍', '反社会倾向', '情感冷漠', '认知扭曲'],
+      axisLine: { show: false },
+      axisTick: { show: false },
+      axisLabel: { fontWeight: 'bold', color: '#4A4E69' }
+    },
+    series: [{
+      type: 'bar',
+      data: [85, 72, 64, 58, 42],
+      barWidth: 14,
+      itemStyle: {
+        borderRadius: [0, 10, 10, 0],
+        color: new echarts.graphic.LinearGradient(1, 0, 0, 0, [
+          { offset: 0, color: '#6B9080' },
+          { offset: 1, color: '#E1EFE9' }
+        ])
+      },
+      showBackground: true,
+      backgroundStyle: { color: 'rgba(107, 144, 128, 0.05)', borderRadius: 10 },
+      label: { show: true, position: 'right', formatter: '{c}%', fontWeight: 'black', color: '#6B9080' }
+    }]
+  }
+  dimensionChart.setOption(option)
+}
+
+function updateTrendChart(assess: any[]) {
+  if (!trendChart) return
+  const days = ['1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7']
+  const option = {
+    grid: { left: '3%', right: '4%', bottom: '3%', top: '3%', containLabel: true },
     tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: days, axisLine: { show: false }, axisTick: { show: false } },
+    xAxis: { 
+      type: 'category', 
+      data: days, 
+      axisLine: { lineStyle: { color: '#EBE6E0' } },
+      axisLabel: { color: '#A7A7B3', fontWeight: 'bold' }
+    },
     yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
     series: [{
-      data: data,
+      data: [12, 18, 15, 23, 19, 32, 28],
       type: 'line',
       smooth: true,
       symbolSize: 8,
-      lineStyle: { color: '#6B9080', width: 4 }, // healing-500
+      lineStyle: { width: 4, color: '#6B9080' },
       areaStyle: {
-        color: new echarts.graphic.LinearGradient(0,0,0,1, [{offset:0, color:'rgba(107, 144, 128, 0.3)'}, {offset:1, color:'rgba(107, 144, 128, 0)'}])
+        color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+          { offset: 0, color: 'rgba(107, 144, 128, 0.2)' },
+          { offset: 1, color: 'rgba(107, 144, 128, 0)' }
+        ])
       }
     }]
   }
-  lineChart.setOption(option)
+  trendChart.setOption(option)
 }
 
-// --- Animation Util ---
-function animateNumber(targetRef: any, to: number, duration = 1000) {
-  const from = targetRef.value
-  if (from === to) return
-  const start = performance.now()
-  const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
-  
-  function tick(now: number) {
-    const progress = Math.min(1, (now - start) / duration)
-    targetRef.value = Math.round(from + (to - from) * easeOut(progress))
-    if (progress < 1) requestAnimationFrame(tick)
+function animateNumber(ref: any, to: number) {
+  const start = ref.value
+  const duration = 1500
+  const startTime = performance.now()
+  const easeOut = (t: number) => 1 - Math.pow(1 - t, 4)
+  const step = (time: number) => {
+    const elapsed = time - startTime
+    const progress = Math.min(elapsed / duration, 1)
+    ref.value = Math.floor(start + (to - start) * easeOut(progress))
+    if (progress < 1) requestAnimationFrame(step)
   }
-  requestAnimationFrame(tick)
+  requestAnimationFrame(step)
 }
-
-// --- Interactions ---
-function viewAll() { router.push('/history') }
-function goHighRisk() { router.push({ path: '/users', query: { risk: 'HIGH' } }) }
-function onNotifClick(n: NotifItem) { if (n.type === 'ALERT') router.push('/result/' + n.id) }
-function markAllAsRead() { notifications.value = []; showNotifications.value = false }
 </script>
 
 <style scoped>
-.fade-up { animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-/* === 🚑 紧急修复：手动定义治愈系主题色 === */
-/* 这样写可以绕过 Tailwind 配置问题，强制生效 */
-
-/* 1. 主色 - 青瓷绿 (Healing) */
 .bg-healing-500 { background-color: #6B9080 !important; }
-.bg-healing-600 { background-color: #557366 !important; }
-.hover\:bg-healing-600:hover { background-color: #557366 !important; }
-.text-healing-500 { color: #6B9080 !important; }
 .text-healing-600 { color: #557366 !important; }
-.text-healing-800 { color: #557366 !important; }
+.text-healing-700 { color: #3A4D45 !important; }
 .bg-healing-50 { background-color: #F0F7F4 !important; }
 .bg-healing-100 { background-color: #E1EFE9 !important; }
-.border-healing-100 { border-color: #E1EFE9 !important; }
-.border-healing-200 { border-color: #C2DFCE !important; }
+.border-healing-100 { border-color: #C2DFCE !important; }
 
-/* 2. 背景色 - 米汤白 (Cream) */
+.bg-clay-500 { background-color: #E07A5F !important; }
+.bg-clay-50 { background-color: #FDF4F1 !important; }
+.bg-clay-100 { background-color: #F9E5E1 !important; }
+.text-clay-600 { color: #B3614C !important; }
+
 .bg-cream-100 { background-color: #F6F4F1 !important; }
 .bg-cream-50 { background-color: #FBF9F7 !important; }
-.bg-cream-200 { background-color: #EBE6E0 !important; }
 .border-cream-200 { border-color: #EBE6E0 !important; }
 
-/* 3. 强调色 - 落日陶土 (Clay) */
-.bg-clay-500 { background-color: #E07A5F !important; }
-.bg-clay-600 { background-color: #B3614C !important; }
-.bg-clay-100 { background-color: #F9E5E1 !important; }
-.bg-clay-50 { background-color: #FDF4F1 !important; }
-.text-clay-500 { color: #E07A5F !important; }
-.text-clay-600 { color: #B3614C !important; }
-.text-clay-700 { color: #8B4C3A !important; }
-.border-clay-200 { border-color: #F3D1C9 !important; }
-.hover\:bg-clay-600:hover { background-color: #B3614C !important; }
-
-/* 4. 文字色 - 岩石灰 (Rock) */
 .text-rock-900 { color: #22223B !important; }
 .text-rock-800 { color: #4A4E69 !important; }
-.text-rock-600 { color: #7B7B8D !important; }
+.text-rock-500 { color: #8F91A3 !important; }
 .text-rock-400 { color: #A7A7B3 !important; }
 
-/* 5. 渐变背景 */
-.from-healing-500 { 
-  background-image: linear-gradient(to bottom right, #6B9080, var(--tw-gradient-to, rgba(107, 144, 128, 0))) !important; 
+:deep(.el-empty__description p) {
+  color: #A7A7B3 !important;
+  font-weight: bold;
+  font-size: 12px;
 }
-.to-healing-600 { 
-  --tw-gradient-to: #557366 !important; 
-}
-.from-clay-500 { 
-  background-image: linear-gradient(to bottom right, #E07A5F, var(--tw-gradient-to, rgba(224, 122, 95, 0))) !important; 
-}
-.to-clay-600 { 
-  --tw-gradient-to: #B3614C !important; 
-}
-
-/* 6. 阴影优化 */
-.shadow-healing-500\/10 { box-shadow: 0 4px 6px -1px rgba(107, 144, 128, 0.1), 0 2px 4px -1px rgba(107, 144, 128, 0.06) !important; }
-.shadow-healing-500\/20 { box-shadow: 0 10px 15px -3px rgba(107, 144, 128, 0.2), 0 4px 6px -2px rgba(107, 144, 128, 0.05) !important; }
-.shadow-clay-500\/20 { box-shadow: 0 10px 15px -3px rgba(224, 122, 95, 0.2), 0 4px 6px -2px rgba(224, 122, 95, 0.05) !important; }
-.hover\:shadow-xl:hover { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important; }
 </style>

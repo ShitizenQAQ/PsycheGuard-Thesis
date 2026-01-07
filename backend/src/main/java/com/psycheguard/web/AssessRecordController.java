@@ -34,7 +34,8 @@ public class AssessRecordController {
   private final PsychScaleRepository scaleRepository;
   private final AssessRecordRepository recordRepository;
 
-  public AssessRecordController(AssessService assessService, SysUserRepository userRepository, PsychScaleRepository scaleRepository, AssessRecordRepository recordRepository) {
+  public AssessRecordController(AssessService assessService, SysUserRepository userRepository,
+      PsychScaleRepository scaleRepository, AssessRecordRepository recordRepository) {
     this.assessService = assessService;
     this.userRepository = userRepository;
     this.scaleRepository = scaleRepository;
@@ -47,16 +48,17 @@ public class AssessRecordController {
       Long uid = dto.getUserId() != null ? dto.getUserId() : 1L;
       Long sid = dto.getScaleId() != null ? dto.getScaleId() : 1L;
       SysUser user = userRepository.findById(uid)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId not found"));
+          .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "userId not found"));
       PsychScale scale = scaleRepository.findById(sid)
-        .orElseGet(() -> {
-          java.util.Optional<PsychScale> any = scaleRepository.findAll().stream().findFirst();
-          if (any.isPresent()) return any.get();
-          PsychScale def = new PsychScale();
-          def.setName("PCL-R");
-          def.setDescription("Default scale");
-          return scaleRepository.save(def);
-        });
+          .orElseGet(() -> {
+            java.util.Optional<PsychScale> any = scaleRepository.findAll().stream().findFirst();
+            if (any.isPresent())
+              return any.get();
+            PsychScale def = new PsychScale();
+            def.setName("PCL-R");
+            def.setDescription("Default scale");
+            return scaleRepository.save(def);
+          });
       Long id = assessService.submit(user, scale, dto.getAnswers()).getId();
       return ResponseEntity.ok(java.util.Map.of("id", id));
     } catch (ResponseStatusException rse) {
@@ -69,7 +71,7 @@ public class AssessRecordController {
   @GetMapping("/{id}")
   public ResponseEntity<AssessmentResultDTO> get(@PathVariable Long id) {
     AssessRecord rec = recordRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
     AssessmentResultDTO dto = new AssessmentResultDTO();
     dto.setId(rec.getId());
     dto.setTotalScore(rec.getTotalScore());
@@ -77,22 +79,56 @@ public class AssessRecordController {
     dto.setDimensionScore(rec.getDimensionAnalysis());
     dto.setIsTeachingCase(rec.getIsTeachingCase());
     dto.setExpertAnnotation(rec.getExpertAnnotation());
+    if (rec.getScale() != null) {
+      dto.setMaxScore(rec.getScale().getMaxScore());
+      dto.setScaleName(rec.getScale().getName());
+    }
     return ResponseEntity.ok(dto);
   }
 
   @GetMapping
-  public java.util.List<AssessmentListItemDTO> list(@RequestParam(value = "keyword", required = false) String keyword) {
-    java.util.List<com.psycheguard.domain.AssessRecord> list;
-    if (keyword != null && !keyword.isBlank()) {
-      list = recordRepository.findByUser_UsernameContainingIgnoreCase(keyword);
-    } else {
-      list = recordRepository.findAll();
+  public java.util.List<AssessmentListItemDTO> list(
+      @RequestParam(value = "keyword", required = false) String keyword,
+      java.security.Principal principal) {
+
+    // 强制鉴权
+    if (principal == null || principal.getName() == null) {
+      throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.UNAUTHORIZED,
+          "用户未登录或令牌无效");
     }
+
+    String currentUsername = principal.getName();
+    SysUser currentUser = userRepository.findByUsername(currentUsername)
+        .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
+            org.springframework.http.HttpStatus.UNAUTHORIZED, "用户不存在"));
+
+    java.util.List<com.psycheguard.domain.AssessRecord> list;
+
+    // 权限控制逻辑 (增加 .trim() 防止数据库空格导致判定失效)
+    String role = (currentUser.getRole() != null) ? currentUser.getRole().trim().toUpperCase() : "";
+
+    if (role.endsWith("CLIENT")) {
+      // 来访者只能看到自己的记录
+      list = recordRepository.findByUserId(currentUser.getId());
+    } else if (role.endsWith("COUNSELOR") || role.endsWith("ADMIN") || role.endsWith("DOCTOR")) {
+      // 咨询师/管理员可以看到所有记录
+      if (keyword != null && !keyword.isBlank()) {
+        list = recordRepository.findByUser_UsernameContainingIgnoreCase(keyword);
+      } else {
+        list = recordRepository.findAll();
+      }
+    } else {
+      // 未知角色提示权限不足
+      throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.FORBIDDEN,
+          "未授权的角色访问");
+    }
+
     java.util.List<AssessmentListItemDTO> out = new java.util.ArrayList<>(list.size());
     for (com.psycheguard.domain.AssessRecord rec : list) {
       AssessmentListItemDTO dto = new AssessmentListItemDTO();
       dto.setId(rec.getId());
-      dto.setUserRealName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+      dto.setUserRealName(
+          rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
       dto.setCreateTime(rec.getCreateTime());
       dto.setTotalScore(rec.getTotalScore());
       dto.setRiskLevel(rec.getRiskLevel());
@@ -105,12 +141,14 @@ public class AssessRecordController {
 
   @GetMapping("/notifications")
   public java.util.List<AssessmentNotificationDTO> notifications() {
-    java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository.findTop5ByRiskLevelOrderByCreateTimeDesc("HIGH");
+    java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository
+        .findTop5ByRiskLevelOrderByCreateTimeDesc("HIGH");
     java.util.List<AssessmentNotificationDTO> out = new java.util.ArrayList<>(list.size());
     for (com.psycheguard.domain.AssessRecord rec : list) {
       AssessmentNotificationDTO dto = new AssessmentNotificationDTO();
       dto.setId(rec.getId());
-      dto.setPrisonerName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+      dto.setPrisonerName(
+          rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
       dto.setCreateTime(rec.getCreateTime());
       dto.setRiskLevel(rec.getRiskLevel());
       out.add(dto);
@@ -121,12 +159,14 @@ public class AssessRecordController {
   @GetMapping("/recent-high-risk")
   public java.util.List<AssessmentRecentHighRiskDTO> recentHighRisk() {
     try {
-      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository.findTop5ByRiskLevelOrderByCreateTimeDesc("HIGH");
+      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository
+          .findTop5ByRiskLevelOrderByCreateTimeDesc("HIGH");
       java.util.List<AssessmentRecentHighRiskDTO> out = new java.util.ArrayList<>(list.size());
       for (com.psycheguard.domain.AssessRecord rec : list) {
         AssessmentRecentHighRiskDTO dto = new AssessmentRecentHighRiskDTO();
         dto.setId(rec.getId());
-        dto.setPrisonerName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+        dto.setPrisonerName(
+            rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
         dto.setCreateTime(rec.getCreateTime());
         out.add(dto);
       }
@@ -139,12 +179,14 @@ public class AssessRecordController {
   @GetMapping("/high-risk")
   public java.util.List<AssessmentRecentHighRiskDTO> highRisk() {
     try {
-      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository.findByRiskLevelOrderByCreateTimeDesc("HIGH");
+      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository
+          .findByRiskLevelOrderByCreateTimeDesc("HIGH");
       java.util.List<AssessmentRecentHighRiskDTO> out = new java.util.ArrayList<>(list.size());
       for (com.psycheguard.domain.AssessRecord rec : list) {
         AssessmentRecentHighRiskDTO dto = new AssessmentRecentHighRiskDTO();
         dto.setId(rec.getId());
-        dto.setPrisonerName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+        dto.setPrisonerName(
+            rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
         dto.setCreateTime(rec.getCreateTime());
         out.add(dto);
       }
@@ -157,12 +199,14 @@ public class AssessRecordController {
   @GetMapping("/interventions/high-risk")
   public java.util.List<AssessmentInterventionItemDTO> interventionsHighRisk() {
     try {
-      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository.findByRiskLevelOrderByCreateTimeDesc("HIGH");
+      java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository
+          .findByRiskLevelOrderByCreateTimeDesc("HIGH");
       java.util.List<AssessmentInterventionItemDTO> out = new java.util.ArrayList<>(list.size());
       for (com.psycheguard.domain.AssessRecord rec : list) {
         AssessmentInterventionItemDTO dto = new AssessmentInterventionItemDTO();
         dto.setId(rec.getId());
-        dto.setPrisonerName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+        dto.setPrisonerName(
+            rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
         dto.setTotalScore(rec.getTotalScore());
         dto.setCreateTime(rec.getCreateTime());
         dto.setStatus(rec.getStatus());
@@ -175,7 +219,8 @@ public class AssessRecordController {
   }
 
   @GetMapping("/interventions")
-  public java.util.List<AssessmentInterventionItemDTO> interventions(@RequestParam(value = "status", required = false) String status) {
+  public java.util.List<AssessmentInterventionItemDTO> interventions(
+      @RequestParam(value = "status", required = false) String status) {
     java.util.List<com.psycheguard.domain.AssessRecord> list;
     if (status != null && !status.isBlank()) {
       list = recordRepository.findByRiskLevelAndStatusOrderByCreateTimeDesc("HIGH", status.toUpperCase());
@@ -186,7 +231,8 @@ public class AssessRecordController {
     for (com.psycheguard.domain.AssessRecord rec : list) {
       AssessmentInterventionItemDTO dto = new AssessmentInterventionItemDTO();
       dto.setId(rec.getId());
-      dto.setPrisonerName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+      dto.setPrisonerName(
+          rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
       dto.setTotalScore(rec.getTotalScore());
       dto.setCreateTime(rec.getCreateTime());
       dto.setStatus(rec.getStatus());
@@ -196,9 +242,10 @@ public class AssessRecordController {
   }
 
   @PutMapping("/{id}/status")
-  public ResponseEntity<java.util.Map<String, Object>> updateStatus(@PathVariable Long id, @RequestBody java.util.Map<String, String> body) {
+  public ResponseEntity<java.util.Map<String, Object>> updateStatus(@PathVariable Long id,
+      @RequestBody java.util.Map<String, String> body) {
     com.psycheguard.domain.AssessRecord rec = recordRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
     String status = String.valueOf(body.getOrDefault("status", rec.getStatus()));
     status = status == null ? rec.getStatus() : status.toUpperCase();
     if (!java.util.Set.of("PENDING", "PROCESSING", "ARCHIVED").contains(status)) {
@@ -210,33 +257,37 @@ public class AssessRecordController {
   }
 
   @PutMapping("/{id}/annotate")
-  public ResponseEntity<java.util.Map<String, Object>> annotate(@PathVariable Long id, @RequestBody java.util.Map<String, Object> body) {
+  public ResponseEntity<java.util.Map<String, Object>> annotate(@PathVariable Long id,
+      @RequestBody java.util.Map<String, Object> body) {
     AssessRecord rec = recordRepository.findById(id)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
     Object tc = body.get("isTeachingCase");
     Object ann = body.get("annotation");
     boolean isTc = false;
-    if (tc instanceof Boolean) isTc = (Boolean) tc;
-    else if (tc instanceof String) isTc = Boolean.parseBoolean((String) tc);
+    if (tc instanceof Boolean)
+      isTc = (Boolean) tc;
+    else if (tc instanceof String)
+      isTc = Boolean.parseBoolean((String) tc);
     // one-way add: once added to teaching library, cannot be removed
     rec.setIsTeachingCase(Boolean.TRUE.equals(rec.getIsTeachingCase()) || isTc);
     rec.setExpertAnnotation(ann == null ? null : String.valueOf(ann));
     recordRepository.save(rec);
     return ResponseEntity.ok(java.util.Map.of(
-      "id", rec.getId(),
-      "isTeachingCase", rec.getIsTeachingCase(),
-      "expertAnnotation", rec.getExpertAnnotation()
-    ));
+        "id", rec.getId(),
+        "isTeachingCase", rec.getIsTeachingCase(),
+        "expertAnnotation", rec.getExpertAnnotation()));
   }
 
   @GetMapping("/teaching-cases")
   public java.util.List<AssessmentListItemDTO> teachingCases() {
-    java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository.findByIsTeachingCaseTrueOrderByCreateTimeDesc();
+    java.util.List<com.psycheguard.domain.AssessRecord> list = recordRepository
+        .findByIsTeachingCaseTrueOrderByCreateTimeDesc();
     java.util.List<AssessmentListItemDTO> out = new java.util.ArrayList<>(list.size());
     for (com.psycheguard.domain.AssessRecord rec : list) {
       AssessmentListItemDTO dto = new AssessmentListItemDTO();
       dto.setId(rec.getId());
-      dto.setUserRealName(rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
+      dto.setUserRealName(
+          rec.getUser().getRealName() != null ? rec.getUser().getRealName() : rec.getUser().getUsername());
       dto.setCreateTime(rec.getCreateTime());
       dto.setTotalScore(rec.getTotalScore());
       dto.setRiskLevel(rec.getRiskLevel());

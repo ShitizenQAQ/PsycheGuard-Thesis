@@ -23,17 +23,35 @@ public class UserController {
   }
 
   @GetMapping
-  public List<SysUserDTO> list(@RequestParam(value = "keyword", required = false) String keyword,
-      @RequestParam(value = "role", required = false) String role) {
-    List<SysUser> users;
-    if (keyword != null && !keyword.isBlank()) {
-      users = userRepository.findByUsernameContainingIgnoreCase(keyword);
-    } else {
-      users = userRepository.findAll();
+  public List<SysUserDTO> list(
+      @RequestParam(value = "keyword", required = false) String keyword,
+      @RequestParam(value = "role", required = false) String roleFilter,
+      java.security.Principal principal) {
+
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户未登录");
     }
-    if (role != null && !role.isBlank()) {
-      String r = role.toUpperCase();
-      users = users.stream().filter(u -> r.equalsIgnoreCase(u.getRole())).toList();
+
+    SysUser currentUser = userRepository.findByUsername(principal.getName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
+
+    List<SysUser> users;
+
+    // 权限控制：CLIENT 只能“看到”并操作自己
+    if (currentUser.getRole() != null && currentUser.getRole().toUpperCase().endsWith("CLIENT")) {
+      users = List.of(currentUser);
+    } else {
+      // 咨询师/管理员逻辑保持不变 (模糊搜索 + 全部列表)
+      if (keyword != null && !keyword.isBlank()) {
+        users = userRepository.findByUsernameContainingIgnoreCase(keyword);
+      } else {
+        users = userRepository.findAll();
+      }
+
+      if (roleFilter != null && !roleFilter.isBlank()) {
+        String r = roleFilter.toUpperCase();
+        users = users.stream().filter(u -> u.getRole() != null && u.getRole().toUpperCase().contains(r)).toList();
+      }
     }
     return users.stream().map(u -> {
       SysUserDTO dto = new SysUserDTO();
