@@ -23,10 +23,22 @@ public class PsychScaleController {
     this.questionRepository = questionRepository;
   }
 
+  /**
+   * 获取量表列表
+   * 
+   * @param type 可选参数,按类型过滤 (SELF/OBSERVER)
+   * @return 量表列表
+   */
   @GetMapping
-  public List<PsychScale> list() {
-    List<PsychScale> list = scaleRepository.findAll();
-    System.out.println("DEBUG: Fetching scales, found: " + list.size());
+  public List<PsychScale> list(@RequestParam(required = false) String type) {
+    List<PsychScale> list;
+    if (type != null && !type.isEmpty()) {
+      list = scaleRepository.findByType(type);
+      System.out.println("DEBUG: Fetching scales by type=" + type + ", found: " + list.size());
+    } else {
+      list = scaleRepository.findAll();
+      System.out.println("DEBUG: Fetching all scales, found: " + list.size());
+    }
     if (list.size() > 0) {
       System.out.println("DEBUG: First scale: " + list.get(0).getName());
     } else {

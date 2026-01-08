@@ -67,8 +67,22 @@
         </div>
         
         <div class="header-right flex items-center gap-6">
-          <button class="relative p-2 text-rock-400 hover:text-rock-600 transition-colors" @click="openNotifications" aria-label="打开通知">
-            <span class="absolute top-2 right-2 w-2 h-2 bg-clay-500 rounded-full border border-white"></span>
+          <!-- 通知铃铛 -->
+          <button 
+            class="relative p-2 text-rock-400 hover:text-rock-600 transition-colors" 
+            @click="showNotificationPanel = true" 
+            aria-label="打开通知"
+          >
+            <!-- 动态徽章 -->
+            <span 
+              v-if="unreadCount > 0"
+              :class="[
+                'absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold flex items-center justify-center text-white border-2 border-white',
+                badgeClass
+              ]"
+            >
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </span>
             <el-icon :size="20"><Bell /></el-icon>
           </button>
 
@@ -102,24 +116,50 @@
         </router-view>
       </el-main>
     </el-container>
+    
+    <!-- 通知面板 -->
+    <NotificationPanel v-model="showNotificationPanel" />
   </el-container>
 </template>
 
 <script setup lang="ts">
 import { Odometer, Edit, Document, User, Setting, Bell, ArrowDown } from '@element-plus/icons-vue'
 import { ShieldAlert, BookOpen } from 'lucide-vue-next'
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useNotificationStore } from '@/stores/notification'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import NotificationPanel from '@/components/NotificationPanel.vue'
 
 const store = useUserStore()
-store.load()
-const displayName = computed(() => store.user?.realName || 'Admin')
-const userAvatar = computed(() => store.user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${store.user?.username || 'admin'}`)
-const isCounselor = computed(() => store.isCounselor)
+const notificationStore = useNotificationStore()
 const router = useRouter()
 const route = useRoute()
+
+store.load()
+const displayName = computed(() => store.user?.realName || 'Admin')
+const userAvatar = computed(() => store.user?.avatar || `https://api.dicebear.com/7.x/notionists/svg?seed=${store.user?.username || 'admin'}&backgroundColor=e1efe9`)
+const isCounselor = computed(() => store.isCounselor)
+
+// 通知相关状态
+const showNotificationPanel = ref(false)
+const unreadCount = computed(() => notificationStore.unreadCount)
+const badgeClass = computed(() => {
+  const color = notificationStore.badgeColor
+  if (color === 'urgent') return 'bg-clay-500 animate-pulse'
+  if (color === 'warning') return 'bg-orange-500'
+  return 'bg-rock-400'
+})
+
+// 定期刷新未读数量
+let refreshTimer: number | null = null
+onMounted(() => {
+  notificationStore.fetchUnreadCount()
+  refreshTimer = window.setInterval(() => {
+    notificationStore.fetchUnreadCount()
+  }, 60000) // 每分钟刷新一次
+})
 
 // 动态获取当前页面标题
 const currentRouteName = computed(() => {
@@ -167,15 +207,13 @@ onMounted(() => {
 })
 onUnmounted(() => {
   if (idleTimer) clearTimeout(idleTimer)
+  if (refreshTimer) clearInterval(refreshTimer)
   window.removeEventListener('mousemove', resetTimer)
   window.removeEventListener('click', resetTimer)
   window.removeEventListener('keydown', resetTimer)
 })
 
-function openNotifications() {
-  router.push({ path: '/dashboard', query: { notify: '1' } })
-}
-</script>
+// 动态获取当前页面标题</script>
 
 <style scoped>
 /* 侧边栏菜单样式覆盖 */

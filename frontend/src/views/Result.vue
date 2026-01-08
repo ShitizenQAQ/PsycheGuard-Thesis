@@ -304,36 +304,111 @@ onMounted(async () => {
       const mainColor = isHigh ? '#E07A5F' : '#6B9080' // Clay or Healing
       const areaColor = isHigh ? 'rgba(224, 122, 95, 0.2)' : 'rgba(107, 144, 128, 0.2)'
       
-      chart.setOption({
-        tooltip: { trigger: 'item', backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#EBE6E0', textStyle: { color: '#4A4E69' } },
-        radar: {
-          indicator: indicators,
-          shape: 'circle',
-          splitNumber: 4,
-          axisName: {
-            formatter: (value: string) => value,
-            color: '#7B7B8D', // rock-600
-            fontSize: 12,
-            fontWeight: '600'
+      // 根据维度数量选择图表类型
+      const dimensionCount = indicators.length
+      const useBarChart = dimensionCount < 5 // 维度数 < 5 使用柱状图
+      
+      if (useBarChart) {
+        // 柱状图配置 (适合 2-4 个维度)
+        chart.setOption({
+          tooltip: { 
+            trigger: 'axis',
+            backgroundColor: 'rgba(255,255,255,0.9)',
+            borderColor: '#EBE6E0',
+            textStyle: { color: '#4A4E69' },
+            axisPointer: { type: 'shadow' }
           },
-          splitLine: { lineStyle: { color: '#EBE6E0' } }, // cream-200
-          splitArea: { show: true, areaStyle: { color: ['#F6F4F1', '#fff'] } },
-          axisLine: { lineStyle: { color: '#D2DDD8' } } // healing-light
-        },
-        series: [{
-          name: '心理特征画像',
-          type: 'radar',
-          data: [{
-            value: values,
-            name: subjectName.value,
-            itemStyle: { color: mainColor },
-            areaStyle: { color: areaColor },
-            lineStyle: { width: 3, color: mainColor },
-            symbol: 'circle',
-            symbolSize: 6
+          grid: { 
+            left: '15%', 
+            right: '10%', 
+            bottom: '15%', 
+            top: '10%',
+            containLabel: true
+          },
+          xAxis: {
+            type: 'category',
+            data: indicators.map(i => i.name),
+            axisLabel: { 
+              rotate: 0, 
+              fontSize: 13, 
+              fontWeight: 'bold',
+              color: '#7B7B8D'
+            },
+            axisLine: { lineStyle: { color: '#EBE6E0' } },
+            axisTick: { show: false }
+          },
+          yAxis: {
+            type: 'value',
+            name: '得分',
+            nameTextStyle: { 
+              fontSize: 12, 
+              fontWeight: 'bold',
+              color: '#7B7B8D'
+            },
+            max: function(value) { 
+              const maxVal = Math.max(...indicators.map(i => i.max as number))
+              return Math.ceil(maxVal * 1.1) 
+            },
+            axisLabel: { fontSize: 11, color: '#A7A7B3' },
+            splitLine: { lineStyle: { color: '#F6F4F1', type: 'dashed' } }
+          },
+          series: [{
+            type: 'bar',
+            data: values.map((v, i) => ({
+              value: v,
+              itemStyle: {
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                  { offset: 0, color: mainColor },
+                  { offset: 1, color: areaColor }
+                ]),
+                borderRadius: [8, 8, 0, 0]
+              }
+            })),
+            barWidth: '50%',
+            label: {
+              show: true,
+              position: 'top',
+              formatter: '{c}',
+              fontWeight: 'bold',
+              fontSize: 12,
+              color: mainColor
+            }
           }]
-        }]
-      })
+        })
+      } else {
+        // 雷达图配置 (适合 5+ 个维度)
+        chart.setOption({
+          tooltip: { trigger: 'item', backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#EBE6E0', textStyle: { color: '#4A4E69' } },
+          radar: {
+            indicator: indicators,
+            shape: 'circle',
+            splitNumber: 4,
+            axisName: {
+              formatter: (value: string) => value,
+              color: '#7B7B8D', // rock-600
+              fontSize: 12,
+              fontWeight: '600'
+            },
+            splitLine: { lineStyle: { color: '#EBE6E0' } }, // cream-200
+            splitArea: { show: true, areaStyle: { color: ['#F6F4F1', '#fff'] } },
+            axisLine: { lineStyle: { color: '#D2DDD8' } } // healing-light
+          },
+          series: [{
+            name: '心理特征画像',
+            type: 'radar',
+            data: [{
+              value: values,
+              name: subjectName.value,
+              itemStyle: { color: mainColor },
+              areaStyle: { color: areaColor },
+              lineStyle: { width: 3, color: mainColor },
+              symbol: 'circle',
+              symbolSize: 6
+            }]
+          }]
+        })
+      }
+      
       window.addEventListener('resize', () => chart.resize())
     }
   } catch (error: any) {

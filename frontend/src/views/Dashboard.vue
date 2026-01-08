@@ -16,10 +16,6 @@
           <div class="w-2 h-2 rounded-full bg-healing-500 animate-pulse"></div>
           <span class="text-sm font-bold text-healing-700">系统运行正常</span>
         </div>
-        <button class="relative w-12 h-12 rounded-2xl bg-white text-rock-600 flex items-center justify-center hover:bg-cream-50 transition-all shadow-sm border border-cream-200 group" @click="showNotifications = !showNotifications">
-          <el-icon :size="20"><Bell /></el-icon>
-          <span v-if="unreadCount > 0" class="absolute top-2 right-2 w-4 h-4 bg-clay-500 text-white text-[10px] flex items-center justify-center rounded-full border-2 border-white font-bold">{{ unreadCount }}</span>
-        </button>
       </div>
     </div>
 
@@ -169,7 +165,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
-import { Bell, View } from '@element-plus/icons-vue'
+import { View } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import axios from 'axios'
 
@@ -205,8 +201,7 @@ let trendChart: echarts.ECharts | null = null
 // --- Records Refs ---
 const alertRecords = ref<any[]>([])
 const pendingFollowUps = ref<any[]>([])
-const unreadCount = ref(3)
-const showNotifications = ref(false)
+
 
 // --- Lifecycle ---
 onMounted(async () => {
@@ -259,7 +254,7 @@ async function fetchData() {
         scaleName: a.scaleName || 'PCL-R',
         score: a.totalScore,
         date: new Date(a.createTime).toLocaleDateString(),
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.userRealName || 'user')}`
+        avatar: `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(a.userRealName || 'user')}&backgroundColor=e1efe9`
       }))
 
     // 3. Mock Pending Follow-ups

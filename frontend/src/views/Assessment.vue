@@ -11,14 +11,14 @@
           <p class="text-xs text-rock-500">正在进行 {{ currentScaleName || '请选择量表' }} 测评</p>
         </div>
       </div>
-      <button class="px-3 py-1.5 rounded-lg border border-cream-200 bg-white text-rock-600 hover:bg-cream-50 hover:text-healing-600 transition-colors" @click="handleLogout">退出</button>
+      <!-- 移除全局退出按钮，避免误触注销 -->
     </div>
 
     <div class="flex-1 flex flex-col items-center justify-center p-6 max-w-5xl mx-auto w-full relative z-0">
       <div v-if="viewMode === 'SCALE_LIST'" class="w-full max-w-5xl fade-up">
         <div class="text-center mb-12">
-          <h2 class="text-3xl font-bold text-rock-800 mb-3">心理测评中心</h2>
-          <p class="text-rock-500">探索内心，发现更好的自己</p>
+          <h2 class="text-3xl font-bold text-rock-800 mb-3">{{ role === 'ROLE_CLIENT' ? '自助心理测评中心' : '临床评估录入工作台' }}</h2>
+          <p class="text-rock-500">{{ role === 'ROLE_CLIENT' ? '探索内心，发现更好的自己' : '专业心理评估量表库' }}</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -38,7 +38,7 @@
               @click="startClientAssessment(scale.id)"
               class="w-full py-3 rounded-xl bg-white border-2 border-cream-200 text-rock-600 font-bold group-hover:bg-healing-500 group-hover:border-healing-500 group-hover:text-white transition-all shadow-sm"
             >
-              开始测评
+              {{ role === 'ROLE_CLIENT' ? '开始测评' : '开始评估录入' }}
             </button>
           </div>
         </div>
@@ -60,7 +60,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="p in prisonerList" :key="p.id" class="glass-card group relative p-6 rounded-[2rem] border border-white/60 bg-white/60 shadow-sm transition-all hover:-translate-y-1 hover:shadow-healing-500/10">
             <div class="flex items-center gap-4">
-              <img :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(p.name)}`" class="w-14 h-14 rounded-full border-4 border-white shadow-sm bg-cream-100" :alt="p.name" />
+              <img :src="`https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(p.name)}&backgroundColor=e1efe9`" class="w-14 h-14 rounded-full border-4 border-white shadow-sm bg-cream-100" :alt="p.name" />
                <div>
                 <div class="text-lg font-bold text-rock-800">{{ p.name }}</div>
                 <div class="text-xs font-mono text-rock-400 bg-white px-2 py-0.5 rounded border border-gray-100">ID: {{ p.prisonerId }}</div>
@@ -93,7 +93,7 @@
           <div class="bg-white/70 backdrop-blur-xl border border-white/60 p-0 rounded-[2rem] shadow-xl shadow-healing-500/5 min-h-[400px] flex flex-col relative transition-all duration-300">
             <div v-if="role === 'ROLE_COUNSELOR'" class="bg-white/50 border-b border-cream-200 p-6 rounded-t-[2rem] flex items-center justify-between">
               <div>
-                <button class="bg-white border border-cream-200 shadow-sm px-4 py-2 rounded-xl text-rock-600 font-medium text-sm hover:bg-healing-50 hover:text-healing-600 hover:border-healing-200 transition-all flex items-center gap-2" @click="backToList">← 返回列表</button>
+                <button class="bg-white border border-cream-200 shadow-sm px-4 py-2 rounded-xl text-rock-600 font-medium text-sm hover:bg-healing-50 hover:text-healing-600 hover:border-healing-200 transition-all flex items-center gap-2" @click="backToList">退出</button>
               </div>
               <div class="flex items-center gap-4">
                 <img :src="profileAvatarUrl" class="w-14 h-14 rounded-full border-2 border-white shadow-sm" :alt="targetNamePlain" />
@@ -154,7 +154,7 @@
               <div class="mt-8 flex justify-between items-center pt-6 border-t border-slate-100">
                 <button v-if="currentQuestionIndex > 0" @click="currentQuestionIndex--" class="text-rock-400 hover:text-rock-600 font-medium px-4 py-2 hover:bg-cream-100 rounded-lg transition-colors">上一题</button>
                 <div v-else></div>
-                <button v-if="isLastQuestion" @click="submitAssessment" :disabled="submitLoading" :class="{ 'opacity-50 cursor-not-allowed': submitLoading }" class="px-8 py-3 bg-gradient-to-r from-healing-500 to-healing-600 text-white font-bold rounded-xl shadow-lg shadow-healing-500/30 hover:shadow-healing-500/50 transform hover:scale-105 transition-all">{{ submitLoading ? '正在提交...' : '提交评估' }}</button>
+                <button v-if="isLastQuestion" @click="submitAssessment" :disabled="submitLoading" :class="{ 'opacity-50 cursor-not-allowed': submitLoading }" class="px-8 py-3 bg-healing-500 text-white font-bold rounded-xl shadow-lg shadow-healing-500/30 hover:bg-healing-600 hover:shadow-healing-500/50 transform hover:scale-105 transition-all">{{ submitLoading ? '正在提交...' : '提交评估' }}</button>
                 <button v-else @click="nextQuestion" class="px-8 py-3 bg-rock-800 text-white font-bold rounded-xl shadow-lg shadow-rock-800/20 hover:bg-rock-900 hover:scale-105 transition-all" :disabled="answers[currentQuestion.id] === undefined" :class="{ 'opacity-50 cursor-not-allowed': answers[currentQuestion.id] === undefined }">下一题 →</button>
               </div>
             </div>
@@ -196,7 +196,7 @@
               </div>
               <button 
                 @click="contactCounselor"
-                class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 hover:scale-[1.02] transition-all"
+                class="w-full flex items-center justify-center gap-2 bg-orange-500 text-white font-bold py-4 rounded-xl shadow-lg shadow-orange-500/30 hover:bg-orange-600 hover:shadow-orange-500/50 hover:scale-[1.02] transition-all"
               >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
@@ -344,7 +344,7 @@ const route = useRoute()
 const userStore = useUserStore();
 userStore.load()
 const userName = computed(() => userStore.user?.realName || userStore.user?.username || '测试用户')
-const avatarUrl = computed(() => `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(userStore.user?.username || 'user')}`)
+const avatarUrl = computed(() => `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(userStore.user?.username || 'user')}&backgroundColor=e1efe9`)
 const loading = ref(true)
 const questions = ref<Question[]>([])
 const answers = ref<Record<number, number>>({})
@@ -361,7 +361,7 @@ const targetUserName = ref<string | null>(null)
 const role = computed(() => userStore.isCounselor ? 'ROLE_COUNSELOR' : 'ROLE_CLIENT')
 const assessorName = computed(() => userStore.user?.realName || userStore.user?.username || 'Admin')
 const targetNamePlain = computed(() => (targetUserName.value || '').split('(')[0].trim() || '来访者')
-const profileAvatarUrl = computed(() => `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(targetNamePlain.value || 'patient')}`)
+const profileAvatarUrl = computed(() => `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(targetNamePlain.value || 'patient')}&backgroundColor=e1efe9`)
 const ratingOptions = [
   { score: 0, label: '0分 - 不符合 (No)' },
   { score: 1, label: '1分 - 部分符合 (Maybe)' },
@@ -477,11 +477,12 @@ onBeforeRouteLeave(async (to, from, next) => {
 
 onMounted(async () => {
   try {
-    const { data } = await axios.get('/api/scales')
+    // 根据用户角色调用不同的 API 参数
+    const scaleType = role.value === 'ROLE_CLIENT' ? 'SELF' : 'OBSERVER'
+    const { data } = await axios.get('/api/scales', { params: { type: scaleType } })
     scales.value = (data || []).map((s: any) => ({ 
       id: s.id, 
       name: s.name,
-      // 如果后端没有返回 description，这里可以给个默认值或者根据 id 判断
       description: s.description || (s.name.includes('PCL') ? '用于评估个体心理状态的专业量表（修订版）' : '综合心理健康症状自评量表')
     }))
   } catch {}

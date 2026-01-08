@@ -207,7 +207,7 @@ function mapBackend(u: any): UserData {
     username: u.username,
     realName: u.realName || u.username,
     role: u.role as Role,
-    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.username)}`,
+    avatar: `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(u.username)}&backgroundColor=e1efe9`,
     prisonId: String(u.id),
     lastRiskLevel: (u.lastRiskLevel || 'LOW'),
     archived: false

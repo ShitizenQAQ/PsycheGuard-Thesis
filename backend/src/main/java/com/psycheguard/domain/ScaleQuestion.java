@@ -27,8 +27,10 @@ public class ScaleQuestion {
   @Column(nullable = false)
   private String content;
 
+  @Column(name = "dimension")
+  private String dimension;
+
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "options", columnDefinition = "jsonb", nullable = false)
   private List<Map<String, Object>> options;
 }
-

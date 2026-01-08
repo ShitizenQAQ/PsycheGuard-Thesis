@@ -37,4 +37,12 @@ public class PsychScale {
    */
   @Column(name = "max_score")
   private Integer maxScore;
+
+  /**
+   * 量表类型 - 区分自评量表和他评量表
+   * SELF: 自评量表,来访者可见
+   * OBSERVER: 他评量表,咨询师可见
+   */
+  @Column(length = 20)
+  private String type = "SELF";
 }

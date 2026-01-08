@@ -1,34 +1,34 @@
--- 1. 清理旧数据（防止主键冲突）
+﻿-- 1. 清理旧数据（防止主键冲突）
 TRUNCATE TABLE assess_record RESTART IDENTITY CASCADE;
 TRUNCATE TABLE scale_question RESTART IDENTITY CASCADE;
 TRUNCATE TABLE psych_scale RESTART IDENTITY CASCADE;
 TRUNCATE TABLE sys_user RESTART IDENTITY CASCADE;
 
--- 2. 插入量表 (PCL-R)
-INSERT INTO psych_scale (id, name, description, danger_threshold, max_score) VALUES (1, 'PCL-R', '精神病态评估量表 (Hare Psychopathy Checklist-Revised)', 20, 40);
+-- 2. 插入量表 (PCL-R - 他评量表)
+INSERT INTO psych_scale (id, name, description, danger_threshold, max_score, type) VALUES (1, 'PCL-R', '精神病态评估量表 (Hare Psychopathy Checklist-Revised)', 20, 40, 'OBSERVER');
 
--- 3. 插入题目 (PCL-R 20道题，满分40分)
-INSERT INTO scale_question (scale_id, content, options) VALUES
-(1, '维度:人际操控 表面迷人，健谈', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:人际操控 自大、自我中心', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:人际操控 病态撒谎', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:人际操控 狡猾、操纵他人', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:情感冷漠 缺乏悔意或罪恶感', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:情感冷漠 情感肤浅', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:情感冷漠 冷酷无情、缺乏共情', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:情感冷漠 不愿为自己行为负责', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:感觉寻求 极度讨厌无聊', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:感觉寻求 寄生生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:感觉寻求 缺乏现实长期目标', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:冲动控制 容易冲动行事', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:冲动控制 不负责任', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:认知扭曲 认为受害者是自找的', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:反社会 早期行为问题', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:反社会 青少年犯罪', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:生活方式 短暂婚姻关系', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:生活方式 混乱性关系', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:生活方式 多种犯罪类型', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
-(1, '维度:生活方式 违反假释或监管', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb);
+-- 3. 插入题目 (PCL-R 20道题,满分40分)
+INSERT INTO scale_question (scale_id, content, dimension, options) VALUES
+(1, '维度:人际操控 表面迷人,健谈', '人际操控', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:人际操控 自大、自我中心', '人际操控', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:人际操控 病态撒谎', '人际操控', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:人际操控 狡猾、操纵他人', '人际操控', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:情感冷漠 缺乏悔意或罪恶感', '情感冷漠', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:情感冷漠 情感肤浅', '情感冷漠', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:情感冷漠 冷酷无情、缺乏共情', '情感冷漠', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:情感冷漠 不愿为自己行为负责', '情感冷漠', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:感觉寻求 极度讨厌无聊', '感觉寻求', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:感觉寻求 寄生生活方式', '感觉寻求', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:感觉寻求 缺乏现实长期目标', '感觉寻求', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:冲动控制 容易冲动行事', '冲动控制', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:冲动控制 不负责任', '冲动控制', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:认知扭曲 认为受害者是自找的', '认知扭曲', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:反社会 早期行为问题', '反社会', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:反社会 青少年犯罪', '反社会', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:生活方式 短暂婚姻关系', '生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:生活方式 混乱性关系', '生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:生活方式 多种犯罪类型', '生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb),
+(1, '维度:生活方式 违反假释或监管', '生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb);
 
 -- 4. 插入咨询师 (账号: doctor / 密码: 123456)
 INSERT INTO sys_user (id, username, real_name, password, role, tags)
@@ -88,52 +88,278 @@ SELECT setval(pg_get_serial_sequence('scale_question','id'), (SELECT MAX(id) FRO
 -- =====================================================
 -- === 追加：SAS (焦虑自评量表) 数据 ===
 -- =====================================================
--- 插入量表定义 (使用 NOT EXISTS 确保幂等性)
-INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled) 
-SELECT 'SAS', '焦虑自评量表 (Self-Rating Anxiety Scale)', 50, 80, TRUE
+-- 插入量表定义 (自评量表,使用 NOT EXISTS 确保幂等性)
+INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled, type) 
+SELECT 'SAS', '焦虑自评量表 (Self-Rating Anxiety Scale)', 50, 80, TRUE, 'SELF'
 WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'SAS');
 
--- 插入 SAS 题目 (使用 WITH 子查询动态获取 scale_id)
+
+-- 插入 SAS 题目 (完整 20 题,满分 80 分)
 WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SAS' LIMIT 1)
-INSERT INTO scale_question (scale_id, content, options) 
-SELECT id, '维度:躯体性 我觉得比平常容易紧张和着急', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+INSERT INTO scale_question (scale_id, content, dimension, options) 
+SELECT id, '我觉得比平常容易紧张和着急', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
 WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%容易紧张和着急%')
 UNION ALL
-SELECT id, '维度:躯体性 我无缘无故地感到害怕', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+SELECT id, '我无缘无故地感到害怕', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
 WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%无缘无故地感到害怕%')
 UNION ALL
-SELECT id, '维度:精神性 我容易心里烦乱或觉得惊恐', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+SELECT id, '我容易心里烦乱或觉得惊恐', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
 WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%心里烦乱或觉得惊恐%')
 UNION ALL
-SELECT id, '维度:精神性 我觉得可能将要发疯', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
+SELECT id, '我觉得我可能将要发疯', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
 WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%可能将要发疯%')
 UNION ALL
-SELECT id, '维度:躯体性 我觉得手脚发抖打颤', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
-WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%手脚发抖打颤%');
+SELECT id, '我觉得一切都很好,也不会发生什么不幸', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%一切都很好%')
+UNION ALL
+SELECT id, '我手脚发抖打颤', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%手脚发抖打颤%')
+UNION ALL
+SELECT id, '我因为头痛、颈痛和背痛而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%头痛、颈痛和背痛%')
+UNION ALL
+SELECT id, '我感觉容易衰弱和疲乏', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%容易衰弱和疲乏%')
+UNION ALL
+SELECT id, '我觉得心平气和,并且容易安静坐着', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%心平气和%')
+UNION ALL
+SELECT id, '我觉得心跳很快', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%心跳很快%')
+UNION ALL
+SELECT id, '我因为一阵阵头晕而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%一阵阵头晕%')
+UNION ALL
+SELECT id, '我有晕倒发作或觉得要晕倒似的', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%晕倒发作%')
+UNION ALL
+SELECT id, '我呼气吸气都感到很容易', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%呼气吸气都感到很容易%')
+UNION ALL
+SELECT id, '我手脚麻木和刺痛', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%手脚麻木和刺痛%')
+UNION ALL
+SELECT id, '我因为胃痛和消化不良而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%胃痛和消化不良%')
+UNION ALL
+SELECT id, '我常常要小便', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%常常要小便%')
+UNION ALL
+SELECT id, '我的手常常是干燥温暖的', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%手常常是干燥温暖%')
+UNION ALL
+SELECT id, '我脸红发热', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%脸红发热%')
+UNION ALL
+SELECT id, '我容易入睡并且一夜睡得很好', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%容易入睡%')
+UNION ALL
+SELECT id, '我做恶梦', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%做恶梦%');
 
 -- =====================================================
 -- === 追加：SDS (抑郁自评量表) 数据 ===
 -- =====================================================
--- 插入量表定义
-INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled) 
-SELECT 'SDS', '抑郁自评量表 (Self-Rating Depression Scale)', 53, 80, TRUE
+-- 插入量表定义 (自评量表)
+INSERT INTO psych_scale (name, description, danger_threshold, max_score, is_enabled, type) 
+SELECT 'SDS', '抑郁自评量表 (Self-Rating Depression Scale)', 53, 80, TRUE, 'SELF'
 WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'SDS');
 
--- 插入 SDS 题目
+-- 插入 SDS 题目 (完整 20 题,满分 80 分)
 WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SDS' LIMIT 1)
-INSERT INTO scale_question (scale_id, content, options) 
-SELECT id, '维度:核心抑郁 我觉得闷闷不乐，情绪低沉', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
-WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%闷闷不乐，情绪低沉%')
+INSERT INTO scale_question (scale_id, content, dimension, options) 
+SELECT id, '我感到情绪沮丧,郁闷', '核心抑郁', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%情绪沮丧,郁闷%')
 UNION ALL
-SELECT id, '维度:核心抑郁 我觉得一天之中早晨最好', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
-WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%一天之中早晨最好%')
+SELECT id, '我感到早晨心情最好', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%早晨心情最好%')
 UNION ALL
-SELECT id, '维度:生理机能 我吃饭象平时一样香', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
-WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%吃饭象平时一样香%')
+SELECT id, '我要哭或想哭', '核心抑郁', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%要哭或想哭%')
 UNION ALL
-SELECT id, '维度:生理机能 我睡眠不佳', '[{"label": "1分", "score": 1}, {"label": "2分", "score": 2}, {"label": "3分", "score": 3}, {"label": "4分", "score": 4}]'::jsonb FROM scale_info
-WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%睡眠不佳%');
+SELECT id, '我夜间睡眠不好', '生理机能', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%夜间睡眠不好%')
+UNION ALL
+SELECT id, '我吃饭像平常一样多', '生理机能', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%吃饭像平常一样多%')
+UNION ALL
+SELECT id, '我的性功能正常', '生理机能', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%性功能正常%')
+UNION ALL
+SELECT id, '我感到体重减轻', '生理机能', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%体重减轻%')
+UNION ALL
+SELECT id, '我为便秘烦恼', '生理机能', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%为便秘烦恼%')
+UNION ALL
+SELECT id, '我的心跳比平时快', '生理机能', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%心跳比平时快%')
+UNION ALL
+SELECT id, '我无故感到疲乏', '生理机能', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%无故感到疲乏%')
+UNION ALL
+SELECT id, '我的头脑像平常一样清楚', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%头脑像平常一样清楚%')
+UNION ALL
+SELECT id, '我做事情像平常一样不感到困难', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%做事情像平常一样不感到困难%')
+UNION ALL
+SELECT id, '我坐卧难安,难以保持平静', '核心抑郁', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%坐卧难安%')
+UNION ALL
+SELECT id, '我对将来抱有希望', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%对将来抱有希望%')
+UNION ALL
+SELECT id, '我比平时更容易激怒', '核心抑郁', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%更容易激怒%')
+UNION ALL
+SELECT id, '我觉得做出决定是容易的', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%做出决定是容易的%')
+UNION ALL
+SELECT id, '我觉得自己是个有用的人,有人需要我', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%有用的人%')
+UNION ALL
+SELECT id, '我的生活过得很有意思', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%生活过得很有意思%')
+UNION ALL
+SELECT id, '假若我死了,别人会过得更好', '核心抑郁', '[{"label": "从无或偶尔", "score": 1}, {"label": "有时", "score": 2}, {"label": "经常", "score": 3}, {"label": "总是如此", "score": 4}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%假若我死了%')
+UNION ALL
+SELECT id, '我仍旧喜欢自己平时喜欢的东西', '核心抑郁', '[{"label": "从无或偶尔", "score": 4}, {"label": "有时", "score": 3}, {"label": "经常", "score": 2}, {"label": "总是如此", "score": 1}]'::jsonb FROM scale_info
+WHERE NOT EXISTS (SELECT 1 FROM scale_question sq, scale_info si WHERE sq.scale_id = si.id AND sq.content LIKE '%仍旧喜欢自己平时喜欢的东西%');
+
+-- =====================================================
+-- === 追加:其他常用量表定义 ===
+-- =====================================================
+
+-- ==========================================
+-- 补录:自评量表 (Type = SELF)
+-- ==========================================
+
+-- SCL-90 (综合体检)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'SCL-90', '90项症状清单,世界上最著名的心理健康综合体检量表,涵盖思维、情感、行为、人际关系等10个维度。', 'SELF', TRUE, 160, 450
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'SCL-90');
+
+-- PHQ-9 (快速抑郁)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'PHQ-9', '病人健康问卷,国际通用的抑郁症快速筛查工具,常用于基层医疗机构。', 'SELF', TRUE, 10, 27
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'PHQ-9');
+
+-- GAD-7 (快速焦虑)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'GAD-7', '广泛性焦虑量表,用于快速评估焦虑症状的严重程度。', 'SELF', TRUE, 10, 21
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'GAD-7');
+
+-- EPQ (人格测试)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'EPQ', '艾森克人格问卷,用于评估内外向(E)、神经质(N)、精神质(P)及掩饰性(L)等人格特质。', 'SELF', TRUE, 60, 100
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'EPQ');
+
+
+-- ==========================================
+-- 补录:他评量表 (Type = OBSERVER)
+-- ==========================================
+
+-- HAMD-17 (抑郁金标准)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'HAMD-17', '汉密尔顿抑郁量表 (17项版),临床评估抑郁状态的金标准,由经过培训的专业人员进行评定。', 'OBSERVER', TRUE, 17, 52
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'HAMD-17');
+
+-- HAMA (焦虑金标准)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'HAMA', '汉密尔顿焦虑量表,精神科临床用于评估焦虑症状严重程度的首选工具。', 'OBSERVER', TRUE, 14, 56
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'HAMA');
+
+-- BPRS (精神病性)
+INSERT INTO psych_scale (name, description, type, is_enabled, danger_threshold, max_score) 
+SELECT 'BPRS', '简明精神病评定量表,主要用于评定精神分裂症等重性精神病的症状变化。', 'OBSERVER', TRUE, 35, 126
+WHERE NOT EXISTS (SELECT 1 FROM psych_scale WHERE name = 'BPRS');
+
 
 -- 修复自增序列 (确保新增数据后序列正确)
 SELECT setval(pg_get_serial_sequence('psych_scale','id'), (SELECT MAX(id) FROM psych_scale));
 SELECT setval(pg_get_serial_sequence('scale_question','id'), (SELECT MAX(id) FROM scale_question));
+
+-- =====================================================
+-- === 追加:通知系统测试数据 ===
+-- =====================================================
+-- 为咨询师 (user_id=1) 添加不同类型的通知
+INSERT INTO notifications (user_id, title, content, type, related_url, is_read, created_at) VALUES
+-- 紧急通知 (URGENT - 红色)
+(1, '🚨 危机干预警报', '来访者"李强"在最新评测中得分36分,已触发危机干预阈值,请立即处理!', 'URGENT', '/intervention', FALSE, NOW() - INTERVAL '10 MINUTE'),
+(1, '🔴 严重预警', '来访者"王建国"连续两次评测均显示高风险,建议安排紧急面谈。', 'URGENT', '/users', FALSE, NOW() - INTERVAL '2 HOUR'),
+
+-- 预警通知 (WARNING - 橙色)
+(1, '⚠️ 中度风险提醒', '来访者"陈志远"最新评测显示中度风险,建议关注其情绪变化。', 'WARNING', '/intervention', FALSE, NOW() - INTERVAL '5 HOUR'),
+(1, '📊 数据异常提醒', '本周高风险评测数量较上周增长40%,请关注整体趋势。', 'WARNING', '/dashboard', FALSE, NOW() - INTERVAL '1 DAY'),
+
+-- 普通通知 (INFO - 灰色)
+(1, '✅ 评测完成通知', '来访者"刘海峰"已完成 PCL-R 量表评测,请查看报告。', 'INFO', '/history', FALSE, NOW() - INTERVAL '3 HOUR'),
+(1, '📝 系统更新', '心理评估系统已更新至 v2.5.0,新增通知中心功能。', 'INFO', '/dashboard', FALSE, NOW() - INTERVAL '2 DAY'),
+
+-- 已读通知 (用于测试)
+(1, '📋 每周报告', '上周共完成评测 12 次,其中高风险 2 例,中风险 5 例。', 'INFO', '/dashboard', TRUE, NOW() - INTERVAL '7 DAY');
+
+-- 修复通知表自增序列
+SELECT setval(pg_get_serial_sequence('notifications','id'), (SELECT MAX(id) FROM notifications));
+
+
+-- ========================================================
+-- 更新量表配置：设置医学标准的满分与警戒线
+-- ========================================================
+
+-- 1. PCL-R
+UPDATE psych_scale SET max_score = 40, danger_threshold = 20 WHERE name = 'PCL-R';
+
+-- 2. PHQ-9
+UPDATE psych_scale SET max_score = 27, danger_threshold = 10 WHERE name = 'PHQ-9';
+
+-- 3. GAD-7
+UPDATE psych_scale SET max_score = 21, danger_threshold = 10 WHERE name = 'GAD-7';
+
+-- 4. SAS
+UPDATE psych_scale SET max_score = 80, danger_threshold = 50 WHERE name = 'SAS';
+
+-- 5. SDS
+UPDATE psych_scale SET max_score = 80, danger_threshold = 53 WHERE name = 'SDS';
+
+-- 6. SCL-90
+UPDATE psych_scale SET max_score = 450, danger_threshold = 160 WHERE name = 'SCL-90';
+
+-- 7. EPQ
+UPDATE psych_scale SET max_score = 100, danger_threshold = 60 WHERE name = 'EPQ';
+
+-- 8. HAMD-17
+UPDATE psych_scale SET max_score = 60, danger_threshold = 17 WHERE name = 'HAMD-17';
+
+-- 9. HAMA
+UPDATE psych_scale SET max_score = 56, danger_threshold = 14 WHERE name = 'HAMA';
+
+-- 10. BPRS
+UPDATE psych_scale SET max_score = 126, danger_threshold = 35 WHERE name = 'BPRS';
+-- SCL-90 绮剧畝婕旂ず鐗?(10棰樿鐩?0涓洜瀛?
+-- 鍋囪 SCL-90 鐨?ID 鏄嚜鍔ㄨ幏鍙栫殑 (杩欓噷鍏堟竻鐞嗘棫棰樼洰)
+DELETE FROM scale_question WHERE scale_id = (SELECT id FROM psych_scale WHERE name = 'SCL-90');
+
+WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SCL-90' LIMIT 1)
+INSERT INTO scale_question (scale_id, content, dimension, options) 
+SELECT id, '缁村害:韬綋鍖?澶寸棝', '韬綋鍖?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:寮鸿揩鐥囩姸 鎰熷埌瑕佸弽澶嶇‘璁ゆ棭宸插仛濂界殑浜嬫儏', '寮鸿揩鐥囩姸', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:浜洪檯鍏崇郴鏁忔劅 鎰熷埌鐢变簬鎮ㄧ殑琛屼负涓炬寮曡捣浠栦汉鐨勬敞瑙嗘垨璁', '浜洪檯鍏崇郴鏁忔劅', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鎶戦儊 鎰熷埌鎯呯华浣庤惤', '鎶戦儊', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鐒﹁檻 鎰熷埌绁炵粡杩囨晱锛屽績涓笉韪忓疄', '鐒﹁檻', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鏁屽 瀹规槗鐑︽伡鍜屾縺鍔?, '鏁屽', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鎭愭€?瀹虫€曠┖鏃风殑骞垮満鎴栬閬?, '鎭愭€?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鍋忔墽 鎰熷埌鍒汉鎯冲崰鎮ㄧ殑渚垮疁', '鍋忔墽', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:绮剧鐥呮€?鎰熷埌鑷繁鐨勫ご鑴戞湁姣涚梾', '绮剧鐥呮€?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+UNION ALL
+SELECT id, '缁村害:鍏朵粬 楗鎴栫潯鐪犳儏鍐典笉濂?, '鍏朵粬', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info;

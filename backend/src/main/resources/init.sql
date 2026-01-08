@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS sys_user (
 CREATE TABLE IF NOT EXISTS psych_scale (
   id SERIAL PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  description TEXT
+  description TEXT,
+  type VARCHAR(20) DEFAULT 'SELF'
 );
 
 CREATE TABLE IF NOT EXISTS scale_question (

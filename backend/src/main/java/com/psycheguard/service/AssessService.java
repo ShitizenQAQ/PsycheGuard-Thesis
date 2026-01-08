@@ -28,9 +28,28 @@ public class AssessService {
         total += v == null ? 0 : v;
     }
 
-    // 使用量表配置的危险阈值，如果未设置则使用默认值 6
-    int threshold = (scale.getDangerThreshold() != null) ? scale.getDangerThreshold() : 6;
-    String risk = total >= threshold ? "HIGH" : "LOW";
+    // 动态获取阈值：优先使用数据库配置,如果未配置则使用满分的60%作为默认值
+    int threshold;
+    if (scale.getDangerThreshold() != null && scale.getDangerThreshold() > 0) {
+      threshold = scale.getDangerThreshold();
+    } else if (scale.getMaxScore() != null && scale.getMaxScore() > 0) {
+      threshold = (scale.getMaxScore() * 6) / 10; // 满分的60%
+    } else {
+      threshold = 6; // 兜底默认值
+    }
+
+    // 风险等级判定：HIGH (高风险) / MEDIUM (中度风险) / LOW (低风险)
+    // HIGH: 达到或超过阈值
+    // MEDIUM: 达到阈值的70%-99%
+    // LOW: 低于阈值的70%
+    String risk;
+    if (total >= threshold) {
+      risk = "HIGH";
+    } else if (total >= (threshold * 7) / 10) {
+      risk = "MEDIUM";
+    } else {
+      risk = "LOW";
+    }
     Map<String, Object> ans = new HashMap<>();
     if (answers != null) {
       for (Map.Entry<Long, Integer> e : answers.entrySet()) {
@@ -58,7 +77,16 @@ public class AssessService {
   }
 
   private String extractDimension(ScaleQuestion q) {
-    if (q == null || q.getContent() == null)
+    if (q == null)
+      return "Unknown";
+
+    // 优先使用 dimension 字段
+    if (q.getDimension() != null && !q.getDimension().trim().isEmpty()) {
+      return q.getDimension().trim();
+    }
+
+    // 回退到内容解析(兼容旧数据)
+    if (q.getContent() == null)
       return "Unknown";
     String c = q.getContent();
     int idx = c.indexOf("维度:");
