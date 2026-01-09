@@ -82,8 +82,19 @@
                   </el-form-item>
                   <p class="text-xs text-rock-400 -mt-3">用于前端展示</p>
                 </el-col>
-                <el-col :span="4" class="flex items-end pb-1 gap-2">
-                  <el-button type="primary" class="!bg-healing-500 !border-healing-500 !rounded-xl" @click="saveScale(scale)">保存配置</el-button>
+                <el-col :span="6" class="flex items-end pb-1 gap-2 justify-end">
+                  <el-tooltip content="预览测评效果" placement="top">
+                     <el-button circle plain size="default" class="!border-gray-200 !text-gray-500 hover:!text-healing-600 hover:!border-healing-200 hover:!bg-healing-50" @click="handlePreview(scale)">
+                        <span>👁️</span>
+                     </el-button>
+                  </el-tooltip>
+                  <el-tooltip content="复制整个量表" placement="top">
+                     <el-button circle plain size="default" class="!border-gray-200 !text-gray-500 hover:!text-blue-600 hover:!border-blue-200 hover:!bg-blue-50" @click="handleCopy(scale)">
+                        <span>📋</span>
+                     </el-button>
+                  </el-tooltip>
+                  <el-divider direction="vertical" class="!h-8 !mx-1" />
+                  <el-button type="primary" class="!bg-healing-500 !border-healing-500 !rounded-xl" @click="saveScale(scale)">保存</el-button>
                   <el-button v-if="scale.id !== -1" type="danger" plain class="!rounded-xl !bg-red-50 !border-red-200 !text-red-500 hover:!bg-red-100" @click="deleteScale(scale)">删除</el-button>
                   <el-button v-else @click="cancelCreate(index)" class="!rounded-xl">取消</el-button>
                 </el-col>
@@ -133,6 +144,49 @@
       </el-collapse>
     </div>
 
+      </el-collapse>
+    </div>
+
+    <!-- Preview Dialog -->
+    <el-dialog v-model="previewVisible" title="📱 移动端效果预览" width="400px" class="!rounded-[2rem] preview-dialog" align-center>
+      <div v-if="previewScale" class="bg-gray-50 min-h-[500px] rounded-3xl overflow-hidden border border-gray-200 flex flex-col relative">
+        <!-- 模拟顶部栏 -->
+        <div class="bg-white p-4 text-center border-b border-gray-100 relative z-10 shadow-sm">
+           <h3 class="font-bold text-rock-800">{{ previewScale.name }}</h3>
+           <p class="text-[10px] text-rock-400 mt-1">{{ previewScale.questions?.length }} 道题</p>
+        </div>
+        
+        <!-- 模拟内容区 -->
+        <div class="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
+           <div v-if="!previewScale.questions?.length" class="text-center py-20 text-gray-400 text-sm">暂无题目</div>
+           <div 
+             v-for="(q, idx) in previewScale.questions" 
+             :key="idx"
+             class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100"
+           >
+              <div class="flex gap-2 mb-3">
+                 <span class="text-healing-500 font-bold text-sm">{{ idx + 1 }}.</span>
+                 <p class="text-rock-700 text-sm font-medium leading-relaxed">{{ q.content.replace(/^维度:\s*\S+\s*/, '') }}</p>
+              </div>
+              <div class="space-y-2">
+                 <div v-for="opt in q.options" :key="opt.label" class="text-xs px-3 py-2 rounded-lg bg-gray-50 text-gray-600 border border-gray-100 text-center">
+                    {{ opt.label }}
+                 </div>
+              </div>
+           </div>
+           
+           <div class="pt-4 pb-8">
+              <button class="w-full py-3 bg-healing-500 text-white rounded-xl font-bold text-sm shadow-lg shadow-healing-500/20">提交测评</button>
+           </div>
+        </div>
+        
+        <!-- 模拟底部 Home条 -->
+        <div class="bg-white py-4 flex justify-center border-t border-gray-100">
+           <div class="w-32 h-1 bg-gray-200 rounded-full"></div>
+        </div>
+      </div>
+    </el-dialog>
+
     <!-- Question Dialog (Reused) -->
     <el-dialog v-model="editQuestionVisible" :title="questionEditing ? '编辑题目' : '新增题目'" width="680px" class="!rounded-2xl healing-dialog">
       <el-form label-position="top">
@@ -168,7 +222,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessage, ElMessageBox, ElLoading } from 'element-plus'
 import axios from 'axios'
 
 type ScaleRow = { id: number; name: string; description?: string; items?: number; questions?: any[]; isEnabled?: boolean; dangerThreshold?: number; maxScore?: number; isStandard?: boolean }
@@ -272,7 +326,7 @@ async function saveScale(scale: ScaleRow) {
     }
 }
 
-async function toggleScale(scale: ScaleRow, val: boolean | string | number) {
+async function toggleScale(scale: ScaleRow, val: any) {
   try {
       if (scale.id === -1) return
       await axios.put(`/api/scales/${scale.id}`, { isEnabled: scale.isEnabled })
@@ -301,6 +355,60 @@ async function deleteScale(scale: ScaleRow) {
         await loadScales()
     } catch (e) {
         // ignore cancel
+    }
+}
+
+// --- Preview & Copy ---
+const previewVisible = ref(false)
+const previewScale = ref<ScaleRow | null>(null)
+
+async function handlePreview(scale: ScaleRow) {
+    if (scale.id === -1) return ElMessage.warning('请先保存量表')
+    // Ensure questions are loaded
+    if (!scale.questions || scale.questions.length === 0) {
+        await loadQuestions(scale.id)
+    }
+    previewScale.value = scale
+    previewVisible.value = true
+}
+
+async function handleCopy(scale: ScaleRow) {
+    if (scale.id === -1) return
+    try {
+        await ElMessageBox.confirm(
+            `确定要复制量表“${scale.name}”吗？\n系统将创建一个新量表并复制所有题目。`, 
+            '复制量表', 
+            { confirmButtonText: '开始复制', cancelButtonText: '取消', type: 'info' }
+        )
+        
+        const loadingInstance = ElLoading.service({ text: '正在复制...', background: 'rgba(255, 255, 255, 0.7)' })
+        
+        // 1. Create Scale
+        const newPayload = { ...scale, id: undefined, name: `${scale.name} (副本)`, isEnabled: false }
+        const { data: createdScale } = await axios.post('/api/scales', newPayload)
+        
+        // 2. Load original questions if needed
+        let questions = scale.questions || []
+        if (questions.length === 0) {
+             const res = await axios.get(`/api/scales/${scale.id}/questions`)
+             questions = res.data || []
+        }
+        
+        // 3. Copy Questions
+        for (const q of questions) {
+            await axios.post('/api/questions', {
+               scaleId: createdScale.id,
+               content: q.content,
+               options: q.options
+            })
+        }
+        
+        loadingInstance.close()
+        ElMessage.success('量表复制成功')
+        await loadScales()
+        activeName.value = createdScale.id
+    } catch (e: any) {
+        if (e !== 'cancel') ElMessage.error('复制失败: ' + (e.message || '未知错误'))
     }
 }
 

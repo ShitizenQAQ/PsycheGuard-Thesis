@@ -49,6 +49,7 @@
                 <el-dropdown-item command="edit">✏️ 编辑信息</el-dropdown-item>
                 <el-dropdown-item command="profile">📂 查看档案</el-dropdown-item>
                 <el-dropdown-item command="archive">{{ u.archived ? '📤 取消归档' : '📥 归档' }}</el-dropdown-item>
+                <el-dropdown-item command="resetPassword">🔐 重置密码</el-dropdown-item>
                 <el-dropdown-item divided command="delete"><span class="text-clay-500">🗑️ 删除来访者</span></el-dropdown-item>
               </el-dropdown-menu>
             </template>
@@ -286,6 +287,19 @@ function onCardCommand(cmd: string, u: UserData) {
       ALL_USERS.value[idx] = { ...ALL_USERS.value[idx], archived: !ALL_USERS.value[idx].archived }
       ElMessage.success(ALL_USERS.value[idx].archived ? '已归档' : '已取消归档')
     }
+  } else if (cmd === 'resetPassword') {
+    ElMessageBox.confirm('确定将该用户的密码重置为 123456 吗？', '重置密码', { 
+      confirmButtonText: '确定重置', 
+      cancelButtonText: '取消', 
+      type: 'warning' 
+    }).then(async () => {
+      try {
+        await axios.put(`/api/users/${u.id}/reset-password`)
+        ElMessage.success('重置成功，新密码: 123456')
+      } catch (e: any) {
+        ElMessage.error('重置失败')
+      }
+    }).catch(() => {})
   } else if (cmd === 'start') {
     startTest(u)
   } else if (cmd === 'profile') {

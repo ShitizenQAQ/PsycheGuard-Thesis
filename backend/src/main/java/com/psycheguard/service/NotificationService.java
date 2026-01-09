@@ -1,6 +1,6 @@
-package com.psycheguard.backend.service;
+package com.psycheguard.service;
 
-import com.psycheguard.backend.entity.Notification;
+import com.psycheguard.domain.Notification;
 import com.psycheguard.backend.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

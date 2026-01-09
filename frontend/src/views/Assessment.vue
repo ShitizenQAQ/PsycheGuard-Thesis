@@ -11,7 +11,16 @@
           <p class="text-xs text-rock-500">正在进行 {{ currentScaleName || '请选择量表' }} 测评</p>
         </div>
       </div>
-      <!-- 移除全局退出按钮，避免误触注销 -->
+      
+      <!-- 咨询师快捷入口 -->
+      <button 
+        v-if="userStore.isCounselor" 
+         @click="$router.push('/history')"
+        class="px-4 py-2 rounded-xl flex items-center gap-2 text-sm font-medium text-rock-600 bg-white/50 border border-white/60 hover:bg-white hover:text-healing-600 transition-all shadow-sm"
+      >
+        <History :size="16" />
+        <span>历史档案</span>
+      </button>
     </div>
 
     <div class="flex-1 flex flex-col items-center justify-center p-6 max-w-5xl mx-auto w-full relative z-0">
@@ -334,7 +343,7 @@ import { useUserStore } from '@/stores/user'
 import axios from 'axios'
 import { useRouter, useRoute, onBeforeRouteLeave } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { CheckCircle } from 'lucide-vue-next'
+import { CheckCircle, History } from 'lucide-vue-next'
 
 type Option = { label: string; score: number }
 type Question = { id: number; content: string; options: Option[]; dimension?: string }

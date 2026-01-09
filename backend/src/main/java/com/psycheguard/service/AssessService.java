@@ -8,10 +8,13 @@ import com.psycheguard.repository.ScaleQuestionRepository;
 import com.psycheguard.domain.ScaleQuestion;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Transactional
 public class AssessService {
   private final AssessRecordRepository recordRepository;
   private final ScaleQuestionRepository questionRepository;

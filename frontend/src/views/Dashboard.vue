@@ -242,7 +242,7 @@ async function fetchData() {
     animateNumber(displayNewMonth, Math.floor(rawAssess.length * 0.3) + 2)
     animateNumber(displayHighRisk, rawAssess.filter((a:any) => a.riskLevel === 'HIGH').length)
     animateNumber(displayRate, 85)
-    animateNumber(displayToday, 4)
+    animateNumber(displayToday, rawAssess.filter((a:any) => a.riskLevel === 'HIGH' && a.status !== 'ARCHIVED').length)
 
     // 2. High Risk Alerts
     alertRecords.value = rawAssess
@@ -257,17 +257,33 @@ async function fetchData() {
         avatar: `https://api.dicebear.com/7.x/notionists/svg?seed=${encodeURIComponent(a.userRealName || 'user')}&backgroundColor=e1efe9`
       }))
 
-    // 3. Mock Pending Follow-ups
-    pendingFollowUps.value = [
-      { id: 101, name: '李强', type: '认知重构', lastUpdate: '2小时前' },
-      { id: 102, name: '何婷婷', type: '放松训练', lastUpdate: '昨日' },
-      { id: 103, name: '陈志远', type: '风险评估', lastUpdate: '3小时前' }
-    ]
+    // 3. 动态生成待办中心 - 筛选高风险最新3条
+    pendingFollowUps.value = rawAssess
+      .filter((a: any) => a.riskLevel === 'HIGH')
+      .sort((a: any, b: any) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime())
+      .slice(0, 3)
+      .map((a: any) => {
+        const createDate = new Date(a.createTime)
+        const now = new Date()
+        const diffHours = Math.floor((now.getTime() - createDate.getTime()) / (1000 * 60 * 60))
+        let lastUpdate = '刚刚'
+        if (diffHours >= 24) {
+          lastUpdate = `${Math.floor(diffHours / 24)}天前`
+        } else if (diffHours >= 1) {
+          lastUpdate = `${diffHours}小时前`
+        }
+        return {
+          id: a.id,
+          name: a.userRealName || '未知',
+          type: '高危干预',
+          lastUpdate
+        }
+      })
 
     // 4. Update Charts
     updateFunnelChart()
     updatePieChart(rawAssess)
-    updateDimensionChart()
+    updateDimensionChart(rawAssess) // 传入数据
     updateTrendChart(rawAssess)
 
   } catch (err) {
@@ -335,21 +351,46 @@ function updatePieChart(assess: any[]) {
   pieChart.setOption(option)
 }
 
-function updateDimensionChart() {
+function updateDimensionChart(assess: any[]) {
   if (!dimensionChart) return
+  
+  // 动态计算维度频次
+  const dimensionCount: Record<string, number> = {}
+  for (const a of assess) {
+    const dim = a.dimensionScore || a.dimensionAnalysis || {}
+    if (typeof dim === 'object' && dim !== null) {
+      for (const [key, value] of Object.entries(dim)) {
+        if (key && key !== 'Unknown') {
+          dimensionCount[key] = (dimensionCount[key] || 0) + (Number(value) || 1)
+        }
+      }
+    }
+  }
+  
+  // 排序取前5
+  const sorted = Object.entries(dimensionCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+  
+  // 如果没有数据，使用默认值
+  const names = sorted.length > 0 ? sorted.map(([k]) => k).reverse() : ['暂无数据']
+  const values = sorted.length > 0 ? sorted.map(([, v]) => v).reverse() : [0]
+  const maxValue = Math.max(...values, 1)
+  const percentages = values.map(v => Math.round((v / maxValue) * 100))
+  
   const option = {
     grid: { left: '3%', right: '10%', bottom: '3%', top: '3%', containLabel: true },
     xAxis: { type: 'value', splitLine: { show: false }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { show: false } },
     yAxis: { 
       type: 'category', 
-      data: ['躯体焦虑', '睡眠障碍', '反社会倾向', '情感冷漠', '认知扭曲'],
+      data: names,
       axisLine: { show: false },
       axisTick: { show: false },
       axisLabel: { fontWeight: 'bold', color: '#4A4E69' }
     },
     series: [{
       type: 'bar',
-      data: [85, 72, 64, 58, 42],
+      data: percentages,
       barWidth: 14,
       itemStyle: {
         borderRadius: [0, 10, 10, 0],
@@ -368,7 +409,34 @@ function updateDimensionChart() {
 
 function updateTrendChart(assess: any[]) {
   if (!trendChart) return
-  const days = ['1/1', '1/2', '1/3', '1/4', '1/5', '1/6', '1/7']
+  
+  // 动态计算过去7天每天的测评数量
+  const today = new Date()
+  today.setHours(23, 59, 59, 999)
+  const days: string[] = []
+  const counts: number[] = []
+  
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date(today)
+    date.setDate(today.getDate() - i)
+    const dayStart = new Date(date)
+    dayStart.setHours(0, 0, 0, 0)
+    const dayEnd = new Date(date)
+    dayEnd.setHours(23, 59, 59, 999)
+    
+    // 格式化为 MM-DD
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    days.push(`${month}-${day}`)
+    
+    // 统计当天数量
+    const count = assess.filter((a: any) => {
+      const createTime = new Date(a.createTime)
+      return createTime >= dayStart && createTime <= dayEnd
+    }).length
+    counts.push(count)
+  }
+  
   const option = {
     grid: { left: '3%', right: '4%', bottom: '3%', top: '3%', containLabel: true },
     tooltip: { trigger: 'axis' },
@@ -380,7 +448,7 @@ function updateTrendChart(assess: any[]) {
     },
     yAxis: { type: 'value', splitLine: { lineStyle: { type: 'dashed' } } },
     series: [{
-      data: [12, 18, 15, 23, 19, 32, 28],
+      data: counts,
       type: 'line',
       smooth: true,
       symbolSize: 8,

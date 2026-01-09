@@ -38,4 +38,12 @@ public class SysUser {
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<AssessRecord> records = new ArrayList<>();
+
+  @org.hibernate.annotations.CreationTimestamp
+  @Column(name = "create_time", updatable = false)
+  private java.time.OffsetDateTime createTime;
+
+  @org.hibernate.annotations.UpdateTimestamp
+  @Column(name = "update_time")
+  private java.time.OffsetDateTime updateTime;
 }

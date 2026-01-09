@@ -1,8 +1,8 @@
 package com.psycheguard.backend.controller;
 
-import com.psycheguard.backend.entity.Notification;
+import com.psycheguard.domain.Notification;
 import com.psycheguard.backend.security.JwtUtils;
-import com.psycheguard.backend.service.NotificationService;
+import com.psycheguard.service.NotificationService;
 import com.psycheguard.domain.SysUser;
 import com.psycheguard.repository.SysUserRepository;
 import lombok.RequiredArgsConstructor;

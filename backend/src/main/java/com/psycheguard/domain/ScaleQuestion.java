@@ -30,6 +30,9 @@ public class ScaleQuestion {
   @Column(name = "dimension")
   private String dimension;
 
+  @Column(name = "sort_order")
+  private Integer sortOrder;
+
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "options", columnDefinition = "jsonb", nullable = false)
   private List<Map<String, Object>> options;

@@ -1,4 +1,4 @@
-package com.psycheguard.backend.entity;
+package com.psycheguard.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;

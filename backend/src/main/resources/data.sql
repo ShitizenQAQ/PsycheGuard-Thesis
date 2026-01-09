@@ -338,28 +338,39 @@ UPDATE psych_scale SET max_score = 56, danger_threshold = 14 WHERE name = 'HAMA'
 
 -- 10. BPRS
 UPDATE psych_scale SET max_score = 126, danger_threshold = 35 WHERE name = 'BPRS';
--- SCL-90 绮剧畝婕旂ず鐗?(10棰樿鐩?0涓洜瀛?
--- 鍋囪 SCL-90 鐨?ID 鏄嚜鍔ㄨ幏鍙栫殑 (杩欓噷鍏堟竻鐞嗘棫棰樼洰)
+
+-- =====================================================
+-- SCL-90 量表题目 (精简演示版: 10题覆盖10个因子)
+-- =====================================================
 DELETE FROM scale_question WHERE scale_id = (SELECT id FROM psych_scale WHERE name = 'SCL-90');
 
 WITH scale_info AS (SELECT id FROM psych_scale WHERE name = 'SCL-90' LIMIT 1)
 INSERT INTO scale_question (scale_id, content, dimension, options) 
-SELECT id, '缁村害:韬綋鍖?澶寸棝', '韬綋鍖?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:躯体化 头痛', '躯体化', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:寮鸿揩鐥囩姸 鎰熷埌瑕佸弽澶嶇‘璁ゆ棭宸插仛濂界殑浜嬫儏', '寮鸿揩鐥囩姸', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:强迫症状 感到要反复确认早已做好的事情', '强迫症状', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:浜洪檯鍏崇郴鏁忔劅 鎰熷埌鐢变簬鎮ㄧ殑琛屼负涓炬寮曡捣浠栦汉鐨勬敞瑙嗘垨璁', '浜洪檯鍏崇郴鏁忔劅', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:人际关系敏感 感到由于您的行为举止引起他人的注视或议论', '人际关系敏感', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鎶戦儊 鎰熷埌鎯呯华浣庤惤', '鎶戦儊', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:抑郁 感到情绪低落', '抑郁', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鐒﹁檻 鎰熷埌绁炵粡杩囨晱锛屽績涓笉韪忓疄', '鐒﹁檻', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:焦虑 感到神经过敏，心中不踏实', '焦虑', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鏁屽 瀹规槗鐑︽伡鍜屾縺鍔?, '鏁屽', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:敌对 容易烦恼和激动', '敌对', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鎭愭€?瀹虫€曠┖鏃风殑骞垮満鎴栬閬?, '鎭愭€?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:恐怖 害怕空旷的广场或街道', '恐怖', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鍋忔墽 鎰熷埌鍒汉鎯冲崰鎮ㄧ殑渚垮疁', '鍋忔墽', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:偏执 感到别人想占您的便宜', '偏执', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:绮剧鐥呮€?鎰熷埌鑷繁鐨勫ご鑴戞湁姣涚梾', '绮剧鐥呮€?, '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info
+SELECT id, '维度:精神病性 感到自己的头脑有毛病', '精神病性', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info
 UNION ALL
-SELECT id, '缁村害:鍏朵粬 楗鎴栫潯鐪犳儏鍐典笉濂?, '鍏朵粬', '[{"label": "1-浠庢棤", "score": 1}, {"label": "2-杞诲害", "score": 2}, {"label": "3-涓害", "score": 3}, {"label": "4-鍋忛噸", "score": 4}, {"label": "5-涓ラ噸", "score": 5}]'::jsonb FROM scale_info;
+SELECT id, '维度:其他 饮食或睡眠情况不好', '其他', '[{"label": "1-从无", "score": 1}, {"label": "2-轻度", "score": 2}, {"label": "3-中度", "score": 3}, {"label": "4-偏重", "score": 4}, {"label": "5-严重", "score": 5}]'::jsonb FROM scale_info;
+
+-- =====================================================
+-- 最终序列修复 (确保所有表的自增 ID 正确)
+-- =====================================================
+SELECT setval(pg_get_serial_sequence('sys_user','id'), COALESCE((SELECT MAX(id) FROM sys_user), 1));
+SELECT setval(pg_get_serial_sequence('psych_scale','id'), COALESCE((SELECT MAX(id) FROM psych_scale), 1));
+SELECT setval(pg_get_serial_sequence('scale_question','id'), COALESCE((SELECT MAX(id) FROM scale_question), 1));
+SELECT setval(pg_get_serial_sequence('assess_record','id'), COALESCE((SELECT MAX(id) FROM assess_record), 1));
+SELECT setval(pg_get_serial_sequence('notifications','id'), COALESCE((SELECT MAX(id) FROM notifications), 1));

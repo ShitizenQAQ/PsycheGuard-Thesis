@@ -69,9 +69,27 @@ public class AssessRecordController {
   }
 
   @GetMapping("/{id}")
-  public ResponseEntity<AssessmentResultDTO> get(@PathVariable Long id) {
+  public ResponseEntity<AssessmentResultDTO> get(@PathVariable Long id, java.security.Principal principal) {
     AssessRecord rec = recordRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "record not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "记录不存在"));
+
+    // 🔒 安全校验：获取当前登录用户
+    if (principal == null || principal.getName() == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户未登录");
+    }
+    String currentUsername = principal.getName();
+    SysUser currentUser = userRepository.findByUsername(currentUsername)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
+
+    // 规则：如果是咨询师，或者是本人，才允许查看
+    String role = (currentUser.getRole() != null) ? currentUser.getRole().trim().toUpperCase() : "";
+    boolean isCounselor = role.endsWith("COUNSELOR") || role.endsWith("ADMIN") || role.endsWith("DOCTOR");
+    boolean isOwner = rec.getUser().getUsername().equals(currentUsername);
+
+    if (!isCounselor && !isOwner) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "无权查看此档案");
+    }
+
     AssessmentResultDTO dto = new AssessmentResultDTO();
     dto.setId(rec.getId());
     dto.setTotalScore(rec.getTotalScore());

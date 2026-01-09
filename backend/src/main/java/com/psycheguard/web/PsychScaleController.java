@@ -4,6 +4,7 @@ import com.psycheguard.domain.PsychScale;
 import com.psycheguard.domain.ScaleQuestion;
 import com.psycheguard.repository.PsychScaleRepository;
 import com.psycheguard.repository.ScaleQuestionRepository;
+import com.psycheguard.repository.AssessRecordRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +18,13 @@ import java.util.Map;
 public class PsychScaleController {
   private final PsychScaleRepository scaleRepository;
   private final ScaleQuestionRepository questionRepository;
+  private final AssessRecordRepository assessRecordRepository;
 
-  public PsychScaleController(PsychScaleRepository scaleRepository, ScaleQuestionRepository questionRepository) {
+  public PsychScaleController(PsychScaleRepository scaleRepository, ScaleQuestionRepository questionRepository,
+      AssessRecordRepository assessRecordRepository) {
     this.scaleRepository = scaleRepository;
     this.questionRepository = questionRepository;
+    this.assessRecordRepository = assessRecordRepository;
   }
 
   /**
@@ -109,10 +113,16 @@ public class PsychScaleController {
     if (!scaleRepository.existsById(id)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found");
     }
-    // Delete associated questions first if cascade is not set, but assuming simple
-    // delete for now
-    // Ideally use CascadeType.ALL or delete manually
-    List<ScaleQuestion> questions = questionRepository.findByScale_Id(id);
+
+    // 🔒 安全检查：如果该量表存在历史测评记录，禁止删除
+    long historyCount = assessRecordRepository.countByScale_Id(id);
+    if (historyCount > 0) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "该量表包含 " + historyCount + " 条历史测评记录，无法删除。建议禁用量表而非删除。");
+    }
+
+    // Delete associated questions first
+    List<ScaleQuestion> questions = questionRepository.findByScale_IdOrderBySortOrderAsc(id);
     questionRepository.deleteAll(questions);
 
     scaleRepository.deleteById(id);
@@ -123,7 +133,7 @@ public class PsychScaleController {
   public List<com.psycheguard.web.dto.ScaleQuestionResponse> questions(@PathVariable Long id) {
     PsychScale s = scaleRepository.findById(id)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "scale not found"));
-    List<ScaleQuestion> list = questionRepository.findByScale_Id(s.getId());
+    List<ScaleQuestion> list = questionRepository.findByScale_IdOrderBySortOrderAsc(s.getId());
     java.util.List<com.psycheguard.web.dto.ScaleQuestionResponse> out = new java.util.ArrayList<>(list.size());
     for (ScaleQuestion q : list) {
       com.psycheguard.web.dto.ScaleQuestionResponse resp = new com.psycheguard.web.dto.ScaleQuestionResponse();

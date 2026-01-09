@@ -107,6 +107,15 @@ public class UserController {
     return userRepository.save(u);
   }
 
+  @PutMapping("/{id}/reset-password")
+  public ResponseEntity<Void> resetPassword(@PathVariable Long id) {
+    SysUser u = userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "user not found"));
+    u.setPassword("123456");
+    userRepository.save(u);
+    return ResponseEntity.ok().build();
+  }
+
   @DeleteMapping("/{id}")
   @org.springframework.transaction.annotation.Transactional
   public ResponseEntity<java.util.Map<String, Long>> delete(@PathVariable Long id) {

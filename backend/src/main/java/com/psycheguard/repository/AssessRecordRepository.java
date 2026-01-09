@@ -24,4 +24,6 @@ public interface AssessRecordRepository extends JpaRepository<AssessRecord, Long
   List<AssessRecord> findByIsTeachingCaseTrueOrderByCreateTimeDesc();
 
   AssessRecord findTopByUser_IdOrderByCreateTimeDesc(Long userId);
+
+  long countByScale_Id(Long scaleId);
 }

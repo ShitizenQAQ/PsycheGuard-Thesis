@@ -45,4 +45,15 @@ public class PsychScale {
    */
   @Column(length = 20)
   private String type = "SELF";
+
+  @org.hibernate.annotations.CreationTimestamp
+  @Column(name = "create_time", updatable = false)
+  private java.time.OffsetDateTime createTime;
+
+  @org.hibernate.annotations.UpdateTimestamp
+  @Column(name = "update_time")
+  private java.time.OffsetDateTime updateTime;
+
+  @OneToMany(mappedBy = "scale", cascade = CascadeType.ALL, orphanRemoval = true)
+  private java.util.List<ScaleQuestion> questions = new java.util.ArrayList<>();
 }

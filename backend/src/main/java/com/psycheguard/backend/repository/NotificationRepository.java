@@ -1,6 +1,6 @@
 package com.psycheguard.backend.repository;
 
-import com.psycheguard.backend.entity.Notification;
+import com.psycheguard.domain.Notification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

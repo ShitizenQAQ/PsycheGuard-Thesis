@@ -162,6 +162,17 @@
                   ✅ 结论：评估结果显示心理状况平稳，各项指标均在正常范围内。建议继续保持当前状态，定期进行心理健康维护。
                 </span>
              </p>
+             
+             <!-- 发起干预按钮 -->
+             <div v-if="isCounselor" class="mt-6 flex justify-end">
+               <button 
+                 @click="initiateIntervention"
+                 class="px-6 py-3 rounded-xl font-bold text-white shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center gap-2"
+                 :class="riskLevel === 'HIGH' ? 'bg-clay-500 hover:bg-clay-600 shadow-clay-500/20' : 'bg-healing-500 hover:bg-healing-600 shadow-healing-500/20'"
+               >
+                 <span>⚡</span> {{ riskLevel === 'HIGH' ? '立即发起干预' : '制定跟进计划' }}
+               </button>
+             </div>
           </div>
         </div>
       </div>
@@ -487,6 +498,17 @@ async function addToTeachingLibrary() {
     await saveAnnotation()
     ElMessage.success('成功加入经典案例库')
   } catch (e) { ElMessage.error('操作失败') }
+}
+
+function initiateIntervention() {
+  router.push({
+    path: '/intervention',
+    query: {
+      targetId: id,
+      targetName: subjectName.value,
+      riskLevel: riskLevel.value
+    }
+  })
 }
 </script>
 
