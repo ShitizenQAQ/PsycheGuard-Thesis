@@ -2,7 +2,7 @@
   <el-container class="layout-container bg-cream-100">
     <el-aside width="260px" class="sidebar bg-white/60 backdrop-blur-xl border-r border-white/40 shadow-xl shadow-slate-200/40 z-20 flex flex-col">
       <div class="sidebar-header flex items-center justify-center gap-3 py-8">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-healing-500 to-healing-600 shadow-lg shadow-healing-500/30 flex items-center justify-center text-white font-bold text-lg">PG</div>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-[#6B9080] to-[#557366] shadow-lg shadow-[#6B9080]/30 flex items-center justify-center text-white font-bold text-lg">PG</div>
         <h2 class="sidebar-title text-xl font-bold text-rock-800 tracking-tight">PsycheGuard</h2>
       </div>
       
@@ -111,7 +111,9 @@
       <el-main class="main-content p-0 relative">
         <router-view v-slot="{ Component }">
           <transition name="fade-slide" mode="out-in">
-            <component :is="Component" />
+            <keep-alive include="Dashboard">
+              <component :is="Component" />
+            </keep-alive>
           </transition>
         </router-view>
       </el-main>

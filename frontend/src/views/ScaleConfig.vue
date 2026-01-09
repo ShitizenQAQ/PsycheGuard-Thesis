@@ -144,9 +144,6 @@
       </el-collapse>
     </div>
 
-      </el-collapse>
-    </div>
-
     <!-- Preview Dialog -->
     <el-dialog v-model="previewVisible" title="📱 移动端效果预览" width="400px" class="!rounded-[2rem] preview-dialog" align-center>
       <div v-if="previewScale" class="bg-gray-50 min-h-[500px] rounded-3xl overflow-hidden border border-gray-200 flex flex-col relative">

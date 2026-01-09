@@ -259,7 +259,13 @@ async function createNewUser() {
 }
 
 function viewProfile(u: UserData) {
-  router.push('/history')
+  // 携带 keyword 参数跳转，用于触发历史记录页的自动搜索过滤
+  router.push({ 
+    path: '/history', 
+    query: { 
+      keyword: u.realName || u.username
+    } 
+  })
 }
 
 function startTest(u: UserData) {
@@ -358,53 +364,4 @@ async function saveEdit() {
   padding: 20px 24px;
   background: #f8fafc;
 }
-
-/* === 🚑 紧急修复：手动定义治愈系主题色 === */
-/* 1. 主色 - 青瓷绿 (Healing) */
-.bg-healing-500 { background-color: #6B9080 !important; }
-.bg-healing-600 { background-color: #557366 !important; }
-.bg-healing-50 { background-color: #F0F7F4 !important; }
-.bg-healing-100 { background-color: #E1EFE9 !important; }
-.text-healing-500 { color: #6B9080 !important; }
-.text-healing-600 { color: #557366 !important; }
-.text-healing-800 { color: #557366 !important; }
-.border-healing-100 { border-color: #E1EFE9 !important; }
-.hover\:bg-healing-50:hover { background-color: #F0F7F4 !important; }
-.hover\:bg-healing-500:hover { background-color: #6B9080 !important; }
-.hover\:bg-healing-600:hover { background-color: #557366 !important; }
-.hover\:text-healing-800:hover { color: #557366 !important; }
-
-/* 2. 强调色 - 落日陶土 (Clay) */
-.bg-clay-500 { background-color: #E07A5F !important; }
-.bg-clay-600 { background-color: #B3614C !important; }
-.bg-clay-50 { background-color: #FDF4F1 !important; }
-.bg-clay-100 { background-color: #F9E5E1 !important; }
-.text-clay-500 { color: #E07A5F !important; }
-.text-clay-600 { color: #B3614C !important; }
-.text-clay-700 { color: #8B4C3A !important; }
-.border-clay-200 { border-color: #F3D1C9 !important; }
-
-/* 3. 文字色 - 岩石灰 (Rock) */
-.text-rock-900 { color: #22223B !important; }
-.text-rock-800 { color: #4A4E69 !important; }
-.text-rock-600 { color: #7B7B8D !important; }
-.text-rock-400 { color: #A7A7B3 !important; }
-
-/* 4. 渐变背景 */
-.from-healing-500 { 
-  background-image: linear-gradient(to right, #6B9080, var(--tw-gradient-to, rgba(107, 144, 128, 0))) !important; 
-}
-.to-healing-500 { 
-  --tw-gradient-to: #6B9080 !important; 
-}
-.to-healing-600 { 
-  --tw-gradient-to: #557366 !important; 
-}
-.from-healing-400 { 
-  background-image: linear-gradient(to right, #8CAE9D, var(--tw-gradient-to, rgba(140, 174, 157, 0))) !important; 
-}
-
-/* 5. 阴影 */
-.shadow-healing-500\/10 { box-shadow: 0 4px 6px -1px rgba(107, 144, 128, 0.1), 0 2px 4px -1px rgba(107, 144, 128, 0.06) !important; }
-.shadow-healing-500\/20 { box-shadow: 0 10px 15px -3px rgba(107, 144, 128, 0.2), 0 4px 6px -2px rgba(107, 144, 128, 0.05) !important; }
 </style>

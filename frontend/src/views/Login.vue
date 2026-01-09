@@ -1,128 +1,167 @@
 <template>
-  <div class="min-h-screen w-full flex flex-col md:flex-row bg-cream-100 overflow-hidden font-sans">
+  <div class="min-h-screen w-full flex flex-row bg-white overflow-hidden font-sans relative">
     
-    <!-- 左侧：氛围区 (Morning Healing Atmosphere) -->
-    <div class="md:w-1/2 relative overflow-hidden bg-gradient-to-br from-healing-50 to-healing-200 flex flex-col items-center justify-center p-12 order-2 md:order-1">
-      
-      <!-- 动态背景光斑 -->
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-healing-200 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-cream-100 rounded-full mix-blend-multiply filter blur-[80px] opacity-60 animate-blob animation-delay-2000"></div>
-      <div class="absolute top-1/2 left-3/4 w-64 h-64 bg-healing-100 rounded-full mix-blend-multiply filter blur-[60px] opacity-50 animate-blob animation-delay-4000"></div>
-
-      <!-- 玻璃拟态 Logo 展示区 -->
-      <div class="relative z-10 flex flex-col items-center">
-        <div class="glass-effect p-16 rounded-[3rem] shadow-[0_8px_32px_rgba(107,144,128,0.1)] transform hover:scale-105 transition-transform duration-700">
-          <!-- Logo 占位 -->
-          <div class="w-32 h-32 rounded-[2rem] bg-gradient-to-tr from-healing-500 to-healing-600 flex items-center justify-center shadow-lg shadow-healing-500/30 mb-0 mx-auto">
-            <span class="text-white text-4xl font-bold tracking-widest">PG</span>
+    <!-- 转场动画遮罩层 -->
+    <Transition name="fade-scale">
+      <div v-if="showWelcome" class="fixed inset-0 z-50 flex items-center justify-center bg-[#F0F7F4]/90 backdrop-blur-3xl">
+        <div class="text-center space-y-6 animate-float">
+          <!-- 治愈系图标 -->
+          <div class="relative inline-block">
+             <div class="absolute inset-0 bg-[#6B9080]/20 rounded-full blur-xl animate-pulse"></div>
+             <svg class="w-24 h-24 text-[#6B9080] relative z-10" fill="currentColor" viewBox="0 0 24 24">
+               <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+             </svg>
+          </div>
+          
+          <div class="space-y-2">
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight">欢迎回来，{{ welcomeName }}</h2>
+            <p class="text-lg text-[#557366] font-medium animate-pulse">PsycheGuard 正在为您准备安全空间...</p>
           </div>
         </div>
-        
-        <div class="mt-12 text-center space-y-4 max-w-lg">
-          <h1 class="text-4xl md:text-5xl font-bold text-rock-800 tracking-tight">PsycheGuard</h1>
-          <p class="text-lg text-rock-600 font-medium">智能心理测评与干预系统</p>
-          <div class="h-1 w-20 bg-healing-500/30 rounded-full mx-auto mt-6"></div>
-          <p class="text-rock-400 text-sm mt-8 opacity-80">
-            "在每天的晨曦中，寻回内心的平静与力量"
-          </p>
-        </div>
       </div>
-    </div>
+    </Transition>
 
-    <!-- 右侧：操作区 (Operation Area) -->
-    <div class="md:w-1/2 bg-cream-100 flex items-center justify-center p-8 md:p-16 relative order-1 md:order-2">
-      <!-- 装饰纹理 -->
-      <div class="absolute top-0 right-0 p-8 opacity-20">
-        <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="50" cy="50" r="40" stroke="#6B9080" stroke-width="2"/>
-          <path d="M50 10 V90 M10 50 H90" stroke="#6B9080" stroke-width="2" stroke-linecap="round"/>
-        </svg>
+    <!-- 左侧：登录表单区 (45%) -->
+    <div 
+      class="w-full md:w-[45%] xl:w-[40%] flex flex-col justify-center px-8 md:px-16 lg:px-24 xl:px-32 relative z-10 bg-white transition-all duration-700 ease-out"
+      :class="{ 'opacity-0 scale-95 blur-sm': showWelcome }"
+    >
+      
+      <!-- Logo (Mobile Only) -->
+      <div class="md:hidden absolute top-8 left-8 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#6B9080] to-[#557366] flex items-center justify-center text-white font-bold shadow-lg shadow-[#6B9080]/30">PG</div>
+        <span class="text-rock-800 font-bold text-lg tracking-tight">PsycheGuard</span>
       </div>
 
-      <div class="w-full max-w-md space-y-10 z-10">
-        <!-- 欢迎文案 -->
-        <div class="text-center md:text-left space-y-2">
-          <h2 class="text-3xl font-bold text-rock-800">开启您的心理健康之旅</h2>
-          <p class="text-rock-400">Welcome Back</p>
+      <div class="space-y-10 fade-in-up">
+        <!-- 头部标题 -->
+        <div class="space-y-3">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#6B9080] to-[#557366] hidden md:flex items-center justify-center text-white font-bold text-xl shadow-xl shadow-[#6B9080]/20 mb-6">PG</div>
+          <h1 class="text-4xl md:text-5xl font-black text-slate-800 tracking-tight">Welcome Back</h1>
+          <p class="text-slate-500 text-lg">请登录您的账户以继续使用</p>
         </div>
 
-        <!-- 登录表单 -->
+        <!-- 表单区域 -->
         <div class="space-y-6">
           
           <div class="space-y-2 group">
-            <label class="text-sm font-bold text-rock-600 ml-1">账号 / Username</label>
-            <div class="relative transition-all duration-300 transform group-focus-within:-translate-y-1">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <el-icon class="text-rock-400 group-focus-within:text-healing-600 transition-colors"><User /></el-icon>
-              </div>
+            <label class="text-sm font-bold text-slate-600 block pl-1">账号 / Username</label>
+            <div class="relative">
               <input 
                 v-model="username" 
                 type="text" 
-                placeholder="请输入您的账号" 
-                class="w-full pl-11 pr-4 py-4 rounded-xl bg-white border border-cream-200 text-rock-800 placeholder-rock-400 focus:outline-none focus:ring-4 focus:ring-healing-500/10 focus:border-healing-500 transition-all shadow-sm group-hover:shadow-md"
+                class="w-full h-14 pl-4 pr-4 rounded-xl bg-gray-50 border border-transparent text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#6B9080] focus:ring-4 focus:ring-[#6B9080]/10 transition-all duration-300 font-medium"
+                placeholder="请输入您的账号"
                 @keyup.enter="doLogin"
-                :disabled="isLoading"
+                :disabled="isLoading || showWelcome"
               />
             </div>
           </div>
 
           <div class="space-y-2 group">
-             <div class="flex justify-between items-center ml-1">
-              <label class="text-sm font-bold text-rock-600">密码 / Password</label>
+             <div class="flex justify-between items-center pl-1">
+              <label class="text-sm font-bold text-slate-600">密码 / Password</label>
+              <button 
+                @click="handleForgotPassword" 
+                class="text-sm font-bold text-[#6B9080] hover:text-[#557366] transition-colors focus:outline-none"
+                tabindex="-1"
+              >
+                忘记密码？
+              </button>
             </div>
-            <div class="relative transition-all duration-300 transform group-focus-within:-translate-y-1">
-              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <el-icon class="text-rock-400 group-focus-within:text-healing-600 transition-colors"><Lock /></el-icon>
-              </div>
+            <div class="relative">
               <input 
                 v-model="password" 
                 type="password" 
-                placeholder="请输入您的密码" 
-                class="w-full pl-11 pr-4 py-4 rounded-xl bg-white border border-cream-200 text-rock-800 placeholder-rock-400 focus:outline-none focus:ring-4 focus:ring-healing-500/10 focus:border-healing-500 transition-all shadow-sm group-hover:shadow-md"
+                class="w-full h-14 pl-4 pr-4 rounded-xl bg-gray-50 border border-transparent text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#6B9080] focus:ring-4 focus:ring-[#6B9080]/10 transition-all duration-300 font-medium"
+                placeholder="请输入您的密码"
                 @keyup.enter="doLogin"
-                :disabled="isLoading"
+                :disabled="isLoading || showWelcome"
               />
             </div>
           </div>
 
           <!-- 登录按钮 -->
           <button 
-            class="w-full py-4 rounded-xl bg-healing-500 text-white font-bold text-lg shadow-[0_10px_20px_-5px_rgba(107,144,128,0.4)] hover:bg-healing-600 hover:shadow-[0_15px_25px_-5px_rgba(107,144,128,0.5)] hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3 mt-8"
+            class="w-full h-14 rounded-xl bg-gradient-to-r from-[#6B9080] to-[#557366] text-white font-bold text-lg shadow-lg shadow-[#6B9080]/30 hover:shadow-xl hover:shadow-[#6B9080]/40 hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3 mt-4 disabled:opacity-70 disabled:cursor-not-allowed"
             @click="doLogin"
-            :disabled="isLoading"
-            :class="{ 'opacity-80 cursor-wait': isLoading }"
+            :disabled="isLoading || showWelcome"
           >
             <span v-if="isLoading" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            <span>{{ isLoading ? '正在连接...' : '进入空间' }}</span>
+            <span>{{ isLoading ? '正在建立安全连接...' : '登 录' }}</span>
           </button>
+        </div>
 
-          <!-- 帮助提示 (无注册) -->
-          <p class="text-center text-xs text-rock-400 mt-8 opacity-80 font-medium">
-            如需重置密码或开通账号，请联系管理员
-          </p>
+        <!-- 底部版权 -->
+        <div class="pt-8 text-center md:text-left">
+           <p class="text-xs text-slate-400 font-medium">
+             © 2026 PsycheGuard Intelligence. All rights reserved.<br>
+             <span class="opacity-60">Professional Psychological Assessment System</span>
+           </p>
         </div>
       </div>
+    </div>
 
-      <!-- 版本号 -->
-      <div class="absolute bottom-6 left-0 w-full text-center">
-        <p class="text-xs text-rock-400 font-mono opacity-50">Secure System v2.5.0 · Morning Healing UI</p>
+    <!-- 右侧：视觉沉浸区 (55%) -->
+    <div 
+      class="hidden md:block md:w-[55%] xl:w-[60%] relative overflow-hidden bg-slate-900 transition-all duration-1000 ease-in-out"
+      :class="{ 'opacity-80 scale-105 blur-sm': showWelcome }"
+    >
+      <!-- 背景图片 -->
+      <img 
+        src="https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=2070&auto=format&fit=crop" 
+        class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[20s] hover:scale-110"
+        alt="Healing Background"
+      />
+      <!-- 渐变蒙版 -->
+      <div class="absolute inset-0 bg-gradient-to-br from-[#6B9080]/80 via-[#2C3E50]/40 to-[#557366]/90 mix-blend-multiply"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+      <!-- 每日金句展示 -->
+      <div class="absolute bottom-0 left-0 w-full p-16 z-10 transition-all duration-700" :class="{ 'translate-y-20 opacity-0': showWelcome }">
+        <div class="glass-quote p-10 rounded-[2rem] max-w-2xl backdrop-blur-md border border-white/20 shadow-2xl">
+          <svg class="w-10 h-10 text-white/60 mb-6" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.896 14.321 16.067 14.929 15.513C15.537 14.959 16.481 14.682 17.761 14.682V12.182H14.017V6.682H21.017V21H14.017ZM3.017 21L3.017 18C3.017 16.896 3.321 16.067 3.929 15.513C4.537 14.959 5.481 14.682 6.761 14.682V12.182H3.017V6.682H10.017V21H3.017Z"/></svg>
+          <p class="text-2xl md:text-3xl font-medium text-white leading-relaxed tracking-wide mb-6 font-serif">
+            "{{ quote.text }}"
+          </p>
+          <div class="flex items-center gap-4">
+             <div class="h-[1px] w-12 bg-white/50"></div>
+             <span class="text-white/80 font-medium tracking-widest uppercase text-sm">{{ quote.author }}</span>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { User, Lock } from '@element-plus/icons-vue'
 import axios from 'axios'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
 const username = ref('')
 const password = ref('')
 const isLoading = ref(false)
+const showWelcome = ref(false)
+const welcomeName = ref('')
+
+// 每日金句数据
+const quotes = [
+  { text: "There is a crack in everything, that's how the light gets in.", author: "Leonard Cohen" },
+  { text: "Your present circumstances don't determine where you can go; they merely determine where you start.", author: "Nido Qubein" },
+  { text: "The only journey is the one within.", author: "Rainer Maria Rilke" },
+  { text: "What you seek is seeking you.", author: "Rumi" }
+]
+const quote = ref(quotes[0])
+
+onMounted(() => {
+  // 随机选择一句金句
+  quote.value = quotes[Math.floor(Math.random() * quotes.length)]
+})
 
 async function doLogin() {
   if (!username.value || !password.value) {
@@ -134,38 +173,33 @@ async function doLogin() {
   
   try {
     const res = await axios.post('/api/login', { username: username.value, password: password.value })
-    
-    // 处理登录成功
     const data = res.data
-    const token = data.token
-    const user = data.user
     
-    if (token && user) {
-      localStorage.setItem('pg_token', token)
-      localStorage.setItem('pg_user', JSON.stringify(user))
+    if (data.token && data.user) {
+      localStorage.setItem('pg_token', data.token)
+      localStorage.setItem('pg_user', JSON.stringify(data.user))
       const userStore = useUserStore()
-      userStore.login(user) 
-      // 同时也保留这些，以兼容某些直接读取 localStorage 的旧代码
-      localStorage.setItem('user_role', user.role || '')
-      localStorage.setItem('user_id', String(user.id || ''))
+      userStore.login(data.user)
+      
+      // 兼容旧逻辑
+      localStorage.setItem('user_role', data.user.role || '')
+      localStorage.setItem('user_id', String(data.user.id || ''))
 
-      ElMessage.success({
-        message: `欢迎回来，${user.realName || user.username}`,
-        duration: 2000,
-        customClass: 'healing-message'
-      })
+      // 触发转场动画
+      isLoading.value = false
+      welcomeName.value = data.user.realName || data.user.username
+      showWelcome.value = true
 
-      // 稍微延迟跳转以显示加载完成状态
+      // 延迟跳转，让用户感受“被接纳”的暖场
       setTimeout(() => {
-        if (user.role === 'ROLE_COUNSELOR') {
+        if (data.user.role === 'ROLE_COUNSELOR') {
           router.replace('/dashboard')
         } else {
-          // 默认跳转到测评中心或首页
-          router.replace('/assess') 
+          router.replace('/client-dashboard') 
         }
-      }, 500)
+      }, 1500)
     } else {
-      throw new Error('Invalid response structure')
+      throw new Error('Invalid response')
     }
 
   } catch (e: any) {
@@ -174,45 +208,82 @@ async function doLogin() {
     isLoading.value = false
   }
 }
+
+function handleForgotPassword() {
+  ElMessageBox.alert(
+    `<div class="text-center py-4">
+      <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">🔐</div>
+      <h3 class="text-xl font-bold text-slate-800 mb-2">需要重置密码？</h3>
+      <p class="text-slate-500 text-sm mb-6 px-4">为保障账户安全，请联系系统管理员或致电值班中心进行身份核验重置。</p>
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 mx-4">
+        <p class="text-base font-bold text-slate-700 flex items-center justify-center gap-2">
+          <span>📞</span> <span>010-8888-9999</span>
+        </p>
+      </div>
+    </div>`, 
+    '', 
+    { 
+      dangerouslyUseHTMLString: true, 
+      showConfirmButton: true,
+      confirmButtonText: '好的，我知道了', 
+      center: true,
+      customClass: 'forgot-password-dialog !rounded-3xl !w-[400px]',
+      confirmButtonClass: '!w-full !h-12 !rounded-xl !bg-slate-900 !border-slate-900 !font-bold !text-lg !mt-4'
+    }
+  )
+}
 </script>
 
 <style scoped>
-/* 呼吸动画 */
-@keyframes blob {
-  0% { transform: translate(0px, 0px) scale(1); }
-  33% { transform: translate(30px, -50px) scale(1.1); }
-  66% { transform: translate(-20px, 20px) scale(0.9); }
-  100% { transform: translate(0px, 0px) scale(1); }
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
 }
-.animate-blob { animation: blob 10s infinite; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
 
-/* === 登录页专用治愈色系补丁 (CSS Patch) === */
-.bg-cream-100 { background-color: #F6F4F1 !important; }
-.text-rock-800 { color: #4A4E69 !important; }
-.text-rock-600 { color: #7B7B8D !important; }
-.text-rock-400 { color: #A7A7B3 !important; }
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-.bg-healing-50 { background-color: #F0F7F4 !important; }
-.bg-healing-100 { background-color: #E1EFE9 !important; }
-.bg-healing-200 { background-color: #C2DFCE !important; } /* 自定义更深的背景色 */
-.bg-healing-500 { background-color: #6B9080 !important; }
-.bg-healing-600 { background-color: #557366 !important; }
-.text-healing-600 { color: #557366 !important; }
-.text-healing-500 { color: #6B9080 !important; }
-.border-healing-500 { border-color: #6B9080 !important; }
+/* 浮动动画 */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
 
-.text-clay-500 { color: #E07A5F !important; }
-.text-clay-600 { color: #B3614C !important; }
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
 
-.border-cream-200 { border-color: #EBE6E0 !important; }
+/* Vue Transition */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
 
-/* 玻璃拟态特效 */
-.glass-effect {
-    background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+.glass-quote {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 全局样式覆盖 */
+:global(.forgot-password-dialog .el-message-box__header) {
+  display: none;
+}
+:global(.forgot-password-dialog .el-message-box__content) {
+  padding: 0 !important;
 }
 </style>

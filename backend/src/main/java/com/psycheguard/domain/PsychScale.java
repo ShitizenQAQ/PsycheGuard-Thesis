@@ -1,5 +1,6 @@
 package com.psycheguard.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -54,6 +55,7 @@ public class PsychScale {
   @Column(name = "update_time")
   private java.time.OffsetDateTime updateTime;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "scale", cascade = CascadeType.ALL, orphanRemoval = true)
   private java.util.List<ScaleQuestion> questions = new java.util.ArrayList<>();
 }

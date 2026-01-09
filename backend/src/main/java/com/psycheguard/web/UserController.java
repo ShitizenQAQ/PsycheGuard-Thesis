@@ -132,4 +132,85 @@ public class UserController {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "delete failed");
     }
   }
+
+  /**
+   * 获取当前登录用户信息
+   */
+  @GetMapping("/me")
+  public SysUserDTO me(java.security.Principal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户未登录");
+    }
+    SysUser u = userRepository.findByUsername(principal.getName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
+    SysUserDTO dto = new SysUserDTO();
+    dto.setId(u.getId());
+    dto.setUsername(u.getUsername());
+    dto.setRealName(u.getRealName());
+    dto.setRole(u.getRole());
+    dto.setTags(u.getTags());
+    return dto;
+  }
+
+  /**
+   * 更新当前用户的个人信息（昵称等）
+   */
+  @PutMapping("/me")
+  public SysUserDTO updateMe(@RequestBody java.util.Map<String, Object> body, java.security.Principal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户未登录");
+    }
+    SysUser u = userRepository.findByUsername(principal.getName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
+
+    if (body.containsKey("realName")) {
+      u.setRealName(String.valueOf(body.get("realName")));
+    }
+    userRepository.save(u);
+
+    SysUserDTO dto = new SysUserDTO();
+    dto.setId(u.getId());
+    dto.setUsername(u.getUsername());
+    dto.setRealName(u.getRealName());
+    dto.setRole(u.getRole());
+    dto.setTags(u.getTags());
+    return dto;
+  }
+
+  /**
+   * 用户自助修改密码
+   */
+  @PostMapping("/me/password")
+  public ResponseEntity<java.util.Map<String, String>> changePassword(
+      @RequestBody java.util.Map<String, String> body,
+      java.security.Principal principal) {
+    if (principal == null) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户未登录");
+    }
+    SysUser u = userRepository.findByUsername(principal.getName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "用户不存在"));
+
+    String oldPassword = body.get("oldPassword");
+    String newPassword = body.get("newPassword");
+
+    if (oldPassword == null || oldPassword.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请输入旧密码");
+    }
+    if (newPassword == null || newPassword.isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "请输入新密码");
+    }
+    if (newPassword.length() < 6) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "新密码至少需要6位");
+    }
+
+    // 校验旧密码（当前使用明文比较，后续可改为BCrypt）
+    if (!oldPassword.equals(u.getPassword())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "旧密码不正确");
+    }
+
+    u.setPassword(newPassword);
+    userRepository.save(u);
+
+    return ResponseEntity.ok(java.util.Map.of("message", "密码修改成功"));
+  }
 }

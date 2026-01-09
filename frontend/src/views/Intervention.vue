@@ -17,11 +17,9 @@
       
       <el-table :data="filteredData" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column label="姓名" width="120">
+        <el-table-column label="档案编号 / Case ID" width="160">
           <template #default="{ row }">
-            <el-tooltip :content="row.name" placement="top">
-              <span class="cursor-help">{{ maskName(row.name) }}</span>
-            </el-tooltip>
+            <span class="font-mono text-rock-700">{{ row.name }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="riskLevel" label="关注等级" width="120" />
@@ -35,12 +33,18 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="240">
+        <el-table-column label="操作" width="280">
           <template #default="{ row, $index }">
             
             <el-button v-if="row.status==='PENDING'" size="small" type="primary" @click="startIntervention($index)">开始干预</el-button>
-            <el-button v-else-if="row.status==='PROCESSING'" size="small" type="success" @click="completeIntervention($index)">完成</el-button>
-            <el-dropdown v-if="!row.simulated" @command="(cmd: string) => changeStatus(row, cmd as Status)">
+            <el-button v-else-if="row.status==='PROCESSING'" size="small" type="success" @click="openUpdate($index)">完成/记录</el-button>
+            
+            <!-- 编辑按钮：允许任何状态下修改方案 -->
+            <el-button size="small" circle @click="openUpdate($index)" title="填写/修改干预方案" class="ml-2">
+              <el-icon><Edit /></el-icon>
+            </el-button>
+
+            <el-dropdown v-if="!row.simulated" @command="(cmd: string) => changeStatus(row, cmd as Status)" class="ml-2">
               <el-button size="small">更改状态</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -55,15 +59,24 @@
       </el-table>
     </div>
 
-    <el-dialog v-model="updateVisible" title="填写干预记录" width="520px">
+    <el-dialog 
+      v-model="updateVisible" 
+      title="填写干预记录" 
+      width="520px"
+      top="8vh"
+      :close-on-click-modal="false"
+      class="intervention-dialog"
+    >
       <el-form label-position="top">
         <el-form-item label="干预措施">
           <el-input type="textarea" v-model="updateNote" rows="4" placeholder="例如：进行了心理疏导、复测安排等" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="updateVisible=false">取消</el-button>
-        <el-button type="primary" @click="completeUpdate">完成干预</el-button>
+        <div class="flex justify-end gap-3">
+          <el-button @click="updateVisible=false">取消</el-button>
+          <el-button type="primary" @click="completeUpdate">完成干预</el-button>
+        </div>
       </template>
     </el-dialog>
 
@@ -96,6 +109,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Edit } from '@element-plus/icons-vue'
 import axios from 'axios'
 
 type Status = 'PENDING' | 'PROCESSING' | 'ARCHIVED'
@@ -115,31 +129,7 @@ const filteredData = computed(() => {
 })
 function setFilter(v: 'ALL' | Status) { statusFilter.value = v }
 
-/**
- * 姓名脱敏工具函数
- * @param name 完整姓名
- * @returns 脱敏后的姓名（保留姓氏，隐藏名字）
- * @example maskName('王小明') => '王**'
- * @example maskName('李四') => '李*'
- * @example maskName('欧阳娜娜') => '欧阳**'
- */
-function maskName(name: string): string {
-  if (!name || name.length === 0) return '***'
-  if (name.length === 1) return name // 单字名不脱敏
-  if (name.length === 2) return name[0] + '*' // 两字名：保留姓氏
-  
-  // 三字及以上：判断是否为复姓
-  const doubleSurnames = ['欧阳', '上官', '司马', '诸葛', '皇甫', '尉迟', '公孙', '慕容', '令狐', '宇文', '长孙', '东方']
-  const isDoubleSurname = doubleSurnames.some(s => name.startsWith(s))
-  
-  if (isDoubleSurname && name.length >= 3) {
-    // 复姓：保留复姓，隐藏名字
-    return name.substring(0, 2) + '*'.repeat(name.length - 2)
-  } else {
-    // 单姓：保留姓氏，隐藏名字
-    return name[0] + '*'.repeat(name.length - 1)
-  }
-}
+// maskName 函数已移除 - 数据已改为档案编号格式，无需脱敏
 
 const router = useRouter()
 function viewResult(row: RowSim) {
@@ -267,4 +257,31 @@ async function submitCreate() {
 .glass-card { background-color: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); border-radius: 16px; }
 .fade-up { animation: fadeUp 0.5s ease-out both; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* 修复弹窗在小窗口下显示不全的问题 */
+:deep(.el-dialog) {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto !important;
+}
+:deep(.el-dialog__body) {
+  overflow-y: auto;
+  flex: 1;
+  max-height: 60vh;
+}
+:deep(.el-dialog__footer) {
+  padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  border-radius: 0 0 8px 8px;
+}
+
+/* 响应式宽度 */
+@media (max-width: 640px) {
+  :deep(.el-dialog) {
+    width: 90% !important;
+    max-width: 90% !important;
+  }
+}
 </style>

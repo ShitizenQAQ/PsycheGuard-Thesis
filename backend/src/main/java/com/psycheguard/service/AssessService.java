@@ -36,9 +36,11 @@ public class AssessService {
     if (scale.getDangerThreshold() != null && scale.getDangerThreshold() > 0) {
       threshold = scale.getDangerThreshold();
     } else if (scale.getMaxScore() != null && scale.getMaxScore() > 0) {
-      threshold = (scale.getMaxScore() * 6) / 10; // 满分的60%
+      // 【通用降级策略】使用满分的60%作为评估阈值
+      threshold = (scale.getMaxScore() * 6) / 10;
     } else {
-      threshold = 6; // 兜底默认值
+      // 【通用降级策略】绝对值兜底逻辑
+      threshold = 6;
     }
 
     // 风险等级判定：HIGH (高风险) / MEDIUM (中度风险) / LOW (低风险)
@@ -80,27 +82,15 @@ public class AssessService {
   }
 
   private String extractDimension(ScaleQuestion q) {
-    if (q == null)
-      return "Unknown";
+    if (q == null) {
+      return "默认维度";
+    }
 
-    // 优先使用 dimension 字段
+    // 优先并仅使用 dimension 字段。不再依赖基于字符串 "维度:" 的脆弱解析逻辑。
     if (q.getDimension() != null && !q.getDimension().trim().isEmpty()) {
       return q.getDimension().trim();
     }
 
-    // 回退到内容解析(兼容旧数据)
-    if (q.getContent() == null)
-      return "Unknown";
-    String c = q.getContent();
-    int idx = c.indexOf("维度:");
-    if (idx >= 0) {
-      String tail = c.substring(idx + 3).trim();
-      // 取第一个空格前的部分作为维度名，如果没空格则取全部
-      int spaceIdx = tail.indexOf(" ");
-      String dim = spaceIdx >= 0 ? tail.substring(0, spaceIdx) : tail;
-      // 移除末尾可能的标点符号
-      return dim.replaceAll("[\\)\\]\\}：:，,。.]+$", "").trim();
-    }
-    return "Unknown";
+    return "默认维度";
   }
 }

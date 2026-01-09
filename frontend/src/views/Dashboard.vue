@@ -163,11 +163,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { View } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import axios from 'axios'
+
+defineOptions({
+  name: 'Dashboard'
+})
 
 const router = useRouter()
 const currentTime = ref(new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }))
@@ -281,11 +285,12 @@ async function fetchData() {
       })
 
     // 4. Update Charts
-    updateFunnelChart()
-    updatePieChart(rawAssess)
-    updateDimensionChart(rawAssess) // 传入数据
-    updateTrendChart(rawAssess)
-
+    nextTick(() => {
+      updateFunnelChart()
+      updatePieChart(rawAssess)
+      updateDimensionChart(rawAssess)
+      updateTrendChart(rawAssess)
+    })
   } catch (err) {
     console.error('Fetch dashboard failed:', err)
   }

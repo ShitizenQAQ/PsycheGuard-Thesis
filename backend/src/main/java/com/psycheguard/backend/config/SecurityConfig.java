@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -53,8 +54,8 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // 使用 NoOpPasswordEncoder，允许数据库存明文 "123456"
-        return org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance();
+        // 使用 BCryptPasswordEncoder 进行安全的密码加密
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

@@ -20,12 +20,12 @@
          <!-- 顶部按钮栏 -->
          <div class="relative z-20 flex justify-between items-center px-6 pt-6">
             <button v-if="isCounselor" @click="goBack"
-             class="bg-white/60 hover:bg-white backdrop-blur-md text-rock-600 font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm border border-white/50">
+             class="bg-white/90 hover:bg-white backdrop-blur-md text-rock-600 font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm border border-white/80">
               <ArrowLeft :size="16" />
               <span>返回列表</span>
             </button>
             <button v-else @click="goBackToClientDashboard"
-             class="bg-white/60 hover:bg-white backdrop-blur-md text-rock-600 font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm border border-white/50">
+             class="bg-white/90 hover:bg-white backdrop-blur-md text-rock-600 font-bold rounded-xl px-4 py-2.5 flex items-center gap-2 shadow-sm transition-all text-sm border border-white/80">
               <ArrowLeft :size="16" />
               <span>返回</span>
             </button>
@@ -52,7 +52,7 @@
 
          <!-- 信息条 -->
          <div class="relative z-10 px-8 pb-8">
-            <div class="bg-white/60 backdrop-blur-md border border-white/60 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 text-sm shadow-sm">
+            <div class="bg-white/90 backdrop-blur-md border border-white/80 rounded-2xl p-4 flex flex-col md:flex-row justify-between items-center gap-4 text-sm shadow-sm">
                 <div class="flex flex-col items-center md:items-start">
                    <span class="text-rock-400 text-xs uppercase tracking-wider mb-1">评估编号 / ID</span>
                    <span class="font-mono font-bold text-rock-700 tracking-widest">{{ id }}</span>
@@ -153,7 +153,7 @@
               :class="riskLevel === 'HIGH' ? 'text-clay-600' : 'text-healing-600'">
             <span>💡</span> 专业建议
           </h2>
-          <div class="bg-white/60 p-6 rounded-2xl backdrop-blur-sm border border-white/50 relative z-10">
+          <div class="bg-white/90 p-6 rounded-2xl backdrop-blur-sm border border-white/80 relative z-10 shadow-sm">
              <p :class="riskLevel === 'HIGH' ? 'text-clay-800' : 'text-healing-800'" class="leading-relaxed font-medium">
                 <span v-if="riskLevel === 'HIGH'">
                   ⚠️ 提示：评估结果显示该来访者存在需要关注的心理特征。建议安排专业咨询师进行一对一访谈，并关注其情绪与行为变化。建议启动【二级干预预案】。

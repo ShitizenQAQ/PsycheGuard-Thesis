@@ -5,10 +5,10 @@
       <div class="text-center md:text-left">
         <h3 class="text-2xl font-bold text-rock-800 tracking-tight flex items-center gap-3 justify-center md:justify-start">
           <span class="w-2 h-8 rounded-full bg-healing-500"></span>
-          {{ isCounselor ? '测评档案库' : '我的测评记录' }}
+          {{ pageTitle }}
         </h3>
         <p class="text-rock-500 mt-2 font-medium">
-          {{ isCounselor ? 'Archived Assessments & Records' : 'My Assessment History' }}
+          {{ targetName ? `Viewing records for ${targetName}` : (isCounselor ? 'Archived Assessments & Records' : 'My Assessment History') }}
         </p>
       </div>
       
@@ -148,26 +148,54 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 type Risk = 'LOW' | 'MEDIUM' | 'HIGH'
-type Item = { id: number; userRealName: string; createTime: string; totalScore: number; riskLevel: Risk; prisonerId: string }
+type Item = { id: number; userRealName: string; createTime: string; totalScore: number; riskLevel: Risk; prisonerId: string; userId?: number }
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const list = ref<Item[]>([])
 const keyword = ref('')
 const risk = ref<'ALL' | Risk>('ALL')
 const date = ref<string | null>(null)
 
+// 从 URL 获取目标用户参数
+const targetId = computed(() => route.query.targetId ? Number(route.query.targetId) : null)
+const targetName = computed(() => route.query.targetName as string || null)
+const urlKeyword = computed(() => route.query.keyword as string || null)
+
 // 判断角色
 const isCounselor = computed(() => userStore.isCounselor)
 
+// 页面标题：如果有目标用户则显示用户名
+const pageTitle = computed(() => {
+  if (urlKeyword.value) {
+    return `${urlKeyword.value} 的测评记录`
+  }
+  if (targetName.value) {
+    return `${targetName.value} 的测评记录`
+  }
+  return isCounselor.value ? '测评档案库' : '我的测评记录'
+})
+
 onMounted(async () => {
   userStore.load()
+  
+  // 自动填充搜索框（如果有 keyword 参数）
+  if (urlKeyword.value) {
+    keyword.value = urlKeyword.value
+  }
+  
   try {
-    const { data } = await axios.get<Item[]>('/api/assessments')
+    // 如果有目标用户ID，则只请求该用户的记录
+    const params: any = {}
+    if (targetId.value) {
+      params.userId = targetId.value
+    }
+    const { data } = await axios.get<Item[]>('/api/assessments', { params })
     list.value = (data || []).map(x => ({ ...x, prisonerId: x.prisonerId || String(x.id) }))
   } catch (err) {
     console.error('Failed to fetch assessments:', err)
@@ -178,6 +206,10 @@ const filtered = computed(() => {
   const k = keyword.value.trim().toLowerCase()
   const d = date.value
   return list.value.filter(i => {
+    // 如果通过 URL 指定了目标用户，额外过滤（后端可能没有支持 userId 参数）
+    if (targetId.value && i.userId && i.userId !== targetId.value) {
+      return false
+    }
     const matchText = !k || (i.userRealName || '').toLowerCase().includes(k)
     const matchRisk = risk.value === 'ALL' || i.riskLevel === risk.value
     let matchDate = true
