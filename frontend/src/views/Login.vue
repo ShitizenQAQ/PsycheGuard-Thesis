@@ -46,11 +46,9 @@
           
           <div class="space-y-2 group">
             <label class="text-sm font-bold text-slate-600 block pl-1">账号 / Username</label>
-            <div class="relative">
-              <input 
+            <div class="relative pg-login-input">
+              <el-input 
                 v-model="username" 
-                type="text" 
-                class="w-full h-14 pl-4 pr-4 rounded-xl bg-gray-50 border border-transparent text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#6B9080] focus:ring-4 focus:ring-[#6B9080]/10 transition-all duration-300 font-medium"
                 placeholder="请输入您的账号"
                 @keyup.enter="doLogin"
                 :disabled="isLoading || showWelcome"
@@ -69,16 +67,23 @@
                 忘记密码？
               </button>
             </div>
-            <div class="relative">
-              <input 
+            <div class="relative pg-login-input">
+              <el-input 
                 v-model="password" 
                 type="password" 
-                class="w-full h-14 pl-4 pr-4 rounded-xl bg-gray-50 border border-transparent text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-[#6B9080] focus:ring-4 focus:ring-[#6B9080]/10 transition-all duration-300 font-medium"
+                show-password
                 placeholder="请输入您的密码"
                 @keyup.enter="doLogin"
                 :disabled="isLoading || showWelcome"
               />
             </div>
+            <!-- 行内业务错误提示 -->
+            <Transition name="slide-fade">
+              <p v-if="errorMessage" class="text-red-500 text-sm mt-2 pl-1 font-medium flex items-center gap-1.5">
+                <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                {{ errorMessage }}
+              </p>
+            </Transition>
           </div>
 
           <!-- 登录按钮 -->
@@ -148,6 +153,7 @@ const password = ref('')
 const isLoading = ref(false)
 const showWelcome = ref(false)
 const welcomeName = ref('')
+const errorMessage = ref('')  // 行内业务错误提示
 
 // 每日金句数据
 const quotes = [
@@ -164,23 +170,27 @@ onMounted(() => {
 })
 
 async function doLogin() {
+  // ① 清空所有历史报错状态
+  errorMessage.value = ''
+  ElMessage.closeAll()
+
   if (!username.value || !password.value) {
     ElMessage.warning('请输入账号和密码')
     return
   }
-  
+
   isLoading.value = true
-  
+
   try {
     const res = await axios.post('/api/login', { username: username.value, password: password.value })
     const data = res.data
-    
+
     if (data.token && data.user) {
       localStorage.setItem('pg_token', data.token)
       localStorage.setItem('pg_user', JSON.stringify(data.user))
       const userStore = useUserStore()
       userStore.login(data.user)
-      
+
       // 兼容旧逻辑
       localStorage.setItem('user_role', data.user.role || '')
       localStorage.setItem('user_id', String(data.user.id || ''))
@@ -190,12 +200,12 @@ async function doLogin() {
       welcomeName.value = data.user.realName || data.user.username
       showWelcome.value = true
 
-      // 延迟跳转，让用户感受“被接纳”的暖场
+      // 延迟跳转
       setTimeout(() => {
         if (data.user.role === 'ROLE_COUNSELOR') {
           router.replace('/dashboard')
         } else {
-          router.replace('/client-dashboard') 
+          router.replace('/client-dashboard')
         }
       }, 1500)
     } else {
@@ -204,8 +214,22 @@ async function doLogin() {
 
   } catch (e: any) {
     console.error(e)
-    ElMessage.error(e.response?.data?.message || '登录失败，请检查账号密码')
     isLoading.value = false
+
+    const status = e.response?.status
+    const serverMsg = e.response?.data?.message || e.response?.data?.error
+
+    // ② 分类处理：业务级错误 vs 网络/服务器异常（互斥）
+    if (status && status >= 400 && status < 500 && serverMsg) {
+      // 业务级错误（401 密码错误/用户不存在, 400 参数缺失等）→ 行内红字
+      errorMessage.value = serverMsg
+    } else {
+      // 网络断开 / 服务器 500 / 未知异常 → 全局 ElMessage
+      const fallback = !e.response
+        ? '网络连接失败，请检查网络后重试'
+        : '服务器异常，请稍后再试'
+      ElMessage.error(serverMsg || fallback)
+    }
   }
 }
 
@@ -235,6 +259,28 @@ function handleForgotPassword() {
 </script>
 
 <style scoped>
+/* 覆盖 el-input 样式以匹配原生 Tailwind 设计 */
+:deep(.pg-login-input .el-input__wrapper) {
+  height: 3.5rem; /* h-14 = 56px */
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 0.75rem; /* rounded-xl */
+  background-color: #f9fafb; /* bg-gray-50 */
+  box-shadow: 0 0 0 1px transparent inset;
+  transition: all 0.3s;
+}
+:deep(.pg-login-input .el-input__inner) {
+  font-weight: 500;
+  color: #1e293b; /* text-slate-800 */
+}
+:deep(.pg-login-input .el-input__inner::placeholder) {
+  color: #94a3b8; /* placeholder-slate-400 */
+}
+:deep(.pg-login-input .is-focus) {
+  background-color: #ffffff;
+  box-shadow: 0 0 0 1px #6B9080 inset, 0 0 0 4px rgba(107, 144, 128, 0.1) !important;
+}
+
 .fade-in-up {
   animation: fadeInUp 0.8s ease-out forwards;
   opacity: 0;
@@ -246,6 +292,22 @@ function handleForgotPassword() {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* 行内错误提示动画 */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+.slide-fade-enter-from {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+.slide-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 /* 浮动动画 */

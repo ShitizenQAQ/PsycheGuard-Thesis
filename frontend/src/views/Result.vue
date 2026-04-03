@@ -188,6 +188,32 @@
         </div>
       </div>
     </div>
+
+    <!-- 底部固定浮动操作栏 -->
+    <div class="fixed-action-bar">
+      <div class="action-bar-inner">
+        <button v-if="isCounselor" @click="goBack"
+          class="action-btn action-btn-back">
+          <ArrowLeft :size="16" />
+          <span>返回列表</span>
+        </button>
+        <button v-else @click="goBackToClientDashboard"
+          class="action-btn action-btn-back">
+          <ArrowLeft :size="16" />
+          <span>返回</span>
+        </button>
+
+        <button
+          :disabled="isExporting"
+          @click="downloadPDF"
+          class="action-btn action-btn-export"
+        >
+          <Download :size="16" />
+          <span v-if="isExporting">生成中...</span>
+          <span v-else>打印报告</span>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -513,14 +539,73 @@ function initiateIntervention() {
 </script>
 
 <style scoped>
-.result-container { font-family: 'Inter', sans-serif; }
+.result-container { font-family: 'Inter', sans-serif; padding-bottom: 100px; }
 .medical-report {
   width: 100%;
   max-width: 800px;
   background: #ffffff;
   border-radius: 2rem;
-  box-shadow: 0 20px 60px -15px rgba(74, 78, 105, 0.1); /* Rock shadow */
+  box-shadow: 0 20px 60px -15px rgba(74, 78, 105, 0.1);
   overflow: hidden;
+}
+
+/* 底部固定浮动操作栏 */
+.fixed-action-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  padding: 12px 16px;
+  background: rgba(246, 244, 241, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(235, 230, 224, 0.6);
+  box-shadow: 0 -4px 24px rgba(74, 78, 105, 0.08);
+}
+.action-bar-inner {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.action-btn:hover { transform: translateY(-1px); }
+.action-btn:active { transform: translateY(0); }
+.action-btn-back {
+  background: rgba(255, 255, 255, 0.9);
+  color: #5C5F77;
+  border: 1px solid rgba(235, 230, 224, 0.8);
+  box-shadow: 0 2px 8px rgba(74, 78, 105, 0.06);
+}
+.action-btn-back:hover { background: #fff; box-shadow: 0 4px 12px rgba(74, 78, 105, 0.1); }
+.action-btn-export {
+  background: #6B9080;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(107, 144, 128, 0.25);
+}
+.action-btn-export:hover { background: #557366; box-shadow: 0 6px 16px rgba(107, 144, 128, 0.35); }
+.action-btn-export:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media print {
+  .fixed-action-bar { display: none; }
 }
 
 /* 呼吸光斑 */

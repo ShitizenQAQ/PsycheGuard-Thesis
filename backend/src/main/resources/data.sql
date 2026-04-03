@@ -1,4 +1,4 @@
-﻿-- 1. 清理旧数据（防止主键冲突，重新初始化）
+-- 1. 清理旧数据（防止主键冲突，重新初始化）
 TRUNCATE TABLE assess_record RESTART IDENTITY CASCADE;
 TRUNCATE TABLE scale_question RESTART IDENTITY CASCADE;
 TRUNCATE TABLE psych_scale RESTART IDENTITY CASCADE;
@@ -12,20 +12,20 @@ TRUNCATE TABLE notifications RESTART IDENTITY CASCADE;
 
 -- 咨询师 (Counselors)
 INSERT INTO sys_user (id, username, real_name, password, role, tags) VALUES
-(1, 'doctor', '系统管理员', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_COUNSELOR', NULL);
+(1, 'doctor', '系统管理员', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_COUNSELOR', NULL);
 
 -- 来访者 (Clients)
 INSERT INTO sys_user (id, username, real_name, password, role, tags) VALUES
-(2,  'visitor_01', 'Case-2401', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', ARRAY['重点关注', '高危样本']),
-(3,  'visitor_02', 'Case-2402', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', ARRAY['重点关注']),
-(4,  'visitor_03', 'Case-2403', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(5,  'visitor_04', 'Case-2404', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(6,  'visitor_05', 'Case-2405', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(7,  'visitor_06', 'Case-2406', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(8,  'visitor_07', 'Case-2407', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(9,  'visitor_08', 'Case-2408', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(10, 'visitor_09', 'Case-2409', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL),
-(11, 'visitor_10', 'Case-2410', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZRGdjGj/n1J7BNQ9VgSz0J/UYmKHa', 'ROLE_CLIENT', NULL);
+(2,  'visitor_01', 'Case-2401', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', ARRAY['重点关注', '高危样本']),
+(3,  'visitor_02', 'Case-2402', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', ARRAY['重点关注']),
+(4,  'visitor_03', 'Case-2403', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(5,  'visitor_04', 'Case-2404', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(6,  'visitor_05', 'Case-2405', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(7,  'visitor_06', 'Case-2406', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(8,  'visitor_07', 'Case-2407', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(9,  'visitor_08', 'Case-2408', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(10, 'visitor_09', 'Case-2409', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL),
+(11, 'visitor_10', 'Case-2410', '$2a$10$HlOcQcDBmqYex.VY67EXQuFMBexFXLa1gqoU1PAiMnPHRmksM4sxK', 'ROLE_CLIENT', NULL);
 
 
 -- =====================================================
@@ -38,8 +38,19 @@ VALUES (1, 'PCL-R', '精神病态评估量表 (Hare Psychopathy Checklist-Revise
 
 -- 2. SAS (自评)
 INSERT INTO psych_scale (id, name, description, danger_threshold, max_score, type) 
-VALUES (2, 'SAS', '焦虑自评量表 (Self-Rating Anxiety Scale)', 50, 80, 'SELF');
+VALUES (2, 'SAS', '焦虑自评量表 (Self-Rating Anxiety Scale)', 40, 80, 'SELF');
 
+-- 3. SDS (自评)
+INSERT INTO psych_scale (id, name, description, danger_threshold, max_score, type) 
+VALUES (3, 'SDS', '抑郁自评量表 (Self-Rating Depression Scale)', 42, 80, 'SELF');
+
+-- 4. PHQ-9 (自评)
+INSERT INTO psych_scale (id, name, description, danger_threshold, max_score, type) 
+VALUES (4, 'PHQ-9', '患者抑郁问卷 (Patient Health Questionnaire-9)', 10, 27, 'SELF');
+
+-- 5. GAD-7 (自评)
+INSERT INTO psych_scale (id, name, description, danger_threshold, max_score, type) 
+VALUES (5, 'GAD-7', '广泛性焦虑障碍量表 (Generalized Anxiety Disorder-7)', 10, 21, 'SELF');
 
 -- =====================================================
 -- (C) 量表题目 (已清洗维度信息)
@@ -77,8 +88,58 @@ INSERT INTO scale_question (scale_id, content, dimension, options) VALUES
 (2, '我觉得一切都很好，也不会发生什么不幸', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
 (2, '我手脚颤抖打颤', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
 (2, '我因为头痛、颈痛和背痛而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我觉得容易衰弱和疲乏', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb);
+(2, '觉得容易衰弱和疲乏', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb);
 
+-- SDS 题目
+INSERT INTO scale_question (scale_id, content, dimension, options) VALUES
+(3, '我觉得平常容易悲伤和忧郁', '精神性情感症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我早上心情最好', '躯体性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我经常有哭泣的冲动或真的哭泣', '精神性情感症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我晚上睡眠不好', '躯体性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我吃饭像平常一样多', '躯体性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我的性功能正常', '躯体性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我发觉我的体重在下降', '躯体性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我有便秘的苦恼', '躯体性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我的心跳比平时快', '躯体性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我无故感到疲劳', '躯体性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我头脑跟平常一样清楚', '精神运动性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我做事像平时一样不感到困难', '精神运动性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我坐卧不安，难以保持平静', '精神运动性障碍', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我对未来充满希望', '精神性情感症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我觉得比往常更容易激动', '精神性情感症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我做决定没有困难', '精神运动性障碍', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我感到自己是有用的人', '精神性情感症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我的生活很有意义', '精神性情感症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
+(3, '我觉得假若我死了别人会过得更好', '精神性情感症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
+(3, '我仍对以前喜欢的事情感兴趣', '精神性情感症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb);
+
+-- PHQ-9 题目
+INSERT INTO scale_question (scale_id, content, dimension, options)
+SELECT 4, content, '抑郁症状', '[{"label": "完全不会", "score": 0}, {"label": "好几天", "score": 1}, {"label": "一半以上天数", "score": 2}, {"label": "几乎每天", "score": 3}]'::jsonb
+FROM unnest(ARRAY[
+  '做事提不起劲或没有兴趣',
+  '感到心情低落、沮丧或绝望',
+  '入睡困难、睡不安稳或睡眠过多',
+  '感觉疲倦或没有活力',
+  '食欲不振或吃太多',
+  '觉得自己很糟或觉得自己很失败，或让自己、家人失望',
+  '初步专注困难，例如阅读报刊或看电视时',
+  '动作或说话速度过慢? 或烦躁不安、坐立难安',
+  '有不如死掉或用某种方式伤害自己的念头'
+]) AS content;
+
+-- GAD-7 题目
+INSERT INTO scale_question (scale_id, content, dimension, options)
+SELECT 5, content, '焦虑症状', '[{"label": "完全不会", "score": 0}, {"label": "好几天", "score": 1}, {"label": "一半以上天数", "score": 2}, {"label": "几乎每天", "score": 3}]'::jsonb
+FROM unnest(ARRAY[
+  '感觉紧张、焦虑或极度急切',
+  '不能停止或无法控制担忧',
+  '对各种各样的事情担忧过多',
+  '很难放松下来',
+  '由于坐立不安而无法静坐',
+  '变得容易烦恼或急躁',
+  '感到似乎将有可怕的事情发生而害怕'
+]) AS content;
 
 -- =====================================================
 -- (D) 测评记录预埋 (用于 Dashboard 展示)

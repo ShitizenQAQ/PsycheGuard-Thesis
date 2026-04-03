@@ -1,5 +1,60 @@
 @import "tailwindcss";
 
+@theme {
+  --color-healing-50: #F0F7F4;
+  --color-healing-100: #E1EFE9;
+  --color-healing-200: #C2DFCE;
+  --color-healing-400: #8CAE9D;
+  --color-healing-500: #6B9080;
+  --color-healing-600: #557366;
+  --color-healing-800: #557366;
+
+  --color-cream-50: #FBF9F7;
+  --color-cream-100: #F6F4F1;
+  --color-cream-200: #EBE6E0;
+  --color-cream-300: #E0DCD6;
+
+  --color-clay-50: #FDF4F1;
+  --color-clay-100: #F9E5E1;
+  --color-clay-200: #F3D1C9;
+  --color-clay-500: #E07A5F;
+  --color-clay-600: #B3614C;
+  --color-clay-700: #8B4C3A;
+
+  --color-rock-400: #A7A7B3;
+  --color-rock-500: #8F8F9D;
+  --color-rock-600: #7B7B8D;
+  --color-rock-800: #4A4E69;
+  --color-rock-900: #22223B;
+
+  /* Custom shadows */
+  --shadow-pg: 0 8px 24px rgba(74, 78, 105, 0.08);
+
+  /* Animations & Keyframes */
+  --animate-fade-in: fadeIn 0.5s ease-out;
+  --animate-float: float 3s ease-in-out infinite;
+
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+}
+
 /* App base to align with React utility styles */
 .glass-card {
   background-color: rgba(255, 255, 255, 0.7);
