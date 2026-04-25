@@ -1,11 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/psyche_db?characterEncoding=utf-8&reWriteBatchedInserts=true
+    url: jdbc:postgresql://192.168.2.105:5432/psyche_db?characterEncoding=utf-8&reWriteBatchedInserts=true
     username: ${POSTGRES_USER:psycheguard}
     password: ${POSTGRES_PASSWORD:psycheguard_dev_2025}
   sql:
     init:
-      mode: always # 开发环境强制执行 init.sql 和 data.sql
+      mode: never # 已连接远程 Docker，禁用初始化以防数据覆盖
   jpa:
     hibernate:
       ddl-auto: update # 辅助更新，但以 SQL 脚本为主

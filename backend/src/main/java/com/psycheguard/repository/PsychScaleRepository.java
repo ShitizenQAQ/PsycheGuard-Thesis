@@ -13,4 +13,12 @@ public interface PsychScaleRepository extends JpaRepository<PsychScale, Long> {
      * @return 符合类型的量表列表
      */
     List<PsychScale> findByType(String type);
+
+    /**
+     * 根据类型查询且仅返回已启用的量表
+     * 
+     * @param type 量表类型
+     * @return 已启用的量表列表
+     */
+    List<PsychScale> findByTypeAndIsEnabledTrue(String type);
 }

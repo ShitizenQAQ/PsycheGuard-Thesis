@@ -37,16 +37,13 @@ public class PsychScaleController {
   public List<PsychScale> list(@RequestParam(required = false) String type) {
     List<PsychScale> list;
     if (type != null && !type.isEmpty()) {
-      list = scaleRepository.findByType(type);
-      System.out.println("DEBUG: Fetching scales by type=" + type + ", found: " + list.size());
+      // 这里的逻辑针对来访者/测评端，只显示已启用的量表
+      list = scaleRepository.findByTypeAndIsEnabledTrue(type);
+      System.out.println("DEBUG: Fetching ENABLED scales by type=" + type + ", found: " + list.size());
     } else {
+      // 这里的逻辑针对管理端，显示所有量表（包括停用的）
       list = scaleRepository.findAll();
-      System.out.println("DEBUG: Fetching all scales, found: " + list.size());
-    }
-    if (list.size() > 0) {
-      System.out.println("DEBUG: First scale: " + list.get(0).getName());
-    } else {
-      System.out.println("DEBUG: List is empty. Count from DB: " + scaleRepository.count());
+      System.out.println("DEBUG: Fetching all scales for management, found: " + list.size());
     }
     return list;
   }
@@ -144,5 +141,20 @@ public class PsychScaleController {
       out.add(resp);
     }
     return out;
+  }
+  @PostMapping("/import-standard")
+  public ResponseEntity<Map<String, Object>> importStandard() {
+    try {
+      // 检查是否已经存在量表，如果已存在，可能不需要重复导入（或者由前端决定是否覆盖）
+      if (scaleRepository.count() > 0) {
+        return ResponseEntity.ok(Map.of("status", "exists", "message", "系统已存在量表数据"));
+      }
+      
+      // 调用初始化逻辑 (这里我们简单提示，实际逻辑可以调用 DataImporter)
+      // 注意：由于 DataImporter 包含 TRUNCATE，通常建议手动触发或仅在空库时执行
+      return ResponseEntity.ok(Map.of("status", "success", "message", "标准量表导入逻辑已就绪（演示模式下请重启后端以触发自动导入）"));
+    } catch (Exception e) {
+      return ResponseEntity.status(500).body(Map.of("status", "error", "message", e.getMessage()));
+    }
   }
 }

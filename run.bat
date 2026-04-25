@@ -1,4 +1,6 @@
 @echo off
+set "JAVA_HOME=h:\jdk-17.0.18.8-hotspot"
+set "PATH=%JAVA_HOME%\bin;%PATH%"
 cd /d %~dp0
 
 echo =======================================================

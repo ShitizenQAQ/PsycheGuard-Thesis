@@ -10,6 +10,8 @@ public class AssessmentListItemDTO {
   private String riskLevel;
   private Boolean isTeachingCase;
   private String expertAnnotation;
+  private String scaleName;
+  private java.util.Map<String, Object> dimensionScore;
 
   public Long getId() { return id; }
   public void setId(Long id) { this.id = id; }
@@ -25,4 +27,8 @@ public class AssessmentListItemDTO {
   public void setIsTeachingCase(Boolean isTeachingCase) { this.isTeachingCase = isTeachingCase; }
   public String getExpertAnnotation() { return expertAnnotation; }
   public void setExpertAnnotation(String expertAnnotation) { this.expertAnnotation = expertAnnotation; }
+  public String getScaleName() { return scaleName; }
+  public void setScaleName(String scaleName) { this.scaleName = scaleName; }
+  public java.util.Map<String, Object> getDimensionScore() { return dimensionScore; }
+  public void setDimensionScore(java.util.Map<String, Object> dimensionScore) { this.dimensionScore = dimensionScore; }
 }

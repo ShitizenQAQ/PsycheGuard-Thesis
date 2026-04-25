@@ -152,6 +152,8 @@ public class AssessRecordController {
       dto.setRiskLevel(rec.getRiskLevel());
       dto.setIsTeachingCase(rec.getIsTeachingCase());
       dto.setExpertAnnotation(rec.getExpertAnnotation());
+      dto.setScaleName(rec.getScale() != null ? rec.getScale().getName() : null);
+      dto.setDimensionScore(rec.getDimensionAnalysis());
       out.add(dto);
     }
     return out;

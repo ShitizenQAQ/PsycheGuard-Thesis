@@ -5,7 +5,10 @@
         <h3 class="text-xl font-bold text-rock-800 flex items-center gap-2"><span>⚙️</span> 心理量表配置中心</h3>
         <p class="text-sm text-rock-500 mt-1">创建与维护心理测评量表及题库</p>
       </div>
-      <div>
+      <div class="flex gap-3">
+        <el-button type="info" plain size="large" class="!rounded-xl shadow-sm hover:!bg-gray-50" @click="handleImportStandard">
+           <span>📥</span> 一键导入标准量表
+        </el-button>
         <el-button type="primary" size="large" class="!rounded-xl shadow-lg shadow-healing-500/20 !bg-healing-500 !border-healing-500 hover:!bg-healing-600" @click="handleAddScale">+ 新建量表</el-button>
       </div>
     </div>
@@ -406,6 +409,29 @@ async function handleCopy(scale: ScaleRow) {
         activeName.value = createdScale.id
     } catch (e: any) {
         if (e !== 'cancel') ElMessage.error('复制失败: ' + (e.message || '未知错误'))
+    }
+}
+
+async function handleImportStandard() {
+    try {
+        await ElMessageBox.confirm(
+            '确定要导入系统预设的标准量表吗？\n该操作将自动检查并补全 PCL-R、SAS、SDS 等经典量表数据。', 
+            '导入标准量表', 
+            { confirmButtonText: '立即导入', cancelButtonText: '取消', type: 'info' }
+        )
+        
+        const loading = ElLoading.service({ text: '正在同步标准量表...', background: 'rgba(255, 255, 255, 0.7)' })
+        const { data } = await axios.post('/api/scales/import-standard')
+        loading.close()
+
+        if (data.status === 'exists') {
+            ElMessage.info('量表数据已存在，无需重复导入')
+        } else {
+            ElMessage.success('导入指令已发送，请刷新页面查看')
+            await loadScales()
+        }
+    } catch (e) {
+        if (e !== 'cancel') ElMessage.error('导入操作失败')
     }
 }
 

@@ -14,6 +14,26 @@ axios.interceptors.request.use((config) => {
 axios.interceptors.response.use(
   (resp) => resp,
   (error) => {
+    // ===== 断网 / 超时友好提示（全局拦截器） =====
+    if (!error.response) {
+      // 无 response 对象 = 网络层错误（断网 / DNS 失败 / CORS 等）
+      if (error.code === 'ECONNABORTED' || error.message?.includes('timeout')) {
+        ElMessage.error({
+          message: '⏱ 请求超时，请检查您的网络连接后重试',
+          duration: 5000,
+          grouping: true
+        })
+      } else {
+        ElMessage.error({
+          message: '🔌 网络连接已中断，请检查您的网络设置后重试',
+          duration: 5000,
+          grouping: true
+        })
+      }
+      return Promise.reject(error)
+    }
+    // ===== 断网提示结束 =====
+
     const status = error?.response?.status
     const url = error?.config?.url || ''
 

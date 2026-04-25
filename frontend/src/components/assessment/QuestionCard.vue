@@ -20,7 +20,17 @@
       </div>
 
       <!-- 题目卡片 -->
-      <div class="bg-white rounded-[2.5rem] shadow-xl border border-cream-200 overflow-hidden max-w-2xl mx-auto flex flex-col min-h-[450px]">
+      <div :class="[
+        'bg-white rounded-[2.5rem] shadow-xl border-2 overflow-hidden max-w-2xl mx-auto flex flex-col min-h-[450px] transition-all duration-300',
+        highlightMissing ? 'border-red-400 highlight-pulse' : 'border-cream-200'
+      ]">
+         <!-- 漏答高亮提示条 -->
+         <div v-if="highlightMissing" class="bg-red-50 px-6 py-3 text-red-600 text-sm font-bold flex items-center gap-2 border-b border-red-100 animate-fade-in">
+           <svg class="w-5 h-5 animate-bounce flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+           </svg>
+           <span>⚠️ 本题尚未作答，请选择一个选项后再提交</span>
+         </div>
          
          <!-- 咨询师端头部：来访者信息 -->
          <div v-if="roleInfo.role === 'ROLE_COUNSELOR'" class="bg-cream-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4 border-b border-cream-200">
@@ -142,6 +152,7 @@ defineProps<{
   answer?: number
   scaleName: string
   submitLoading: boolean
+  highlightMissing: boolean
   roleInfo: {
     role: string
     targetName?: string
@@ -163,3 +174,20 @@ defineEmits<{
   (e: 'back-home'): void
 }>()
 </script>
+
+<style scoped>
+@keyframes highlight-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15); }
+}
+.highlight-pulse {
+  animation: highlight-pulse 0.8s ease-in-out 3;
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>

@@ -229,9 +229,9 @@ const route = useRoute()
 const router = useRouter()
 
 // ========== 量表配置字典 ==========
-// 定义不同量表的维度名称映射和满分标准
+// 维度 key 严格与 data.sql 中 scale_question.dimension 字段对齐
 const SCALE_CONFIGS: Record<string, any> = {
-  // 精神病态量表 (PCL-R)
+  // 精神病态量表 (PCL-R) — Hare 二因素四面模型
   'PCL-R': {
     labels: { 
       '人际操控': '人际关系', 
@@ -239,24 +239,41 @@ const SCALE_CONFIGS: Record<string, any> = {
       '感觉寻求': '行为模式', 
       '冲动控制': '冲动性',
       '认知扭曲': '认知模式', 
-      '情感': '情感稳定性',
       '反社会': '社会适应', 
       '生活方式': '生活方式' 
     },
     maxScores: { 
-      '人际操控': 8, '情感冷漠': 8, '感觉寻求': 10, '冲动控制': 10, 
-      '认知扭曲': 8, '情感': 8, '反社会': 10, '生活方式': 10 
+      '人际操控': 8, '情感冷漠': 8, '感觉寻求': 6, '冲动控制': 4, 
+      '认知扭曲': 2, '反社会': 4, '生活方式': 8 
     }
   },
-  // 焦虑自评量表 (SAS)
+  // 焦虑自评量表 (SAS) — Zung 1971
+  // 精神症状 7题 (满分 7×4=28)，躯体症状 13题 (满分 13×4=52)
   'SAS': {
-    labels: { '躯体性': '躯体症状', '精神性': '精神症状' },
-    maxScores: { '躯体性': 40, '精神性': 40 }
+    labels: { '精神症状': '精神症状 (Psychic)', '躯体症状': '躯体症状 (Somatic)' },
+    maxScores: { '精神症状': 28, '躯体症状': 52 }
   },
-  // 抑郁自评量表 (SDS)
+  // 抑郁自评量表 (SDS) — Zung 1965 三因子结构
+  // 精神性情感症状 8题(32)，躯体性障碍 8题(32)，精神运动性障碍 4题(16)
   'SDS': {
-    labels: { '核心抑郁': '核心抑郁', '生理机能': '生理机能' },
-    maxScores: { '核心抑郁': 40, '生理机能': 40 }
+    labels: { 
+      '精神性情感症状': '精神性情感 (Affective)', 
+      '躯体性障碍': '躯体性障碍 (Somatic)', 
+      '精神运动性障碍': '精神运动性 (Psychomotor)' 
+    },
+    maxScores: { '精神性情感症状': 32, '躯体性障碍': 32, '精神运动性障碍': 16 }
+  },
+  // 患者抑郁问卷 (PHQ-9) — Kroenke 2001, 单维度总分制
+  'PHQ-9': {
+    labels: { '抑郁症状': '抑郁症状 (Depressive)' },
+    maxScores: { '抑郁症状': 27 },
+    singleDimension: true
+  },
+  // 广泛性焦虑障碍量表 (GAD-7) — Spitzer 2006, 单维度总分制
+  'GAD-7': {
+    labels: { '焦虑症状': '焦虑症状 (Anxiety)' },
+    maxScores: { '焦虑症状': 21 },
+    singleDimension: true
   },
   // 默认兜底配置
   'DEFAULT': { 
@@ -341,12 +358,70 @@ onMounted(async () => {
       const mainColor = isHigh ? '#E07A5F' : '#6B9080' // Clay or Healing
       const areaColor = isHigh ? 'rgba(224, 122, 95, 0.2)' : 'rgba(107, 144, 128, 0.2)'
       
-      // 根据维度数量选择图表类型
+      // 根据维度数量和量表配置选择图表类型
       const dimensionCount = indicators.length
-      const useBarChart = dimensionCount < 5 // 维度数 < 5 使用柱状图
+      const isSingleDim = config.singleDimension === true || dimensionCount <= 1
+      const useBarChart = !isSingleDim && dimensionCount < 5 // 维度数 2-4 使用柱状图
       
-      if (useBarChart) {
-        // 柱状图配置 (适合 2-4 个维度)
+      if (isSingleDim) {
+        // ===== 单维度仪表盘 (适合 PHQ-9 / GAD-7 等总分制量表) =====
+        const gaugeMax = indicators.length > 0 ? (indicators[0].max as number) : (maxScore.value || 27)
+        const gaugeValue = values.length > 0 ? values[0] : totalScore.value
+        chart.setOption({
+          series: [{
+            type: 'gauge',
+            startAngle: 200,
+            endAngle: -20,
+            min: 0,
+            max: gaugeMax,
+            pointer: { show: true, length: '60%', width: 6, itemStyle: { color: mainColor } },
+            progress: {
+              show: true,
+              width: 18,
+              itemStyle: {
+                color: isHigh 
+                  ? new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                      { offset: 0, color: '#F2CC8F' },
+                      { offset: 1, color: '#E07A5F' }
+                    ])
+                  : new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                      { offset: 0, color: '#C2DFCE' },
+                      { offset: 1, color: '#6B9080' }
+                    ])
+              }
+            },
+            axisLine: {
+              lineStyle: { width: 18, color: [[1, '#F6F4F1']] }
+            },
+            axisTick: { show: false },
+            splitLine: { length: 8, lineStyle: { width: 2, color: '#EBE6E0' } },
+            axisLabel: {
+              distance: 28,
+              color: '#A7A7B3',
+              fontSize: 11,
+              fontWeight: 'bold'
+            },
+            anchor: { show: true, size: 14, itemStyle: { borderColor: mainColor, borderWidth: 3, color: '#fff' } },
+            title: {
+              show: true,
+              offsetCenter: [0, '70%'],
+              fontSize: 14,
+              fontWeight: 'bold',
+              color: '#7B7B8D'
+            },
+            detail: {
+              valueAnimation: true,
+              fontSize: 36,
+              fontWeight: 'black',
+              offsetCenter: [0, '40%'],
+              formatter: '{value}',
+              color: mainColor
+            },
+            data: [{ value: gaugeValue, name: indicators.length > 0 ? indicators[0].name : '综合得分' }]
+          }]
+        })
+      } else if (useBarChart) {
+        // ===== 柱状图配置 (适合 2-4 个维度) =====
         chart.setOption({
           tooltip: { 
             trigger: 'axis',
@@ -382,7 +457,7 @@ onMounted(async () => {
               fontWeight: 'bold',
               color: '#7B7B8D'
             },
-            max: function(value) { 
+            max: function(value: any) { 
               const maxVal = Math.max(...indicators.map(i => i.max as number))
               return Math.ceil(maxVal * 1.1) 
             },
@@ -413,7 +488,7 @@ onMounted(async () => {
           }]
         })
       } else {
-        // 雷达图配置 (适合 5+ 个维度)
+        // ===== 雷达图配置 (适合 5+ 个维度) =====
         chart.setOption({
           tooltip: { trigger: 'item', backgroundColor: 'rgba(255,255,255,0.9)', borderColor: '#EBE6E0', textStyle: { color: '#4A4E69' } },
           radar: {
@@ -422,13 +497,13 @@ onMounted(async () => {
             splitNumber: 4,
             axisName: {
               formatter: (value: string) => value,
-              color: '#7B7B8D', // rock-600
+              color: '#7B7B8D',
               fontSize: 12,
               fontWeight: '600'
             },
-            splitLine: { lineStyle: { color: '#EBE6E0' } }, // cream-200
+            splitLine: { lineStyle: { color: '#EBE6E0' } },
             splitArea: { show: true, areaStyle: { color: ['#F6F4F1', '#fff'] } },
-            axisLine: { lineStyle: { color: '#D2DDD8' } } // healing-light
+            axisLine: { lineStyle: { color: '#D2DDD8' } }
           },
           series: [{
             name: '心理特征画像',

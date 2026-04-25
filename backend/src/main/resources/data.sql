@@ -80,15 +80,27 @@ INSERT INTO scale_question (scale_id, content, dimension, options) VALUES
 (1, '违反假释或监管', '生活方式', '[{"label": "0分-不符合", "score": 0}, {"label": "1分-部分符合", "score": 1}, {"label": "2分-完全符合", "score": 2}]'::jsonb);
 
 -- SAS 题目
-INSERT INTO scale_question (scale_id, content, dimension, options) VALUES
-(2, '我觉得比平常容易紧张和着急', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我无缘无故地感到害怕', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我容易心里烦乱或觉得惊恐', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我觉得我可能将要发疯', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我觉得一切都很好，也不会发生什么不幸', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb),
-(2, '我手脚颤抖打颤', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '我因为头痛、颈痛和背痛而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb),
-(2, '觉得容易衰弱和疲乏', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb);
+INSERT INTO scale_question (scale_id, content, dimension, options, sort_order) VALUES
+(2, '我觉得比平常容易紧张和着急', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 1),
+(2, '我无缘无故地感到害怕', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 2),
+(2, '我容易心里烦乱或觉得惊恐', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 3),
+(2, '我觉得我可能将要发疯', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 4),
+(2, '我觉得一切都很好，也不会发生什么不幸', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb, 5),
+(2, '我手脚颤抖打颤', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 6),
+(2, '我因为头痛、颈痛和背痛而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 7),
+(2, '觉得容易衰弱和疲乏', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 8),
+(2, '我觉得心平气和，并且容易安静坐着', '精神症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb, 9),
+(2, '我觉得心跳很快', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 10),
+(2, '我因为一阵阵头晕而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 11),
+(2, '我有晕倒发作或觉得要晕倒似的', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 12),
+(2, '我呼气吸气都感到很容易', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb, 13),
+(2, '我手脚麻木和刺痛', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 14),
+(2, '我因为胃痛和消化不良而苦恼', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 15),
+(2, '我常常要小便', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 16),
+(2, '我的手常常是干燥温暖的', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb, 17),
+(2, '我脸红发热', '躯体症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 18),
+(2, '我容易入睡并且一夜睡得很好', '躯体症状', '[{"label": "没有或很少时间", "score": 4}, {"label": "小部分时间", "score": 3}, {"label": "相当多时间", "score": 2}, {"label": "绝大部分时间", "score": 1}]'::jsonb, 19),
+(2, '我做噩梦', '精神症状', '[{"label": "没有或很少时间", "score": 1}, {"label": "小部分时间", "score": 2}, {"label": "相当多时间", "score": 3}, {"label": "绝大部分时间", "score": 4}]'::jsonb, 20);
 
 -- SDS 题目
 INSERT INTO scale_question (scale_id, content, dimension, options) VALUES

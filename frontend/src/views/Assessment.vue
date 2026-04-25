@@ -25,7 +25,7 @@
           <div class="hidden xs:block">
             <p class="font-bold text-rock-800 text-sm leading-tight">{{ userName }}</p>
             <p class="text-[10px] text-rock-400 font-bold uppercase tracking-wider mt-0.5">
-              {{ currentScaleName ? `正在测量: ${currentScaleName}` : '心灵测评中心' }}
+              {{ currentScaleName ? `正在测量: ${currentScaleName}` : '心理测评中心' }}
             </p>
           </div>
         </div>
@@ -98,6 +98,7 @@
         :answer="answers[currentQuestion?.id]"
         :scale-name="currentScaleName"
         :submit-loading="submitLoading"
+        :highlight-missing="highlightMissing"
         :role-info="{
            role: role,
            targetName: targetNamePlain,
@@ -168,6 +169,7 @@ const questions = ref<Question[]>([])
 const answers = ref<Record<number, number>>({})
 const currentQuestionIndex = ref(0)
 const submitLoading = ref(false)
+const highlightMissing = ref(false)
 const scales = ref<Array<{ id: number; name: string; description?: string }>>([])
 const currentScaleId = ref<number | null>(null)
 const viewMode = ref<'LIST' | 'QUESTION' | 'DONE' | 'SCALE_LIST'>(
@@ -446,10 +448,29 @@ const nextQuestion = () => {
 
 const submitAssessment = async () => {
   if (submitLoading.value) return
-  if (Object.keys(answers.value).length < questions.value.length) {
-    ElMessage.warning('请先完成所有题目')
-    return
+
+  // ===== 防漏答拦截算法 =====
+  // 遍历答题字典，收集所有未作答题目
+  const unansweredQuestions = questions.value
+    .map((q, idx) => ({ question: q, index: idx }))
+    .filter(item => answers.value[item.question.id] === undefined)
+
+  if (unansweredQuestions.length > 0) {
+    const firstMissing = unansweredQuestions[0]
+    // 自动跳转到第一道漏答题目
+    currentQuestionIndex.value = firstMissing.index
+    // 触发高亮闪烁动画（2秒后自动消除）
+    highlightMissing.value = true
+    setTimeout(() => { highlightMissing.value = false }, 2000)
+
+    ElMessage.warning({
+      message: `还有 ${unansweredQuestions.length} 道题目未作答，已为您定位到第 ${firstMissing.index + 1} 题`,
+      duration: 3000
+    })
+    return  // 阻止网络请求发出，防止脏数据污染后端算分引擎
   }
+  // ===== 防漏答拦截结束 =====
+
   try {
     submitLoading.value = true
     const prisonerIdStr = localStorage.getItem('user_id')

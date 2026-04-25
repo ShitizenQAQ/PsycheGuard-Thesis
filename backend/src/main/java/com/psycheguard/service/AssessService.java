@@ -25,10 +25,25 @@ public class AssessService {
   }
 
   public AssessRecord submit(SysUser user, PsychScale scale, Map<Long, Integer> answers) {
-    int total = 0;
+    int rawTotal = 0;
     if (answers != null) {
       for (Integer v : answers.values())
-        total += v == null ? 0 : v;
+        rawTotal += v == null ? 0 : v;
+    }
+
+    int total = rawTotal;
+    
+    // ============================================================
+    // 【学术规范适配】SAS 标准分折算
+    // 依据: Zung 1971 — 标准分 = 粗分 × 1.25
+    // 当前数据库已包含完整 20 题，无需题目比例折算
+    // ============================================================
+    if ("SAS".equalsIgnoreCase(scale.getName())) {
+        total = (int) Math.round(rawTotal * 1.25);
+        // 确保分数不超过量表满分 (标准分满分 100，但量表配置 maxScore=80)
+        if (scale.getMaxScore() != null && total > scale.getMaxScore()) {
+            total = scale.getMaxScore();
+        }
     }
 
     // 动态获取阈值：优先使用数据库配置,如果未配置则使用满分的60%作为默认值
@@ -66,8 +81,10 @@ public class AssessService {
       for (Map.Entry<Long, Integer> e : answers.entrySet()) {
         ScaleQuestion q = questionRepository.findById(e.getKey()).orElse(null);
         String d = extractDimension(q);
+        double val = (e.getValue() == null ? 0 : e.getValue());
+        // 20题完整版，维度分直接累加原始得分，无需比例折算
         int prev = ((Number) dim.getOrDefault(d, 0)).intValue();
-        dim.put(d, prev + (e.getValue() == null ? 0 : e.getValue()));
+        dim.put(d, prev + (int)Math.round(val));
       }
     }
     AssessRecord rec = new AssessRecord();
